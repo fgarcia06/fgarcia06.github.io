@@ -177,12 +177,20 @@ h3 {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  max-width: 100%;
   border: 1px solid rgba(149, 192, 255, 0.32);
   color: var(--text);
   text-decoration: none;
   padding: 0.55rem 0.95rem;
   border-radius: 999px;
   font-weight: 700;
+  line-height: 1.25;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
@@ -267,6 +275,7 @@ h3 {
   padding: 1rem;
   position: relative;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .card::after {
@@ -279,7 +288,13 @@ h3 {
   transform: rotate(24deg);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
   opacity: 0;
+  z-index: 0;
   transition: opacity 240ms ease;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .card:hover {
@@ -299,6 +314,7 @@ h3 {
 
 .card p {
   margin: 0.35rem 0;
+  overflow-wrap: anywhere;
 }
 
 .meta {
@@ -328,6 +344,29 @@ h3 {
 
 .list li {
   margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.list li + li {
+  margin-top: 0.5rem;
+}
+
+.tags .btn {
+  margin: 0;
+}
+
+.list .btn {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.profile-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.profile-list li {
+  margin-top: 0.5rem;
 }
 
 .stats {
@@ -472,6 +511,30 @@ h3 {
   .grid.two,
   .grid.three {
     grid-template-columns: 1fr;
+  }
+
+  .hero-title {
+    font-size: clamp(1.45rem, 7.2vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .hero-title .gradient {
+    display: block;
+    margin-top: 0.15rem;
+  }
+
+  .actions .btn,
+  .tags .btn,
+  .list .btn {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 14px;
+  }
+
+  .project-media .media-label {
+    max-width: calc(100% - 1.4rem);
+    white-space: normal;
   }
 
   .hero-copy,
