@@ -1,70 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About - Francis Garcia</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About | Francis Garcia</title>
+  <meta name="description" content="Background, education, and work experience of Francis Garcia." />
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-  <link rel="stylesheet" href="style.css">
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <video autoplay loop muted plays-inline class="back-vid">
-    <source src="images/galaxy.mp4" type="video/mp4">
+  <video autoplay loop muted playsinline class="backdrop-video">
+    <source src="images/galaxy.mp4" type="video/mp4" />
   </video>
-  <section class="main-section">
-    <nav>
-      <h1 data-aos="zoom-in" data-aos-duration="1000"><span style="color: #4acfee;">Francis     </span>Garcia</h1>
-      <ul>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100"><a href="home.html">Home</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200"><a class="active" href="about.html">About</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300"><a href="projects.html">Projects</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400"><a href="skills.html">Skills</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="500"><a href="content.html">Content</a></li>
-      </ul>
-    </nav>
+  <div class="bg-layer" aria-hidden="true"></div>
 
-    <div class="hero">
-      <div class="hero-info">
-        <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="700">About Me</h1>
-        <p data-aos="flip-down" data-aos-duration="1000" data-aos-delay="1000">
-          🎓 I am a Software Engineering student passionate about developing cutting-edge solutions. My goal is to innovate in software development and contribute to impactful projects. This website of mine is still in working progress!
-        </p>
-        <div class="Buttons">
-          <button class="btn" data-aos="zoom-in-right" data-aos-duration="1000" data-aos-delay="1100">Hire me</button> 
-          <ul class="ul-icons">
-            <li><a href="" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="1200"><i class='bx bxl-github'></i></a></li>
-            <li><a href="" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="1300"><i class='bx bxl-twitter'></i></a></li>
-            <li><a href="" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="1400"><i class='bx bxl-youtube'></i></a></li>
-            <li><a href="" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="1500"><i class='bx bxl-facebook-circle'></i></a></li>
+  <header class="site-header">
+    <div class="header-row">
+      <a class="brand" href="index.html"><span>Francis</span> Garcia</a>
+      <nav class="site-nav">
+        <button class="nav-toggle" data-menu-button aria-label="Toggle menu" aria-expanded="false"><i class='bx bx-menu'></i></button>
+        <ul data-nav-list>
+          <li><a href="index.html">Home</a></li>
+          <li><a class="active" href="about.html">About</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="skills.html">Skills</a></li>
+          <li><a href="content.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="section">
+      <div class="section-head" data-aos="fade-up">
+        <h2>Education</h2>
+        <p>University of Alberta, Bachelor of Science in Computer Engineering (Software Co-op option).</p>
+      </div>
+      <article class="card glass" data-aos="fade-up" data-aos-delay="80" data-tilt>
+        <h3>University of Alberta</h3>
+        <p class="meta">Edmonton, AB | Sept 2021 - April 2026</p>
+        <p>Relevant coursework includes Software Requirements Engineering, Software Testing and Maintenance Engineering, Software Systems Design, Operating System Concepts, Computer Organization and Architecture, Data Communication Networks, and Reliable and Secure Systems Design.</p>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-head" data-aos="fade-up">
+        <h2>Professional Experience</h2>
+        <p>Experience focused on automation software, verification, and data-driven system evaluation.</p>
+      </div>
+      <div class="grid two" data-stagger>
+        <article class="card glass" data-aos="fade-up" data-tilt>
+          <h3>Software Intern | TRICCA Technologies</h3>
+          <p class="meta">Edmonton, AB | Jan 2024 - Aug 2024, May 2025 - Dec 2025</p>
+          <ul class="list">
+            <li>Designed and implemented Python and C++ components to automate laboratory robotic workflows.</li>
+            <li>Built structured test cases and quantitative evaluation methods for system accuracy and repeatability.</li>
+            <li>Analyzed test data in Python, Excel, and Google Sheets to identify trends and readiness risks.</li>
+            <li>Executed verification and validation by running real assay workflows with chemistry stakeholders.</li>
+            <li>Applied iterative Agile-style feedback cycles to prioritize issues and refine behavior.</li>
           </ul>
-        </div>
+        </article>
+        <article class="card glass" data-aos="fade-up" data-aos-delay="80" data-tilt>
+          <h3>Process Control Lab Assistant | University of Alberta</h3>
+          <p class="meta">Edmonton, AB | May 2023 - Aug 2023</p>
+          <ul class="list">
+            <li>Supported real-time experimental control system design with a multidisciplinary team.</li>
+            <li>Applied SINDy system identification methods in Python to model dynamic behavior.</li>
+            <li>Performed technical validation on experimental results against expected outcomes.</li>
+            <li>Prepared technical reports and presentations to communicate design rationale and findings.</li>
+          </ul>
+        </article>
       </div>
+    </section>
+  </main>
 
-      <div class="hero-img" data-aos="zoom-in-left" data-aos-duration="2500">
-        <img src="images/self_pic.jpg" alt="person-img">
-      </div>
-    </div>
-
-    <div class="info-sec">
-      <div class="info-card" data-aos="fade-in" data-aos-duration="1000" data-aos-delay="1600">
-        <h1>4+</h1>
-        <p>Years of <br> Experience</p>
-      </div>
-      <div class="info-card" data-aos="fade-in" data-aos-duration="1000" data-aos-delay="1700">
-        <h1>7+</h1>
-        <p>Technical <br> Skills</p>
-      </div>
-      <div class="info-card" data-aos="fade-in" data-aos-duration="1000" data-aos-delay="1800">
-        <h1>4+</h1>
-        <p>Projects <br> Completed</p>
-      </div>
-    </div>
-  </section>
+  <footer class="site-footer">
+    <span>Copyright <span data-year></span> Francis Garcia</span>
+    <a href="projects.html">Next: Projects</a>
+  </footer>
 
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-  <script>
-    AOS.init();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

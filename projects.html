@@ -1,64 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects - Francis Garcia</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projects | Francis Garcia</title>
+  <meta name="description" content="Software and computer vision projects by Francis Garcia." />
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-  <link rel="stylesheet" href="style.css">
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <video autoplay loop muted plays-inline class="back-vid">
-    <source src="images/galaxy.mp4" type="video/mp4">
+  <video autoplay loop muted playsinline class="backdrop-video">
+    <source src="images/galaxy.mp4" type="video/mp4" />
   </video>
-  <section class="main-section">
-    <nav>
-      <h1 data-aos="zoom-in" data-aos-duration="1000"><span style="color: #4acfee;">Francis     </span>Garcia</h1>
-      <ul>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100"><a href="home.html">Home</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200"><a href="about.html">About</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300"><a class="active" href="projects.html">Projects</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400"><a href="skills.html">Skills</a></li>
-        <li data-aos="fade-up" data-aos-duration="1000" data-aos-delay="500"><a href="content.html">Content</a></li>
-      </ul>
-    </nav>
+  <div class="bg-layer" aria-hidden="true"></div>
 
-    <div class="hero">
-      <div class="hero-info">
-        <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="700">My Projects</h1>
-        <p data-aos="flip-down" data-aos-duration="1000" data-aos-delay="1000">
-          🎯 Here are some of the projects I have worked on during my studies and personal initiatives.
-        </p>
-        <div class="Buttons">
-          <button class="btn" data-aos="zoom-in-right" data-aos-duration="1000" data-aos-delay="1100">Hire me</button> 
-        </div>
-      </div>
-
-      <div class="hero-img" data-aos="zoom-in-left" data-aos-duration="2500">
-        <img src="images/self_pic.jpg" alt="person-img">
-      </div>
+  <header class="site-header">
+    <div class="header-row">
+      <a class="brand" href="index.html"><span>Francis</span> Garcia</a>
+      <nav class="site-nav">
+        <button class="nav-toggle" data-menu-button aria-label="Toggle menu" aria-expanded="false"><i class='bx bx-menu'></i></button>
+        <ul data-nav-list>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a class="active" href="projects.html">Projects</a></li>
+          <li><a href="skills.html">Skills</a></li>
+          <li><a href="content.html">Contact</a></li>
+        </ul>
+      </nav>
     </div>
+  </header>
 
-    <div class="info-sec">
-      <div class="info-card" data-aos="fade-in" data-aos-duration="1000" data-aos-delay="1600">
-        <h1>Project 1</h1>
-        <p>Short description of the project here.</p>
+  <main class="page-shell">
+    <section class="section">
+      <div class="section-head" data-aos="fade-up">
+        <h2>Selected Projects</h2>
+        <p>Project summaries and technologies based on resume entries.</p>
       </div>
-      <div class="info-card" data-aos="fade-in" data-aos-duration="1000" data-aos-delay="1700">
-        <h1>Project 2</h1>
-        <p>Short description of the project here.</p>
+      <div class="grid two" data-stagger>
+        <article class="card glass project-card" data-aos="fade-up" data-tilt>
+          <figure class="project-media">
+            <img src="images/porpaot.png" alt="Lottery Android app visual" />
+            <span class="media-label">Android + Firebase</span>
+          </figure>
+          <h3>Lottery Event Android Mobile App</h3>
+          <p class="meta">October 2024 - December 2024</p>
+          <p>Engineered a full-stack Android application for lottery event management with Firebase integration for real-time data synchronization and user management.</p>
+          <ul class="list">
+            <li>Designed and optimized UI/UX in XML with OSMdroid for interactive location-based functionality.</li>
+            <li>Implemented unit and UI test coverage using JUnit and Espresso for scalable behavior validation.</li>
+          </ul>
+          <div class="tags">
+            <span class="tag">Java</span>
+            <span class="tag">C++</span>
+            <span class="tag">Android Studio</span>
+            <span class="tag">Firebase</span>
+            <span class="tag">JUnit</span>
+            <span class="tag">Espresso</span>
+          </div>
+        </article>
+
+        <article class="card glass project-card" data-aos="fade-up" data-aos-delay="80" data-tilt>
+          <figure class="project-media">
+            <img src="images/headshot.png" alt="Object tracking project visual" />
+            <span class="media-label">YOLO + TensorFlow</span>
+          </figure>
+          <h3>Object Tracking for Camera</h3>
+          <p class="meta">May 2023 - August 2023</p>
+          <p>Built a real-time object tracking pipeline combining deep learning detection with predictive filtering for more stable tracking in dynamic scenes.</p>
+          <ul class="list">
+            <li>Implemented Kalman filtering to improve motion prediction and robustness during occlusions.</li>
+            <li>Integrated YOLO with TensorFlow for high-accuracy object identification.</li>
+            <li>Optimized processing to reduce latency by approximately 50% on high-frame-rate streams.</li>
+          </ul>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">C++</span>
+            <span class="tag">TensorFlow</span>
+            <span class="tag">YOLO</span>
+            <span class="tag">VS Code</span>
+          </div>
+        </article>
       </div>
-      <div class="info-card" data-aos="fade-in" data-aos-duration="1000" data-aos-delay="1800">
-        <h1>Project 3</h1>
-        <p>Short description of the project here.</p>
-      </div>
-    </div>
-  </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Copyright <span data-year></span> Francis Garcia</span>
+    <a href="skills.html">Next: Skills</a>
+  </footer>
 
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-  <script>
-    AOS.init();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
