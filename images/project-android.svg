@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Android lottery app interface mockup">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1f2f74"/>
+      <stop offset="100%" stop-color="#21a7c8"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f1634"/>
+      <stop offset="100%" stop-color="#131f49"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <g opacity="0.18">
+    <circle cx="180" cy="110" r="120" fill="#7cf0da"/>
+    <circle cx="1020" cy="560" r="150" fill="#6fd3ff"/>
+  </g>
+  <rect x="410" y="80" width="380" height="515" rx="40" fill="url(#phone)" stroke="#89dfff" stroke-width="4"/>
+  <rect x="445" y="130" width="310" height="70" rx="14" fill="#1f2d65"/>
+  <text x="465" y="173" fill="#d5e7ff" font-family="Segoe UI, Arial" font-size="28" font-weight="700">Lottery Events</text>
+  <rect x="445" y="225" width="310" height="94" rx="16" fill="#263a82"/>
+  <rect x="445" y="340" width="310" height="94" rx="16" fill="#244e87"/>
+  <rect x="445" y="455" width="150" height="80" rx="14" fill="#2c6aa0"/>
+  <rect x="605" y="455" width="150" height="80" rx="14" fill="#2a5a99"/>
+  <circle cx="735" cy="112" r="8" fill="#9bc4ff"/>
+  <text x="70" y="620" fill="#e5f3ff" font-family="Segoe UI, Arial" font-size="40" font-weight="700">Android + Firebase + OSMdroid</text>
+</svg>
