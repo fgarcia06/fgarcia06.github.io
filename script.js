@@ -1,4 +1,9 @@
 (() => {
+  if (window.location.pathname.endsWith('/index.html')) {
+    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/');
+    window.history.replaceState({}, '', `${cleanPath}${window.location.search}${window.location.hash}`);
+  }
+
   const menuButton = document.querySelector('[data-menu-button]');
   const navList = document.querySelector('[data-nav-list]');
 
