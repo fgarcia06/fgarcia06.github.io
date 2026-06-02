@@ -22,3 +22,17 @@ export const useIsMobile = () => useMediaQuery('(max-width: 768px)')
 /** Honors the OS "reduce motion" accessibility setting. */
 export const usePrefersReducedMotion = () =>
   useMediaQuery('(prefers-reduced-motion: reduce)')
+
+/** A precise pointer (mouse/trackpad) capable of true hover. */
+export const useHasFinePointer = () =>
+  useMediaQuery('(hover: hover) and (pointer: fine)')
+
+/**
+ * True only where rich pointer interactions make sense: a fine pointer and
+ * no reduced-motion request. Gates the custom cursor, magnetic buttons, tilt.
+ */
+export function useInteractive() {
+  const fine = useHasFinePointer()
+  const reduce = usePrefersReducedMotion()
+  return fine && !reduce
+}

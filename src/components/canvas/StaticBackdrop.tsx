@@ -1,18 +1,18 @@
 /**
- * CSS-only fallback shown on mobile, when reduced motion is requested,
- * and while the WebGL scene lazy-loads. Mirrors the earthy palette so the
- * swap to the live scene is seamless.
+ * CSS-only fallback shown on mobile, when reduced motion is requested, and
+ * while the WebGL scene lazy-loads. Tints toward the active chapter accent so
+ * it still "changes" between chapters without WebGL.
  */
-export function StaticBackdrop() {
+export function StaticBackdrop({ accent = '#9caa7b' }: { accent?: string }) {
   return (
     <div
       aria-hidden
-      className="absolute inset-0"
+      className="absolute inset-0 transition-[background] duration-700"
       style={{
         background:
-          'radial-gradient(700px 420px at 22% 30%, rgba(156,170,123,0.22), transparent 60%),' +
-          'radial-gradient(620px 420px at 82% 24%, rgba(199,154,106,0.16), transparent 60%),' +
-          'radial-gradient(680px 460px at 50% 96%, rgba(111,125,82,0.20), transparent 64%)',
+          `radial-gradient(720px 460px at 24% 28%, ${accent}33, transparent 60%),` +
+          `radial-gradient(640px 460px at 82% 22%, ${accent}1f, transparent 60%),` +
+          'radial-gradient(680px 480px at 50% 98%, rgba(111,125,82,0.20), transparent 64%)',
       }}
     />
   )

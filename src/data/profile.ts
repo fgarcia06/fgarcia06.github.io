@@ -1,8 +1,10 @@
 export const profile = {
   name: 'Francis Garcia',
-  title: 'B.Sc. in Computer Engineering (Software Co-op)',
-  tagline:
-    'Fourth-year Computer Engineering (Software Co-op) student at the University of Alberta, with internship experience building Python and C++ software for laboratory automation and validation workflows.',
+  title: 'Computer Engineering · Robotics, Full-Stack & Applied ML',
+  /** Bold one-liner for the hero. */
+  statement: 'I make machines move and software think.',
+  /** Short supporting line — less text, more impact. */
+  tagline: 'Robotics engineer and builder turning hardware, code, and AI into systems that ship.',
   location: 'Edmonton, Alberta',
   email: 'fgarcia@ualberta.ca',
   phone: '403-550-7058',
@@ -15,7 +17,7 @@ export const profile = {
 } as const
 
 export const highlights = [
-  { value: '2', label: 'Software internship terms at TRICCA Technologies (2024, 2025)' },
-  { value: '2', label: 'Major technical projects with Android, TensorFlow, and computer vision' },
-  { value: '8+', label: 'Programming languages including Python, C/C++, Java, SQL, and MATLAB' },
+  { value: '60%', label: 'Faster QA cycles from automated Python test pipelines at TRICCA' },
+  { value: '>92%', label: 'Detection mAP on a real-time multi-object tracking system' },
+  { value: '<5%', label: 'Model error reconstructing system ODEs with a SINDy pipeline' },
 ] as const

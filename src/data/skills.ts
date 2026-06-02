@@ -1,63 +1,31 @@
 export interface SkillGroup {
   title: string
-  tags?: string[]
-  items?: string[]
+  tags: string[]
 }
 
 export const skillGroups: SkillGroup[] = [
   {
-    title: 'Programming Languages',
-    tags: ['Python', 'C', 'C++', 'Java', 'Bash', 'SQL', 'MATLAB', 'Assembly'],
+    title: 'Languages',
+    tags: ['Python', 'C++', 'C', 'Java', 'JavaScript', 'TypeScript', 'SQL', 'MATLAB'],
   },
   {
-    title: 'Systems and Environments',
-    tags: ['Linux', 'Embedded Systems', 'Microcontrollers', 'Android'],
+    title: 'Frameworks & Libraries',
+    tags: ['React Native (Expo)', 'Next.js', 'Node.js', 'TensorFlow', 'OpenCV', 'NumPy', 'Pandas'],
   },
   {
-    title: 'Development Tools',
-    tags: ['Git', 'VS Code', 'Vim', 'PyCharm', 'Android Studio', 'Eclipse'],
+    title: 'Embedded & Hardware',
+    tags: ['Arduino', 'Raspberry Pi', 'I²C / SPI / UART', 'GPIO', 'PWM', 'Klipper', 'Fusion 360', '3D Printing'],
   },
   {
-    title: 'Software Engineering Practices',
-    items: [
-      'Software automation for laboratory workflows',
-      'Verification and validation test planning',
-      'Computer vision and object tracking optimization',
-      'Mobile app development and testing',
-      'Iterative Agile-style development with stakeholder feedback',
-      'Technical documentation and engineering reporting',
-    ],
+    title: 'Backend & Databases',
+    tags: ['Supabase', 'PostgreSQL', 'REST APIs', 'JWT Auth', 'Secure API Proxy Design'],
   },
   {
-    title: 'Testing and Quality Engineering',
-    tags: [
-      'Test Case Design',
-      'Verification and Validation',
-      'Unit Testing (JUnit)',
-      'UI Testing (Espresso)',
-      'Quantitative Performance Evaluation',
-      'Assay Workflow Validation',
-    ],
+    title: 'DevOps & Tools',
+    tags: ['Git / GitHub', 'Linux', 'CI/CD', 'Jupyter', 'Anaconda', 'VS Code', 'Android Studio'],
   },
   {
-    title: 'Data and Analysis Skills',
-    tags: [
-      'Python Data Analysis',
-      'Excel',
-      'Google Sheets',
-      'Trend Analysis',
-      'System Readiness Assessment',
-      'SINDy Modeling',
-    ],
-  },
-  {
-    title: 'Core CS and Software Foundations',
-    items: [
-      'Software requirements engineering and software systems design',
-      'Software testing and maintenance engineering',
-      'Operating system concepts and computer architecture',
-      'Reliable and secure systems design',
-      'Data communication networks and microprocessor interfacing',
-    ],
+    title: 'AI & ML',
+    tags: ['YOLO', 'TensorFlow / ONNX', 'Kalman Filtering', 'MPC', 'SINDy', 'RL', 'LLM APIs (OpenAI, Claude)'],
   },
 ]

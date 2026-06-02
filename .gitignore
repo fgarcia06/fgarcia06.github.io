@@ -2,3 +2,9 @@ node_modules
 dist
 *.local
 .DS_Store
+
+# Build artifacts
+*.tsbuildinfo
+
+# Local Claude config
+.claude/

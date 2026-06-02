@@ -7,22 +7,28 @@ import * as THREE from 'three'
 const PALETTE = ['#9caa7b', '#6f7d52', '#c79a6a', '#ece4d3', '#8a8159'].map(
   (c) => new THREE.Color(c),
 )
-
+const WHITE = new THREE.Color('#ffffff')
 const COUNT = 2600
 
-export function ParticleField() {
+/**
+ * Persistent point field. `accent` and `mood` (the active chapter index) are
+ * lerped every frame so the whole field gently recolors and drifts as the
+ * visitor moves between chapters — the backdrop "changes display" with them.
+ */
+export function ParticleField({ accent = '#9caa7b', mood = 0 }: { accent?: string; mood?: number }) {
   const groupRef = useRef<THREE.Group>(null)
+  const matRef = useRef<THREE.PointsMaterial>(null)
   const pointsRef = useRef<THREE.Points>(null)
 
-  // Base positions, per-particle colors, and bob phase/speed/amplitude.
+  const target = useMemo(() => new THREE.Color(accent).lerp(WHITE, 0.4), [accent])
+
   const { positions, base, colors, phase } = useMemo(() => {
     const positions = new Float32Array(COUNT * 3)
     const base = new Float32Array(COUNT * 3)
     const colors = new Float32Array(COUNT * 3)
-    const phase = new Float32Array(COUNT * 3) // x: phase, y: speed, z: amplitude
+    const phase = new Float32Array(COUNT * 3)
 
     for (let i = 0; i < COUNT; i++) {
-      // Distribute in a flattened ellipsoid so the field spreads horizontally.
       const r = Math.cbrt(Math.random()) * 9
       const theta = Math.random() * Math.PI * 2
       const u = Math.random() * 2 - 1
@@ -51,14 +57,21 @@ export function ParticleField() {
     const points = pointsRef.current
     if (!group || !points) return
 
-    // Slow drift plus gentle parallax toward the pointer.
-    group.rotation.y += delta * 0.02
-    const targetX = state.pointer.y * 0.12
-    const targetY = state.pointer.x * 0.18
-    group.rotation.x += (targetX - group.rotation.x) * 0.04
-    group.rotation.z += (targetY * 0.2 - group.rotation.z) * 0.04
+    // Recolor the whole field toward the active chapter accent.
+    if (matRef.current) matRef.current.color.lerp(target, 0.03)
 
-    // Per-particle vertical bob — cheap CPU update of the y component.
+    // Per-chapter parallax: shift + tilt the field as chapters change.
+    const targetX = (mood - 2) * 0.5
+    const targetRotZ = (mood - 2) * 0.05
+    group.position.x += (targetX - group.position.x) * 0.03
+    group.rotation.z += (targetRotZ - group.rotation.z) * 0.03
+
+    // Slow ambient drift + gentle parallax toward the pointer.
+    group.rotation.y += delta * 0.025
+    const px = state.pointer.y * 0.12
+    group.rotation.x += (px - group.rotation.x) * 0.04
+
+    // Per-particle vertical bob.
     const arr = points.geometry.attributes.position.array as Float32Array
     for (let i = 0; i < COUNT; i++) {
       const iy = i * 3 + 1
@@ -75,6 +88,7 @@ export function ParticleField() {
           <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         </bufferGeometry>
         <PointMaterial
+          ref={matRef}
           transparent
           vertexColors
           size={0.06}

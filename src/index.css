@@ -13,8 +13,14 @@
 
   --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
   --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+  --font-grotesk: 'Space Grotesk', 'Inter', sans-serif;
 
   --radius-card: 18px;
+
+  /* Exaggerated-minimalism display scale. */
+  --text-mega: clamp(3.2rem, 13vw, 11rem);
+  --text-giant: clamp(2.6rem, 8vw, 6rem);
+  --text-display: clamp(2rem, 5vw, 3.5rem);
 }
 
 /* Lenis smooth-scroll: let JS drive scrolling when it's active. */
@@ -34,8 +40,16 @@ html.lenis body {
     scroll-behavior: smooth;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
     margin: 0;
+    /* The app is a fixed viewport stage; chapters scroll internally, not the page. */
+    overflow: hidden;
     background-color: var(--color-bg);
     color: var(--color-bone);
     font-family: var(--font-sans);
@@ -47,5 +61,75 @@ html.lenis body {
   ::selection {
     background: var(--color-moss);
     color: var(--color-bg);
+  }
+
+  /* Visible focus rings for keyboard users (a11y). */
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible {
+    outline: 2px solid var(--color-moss);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+}
+
+/* Hide the OS cursor while the custom cursor is active. */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/* ---- Organic motion for the interactive project visuals ---------------- */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, -8%, 0) scale(1.08);
+  }
+}
+@keyframes driftSlow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-7%, 6%, 0) scale(1);
+  }
+}
+@keyframes spinSlow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
