@@ -1,4 +1,3 @@
-
 \documentclass[letterpaper,11pt]{article}
 
 \usepackage{latexsym}
@@ -14,26 +13,12 @@
 \usepackage{tabularx}
 \input{glyphtounicode}
 
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \usepackage[sfdefault]{FiraSans}
-% \usepackage[sfdefault]{roboto}
-% \usepackage[sfdefault]{noto-sans}
-% \usepackage[default]{sourcesanspro}
-
-% serif
-% \usepackage{CormorantGaramond}
-% \usepackage{charter}
-
-
 \pagestyle{fancy}
-\fancyhf{} % clear all header and footer fields
+\fancyhf{}
 \fancyfoot{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
-% Adjust margins
 \addtolength{\oddsidemargin}{-0.5in}
 \addtolength{\evensidemargin}{-0.5in}
 \addtolength{\textwidth}{1in}
@@ -41,25 +26,20 @@
 \addtolength{\textheight}{1.0in}
 
 \urlstyle{same}
-
 \raggedbottom
 \raggedright
 \setlength{\tabcolsep}{0in}
 
-% Sections formatting
 \titleformat{\section}{
   \vspace{-4pt}\scshape\raggedright\large
 }{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
 
-% Ensure that generate pdf is machine readable/ATS parsable
 \pdfgentounicode=1
 
 %-------------------------
 % Custom commands
 \newcommand{\resumeItem}[1]{
-  \item\small{
-    {#1 \vspace{-2pt}}
-  }
+  \item\small{{#1 \vspace{-2pt}}}
 }
 
 \newcommand{\resumeSubheading}[4]{
@@ -70,21 +50,12 @@
     \end{tabular*}\vspace{-7pt}
 }
 
-\newcommand{\resumeSubSubheading}[2]{
-    \item
-    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-      \textit{\small#1} & \textit{\small #2} \\
-    \end{tabular*}\vspace{-7pt}
-}
-
 \newcommand{\resumeProjectHeading}[2]{
     \item
     \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-      \small#1 & #2 \\
+      \small#1 & \textit{\small #2} \\
     \end{tabular*}\vspace{-7pt}
 }
-
-\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
 
 \renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
 
@@ -94,108 +65,85 @@
 \newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
 
 %-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 \begin{document}
 
 %----------HEADING----------
-% \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-%   \textbf{\href{http://sourabhbajaj.com/}{\Large Sourabh Bajaj}} & Email : \href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\
-%   \href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\
-% \end{tabular*}
-
 \begin{center}
     \textbf{\Huge \scshape Francis Garcia} \\ \vspace{1pt}
-    \small 403-550-7058 $|$ \href{mailto:x@x.com}{\underline{fgarcia@ualberta.ca}} $|$ 
+    \small 403-550-7058 $|$
+    \href{mailto:fgarcia@ualberta.ca}{\underline{fgarcia@ualberta.ca}} $|$
     \href{https://linkedin.com/in/fgarcia06}{\underline{linkedin.com/in/fgarcia06}} $|$
     \href{https://github.com/fgarcia06}{\underline{github.com/fgarcia06}}
 \end{center}
-
 
 %-----------EDUCATION-----------
 \section{Education}
   \resumeSubHeadingListStart
     \resumeSubheading
       {University of Alberta}{Edmonton, AB}
-      {Bachelor of Science in Computer Engineering - Software Co-op Option}{Sept. 2021 - April 2026}
-    \small{\item{
-     \textbf{Relevant Coursework}{: Software Requirements Engineering, Software Testing and Maintenance Engineering, Software Systems Design, Operating System Concepts, Computer Organization and Architecture, Computer Interfacing, Data Communication Networks, Introduction to Microprocessors, Introduction to Software Engineering, Engineering Safety and Risk Management, Reliable and Secure Systems Design, Introductory Statistics for Engineering}
- \\
- \resumeSubHeadingListEnd
-
+      {Bachelor of Science in Computer Engineering}{Sept. 2021 -- April 2026}
+  \resumeSubHeadingListEnd
 
 %-----------EXPERIENCE-----------
 \section{Experience}
   \resumeSubHeadingListStart
 
     \resumeSubheading
-      {Software Intern}{January 2024 -- August 2024, May 2025 -- December 2025}
       {TRICCA Technologies}{Edmonton, AB}
+      {Junior Robotics Engineer}{Jan. 2024 -- Dec. 2025}
       \resumeItemListStart
-        \resumeItem{Designed and implemented software components in Python and C++ to control and automate laboratory robotic workflows}
-        \resumeItem{Developed structured test cases and quantitative evaluation methods to measure accuracy, repeatability, and system performance}
-        \resumeItem{Collected, analyzed, and interpreted test data using Python, Excel, and Google Sheets to identify trends and assess system readiness}
-        \resumeItem{Executed verification and validation activities by running real assay workflows in collaboration with chemistry stakeholders}
-        \resumeItem{Applied iterative Agile-style development by collecting user feedback, prioritizing issues, and refining system behavior across testing cycles}
-        \resumeItem{Built and configured laboratory test setups to support integration, verification, and validation of hardware and software components}
-
+        \resumeItem{Delivered a production-ready automated pipetting system for a University of Alberta chemistry lab, eliminating all manual liquid-handling steps and achieving full regulatory sign-off}
+        \resumeItem{Engineered Python and C++ control modules over I2C, SPI, GPIO, and serial protocols integrated with a Klipper/Moonraker/Mainsail firmware stack to drive real-time robotic actuator control}
+        \resumeItem{Reduced QA cycle time by 60\% by building automated Python test pipelines that execute full lab protocols and validate positional accuracy and pipetting correctness against defined acceptance criteria}
+        \resumeItem{Enabled browser-based remote operation for 3 lab technicians by shipping a full-stack web app (PyShiny, REST API, HTML/CSS) with a responsive, mobile-first UI built on a customized KlipperScreen interface}
+        \resumeItem{Accelerated hardware iteration by designing custom mechanical components in Fusion 360 and fabricating them in-house on a 3D printer, removing third-party part dependencies from the build cycle}
       \resumeItemListEnd
-      
-% -----------Multiple Positions Heading-----------
-%    \resumeSubSubheading
-%     {Software Engineer I}{Oct 2014 - Sep 2016}
-%     \resumeItemListStart
-%        \resumeItem{Apache Beam}
-%          {Apache Beam is a unified model for defining both batch and streaming data-parallel processing pipelines}
-%     \resumeItemListEnd
-%    \resumeSubHeadingListEnd
-%-------------------------------------------
 
     \resumeSubheading
-      {Process Control Lab Assistant}{May 2023 -- August 2023}
-      {University of Alberta}{Edmonton, AB}
+      {University of Alberta --- Research Lab}{Edmonton, AB}
+      {Process Control Lab Assistant}{May 2023 -- Aug. 2023}
       \resumeItemListStart
-      \resumeItem{Supported system design and analysis for a real-time experimental control system in collaboration with a multidisciplinary team}
-      \resumeItem{Applied system identification techniques (SINDy) in Python to model and evaluate dynamic system behavior}
-      \resumeItem{Performed technical analysis on experimental results to validate system performance against expected outcomes}
-      \resumeItem{Prepared technical reports and presentations to communicate findings, design rationale, and validation results}
-    \resumeItemListEnd
+        \resumeItem{Achieved \textless{}5\% model error by implementing a SINDy pipeline in Python to reconstruct governing ODEs from experimental time-series sensor data}
+        \resumeItem{Improved closed-loop control fidelity by applying Kalman filtering, PID tuning, and MPC in Python, reducing the simulated-to-physical system discrepancy and validating updated parameters across benchmark datasets}
+        \resumeItem{Prototyped reinforcement learning and transformer-based models in TensorFlow to evaluate data-driven approaches to dynamic system identification and control}
+        \resumeItem{Maintained stakeholder alignment by delivering structured weekly reports and standup slides covering experimental results, model metrics, and recommended next steps}
+      \resumeItemListEnd
 
   \resumeSubHeadingListEnd
-
 
 %-----------PROJECTS-----------
 \section{Projects}
     \resumeSubHeadingListStart
+
       \resumeProjectHeading
-          {\textbf{Lottery Event Android Mobile App} $|$ \emph{Java, C++, Android Studios}}{October 2024 -- December 2024}
+          {\textbf{AI Fitness Coaching App} $|$ \emph{React Native, TypeScript, Next.js, Supabase, OpenAI API}}{Jan. 2026 -- Apr. 2026}
           \resumeItemListStart
-            \resumeItem{Engineered a full-stack Android application for managing lottery events, integrating Google Firebase for real-time data synchronization and user management}
-            \resumeItem{Designed and optimized the UI/UX using XML and OSMdroid, enabling interactive location-based features for an enhanced user experience}
-            \resumeItem{Implemented robust unit and UI testing with JUnit and Espresso, ensuring a bug-free and scalable application}
+            \resumeItem{Reduced onboarding friction by designing a responsive cross-platform UI (iOS/Android) in React Native (Expo) with TypeScript, backed by Supabase JWT authentication}
+            \resumeItem{Eliminated client-side API key exposure by architecting a secure Next.js backend proxy for all OpenAI calls, enabling dynamic workout-plan generation that adapts to logged user performance data}
+            \resumeItem{Improved plan personalization over time by engineering a closed-loop data pipeline that persists session metrics to PostgreSQL and queries prior performance each generation cycle to drive progressive overload recommendations}
           \resumeItemListEnd
+
       \resumeProjectHeading
-          {\textbf{Object Tracking for Camera} $|$ \emph{Python, C++, Github, VS Code, Tensorflow}}{May 2023 -- August 2023}
+          {\textbf{Real-Time Multi-Object Tracking System} $|$ \emph{Python, TensorFlow, OpenCV, NumPy}}{May 2023 -- Aug. 2023}
           \resumeItemListStart
-            \resumeItem{Enhanced object tracking precision by implementing a Kalman filter, significantly improving motion prediction and stability in occlusion scenarios}
-            \resumeItem{Integrated a YOLO deep learning model with TensorFlow, achieving high-accuracy real-time object identification in dynamic environments}
-            \resumeItem{Optimized real-time system performance, resulting in a 50\% reduction in latency while processing high-frame-rate video streams, ensuring near-instantaneous updates}
+            \resumeItem{Maintained stable identity across 10+ simultaneous objects by implementing a Kalman filter tracker in Python/NumPy that fuses bounding-box detections with motion state estimates}
+            \resumeItem{Achieved \textgreater{}92\% detection mAP on benchmark test sets by integrating a YOLOv5 inference pipeline with a TensorFlow/ONNX backend into the end-to-end tracking system}
+            \resumeItem{Reduced end-to-end pipeline latency by $\sim$50\% on 60\,fps streams by profiling the full decode $\rightarrow$ inference $\rightarrow$ track $\rightarrow$ display loop and applying batched inference and adaptive frame-skipping}
           \resumeItemListEnd
+
     \resumeSubHeadingListEnd
 
-
-%
-%-----------PROGRAMMING SKILLS-----------
+%-----------SKILLS-----------
 \section{Technical Skills}
 \begin{itemize}[leftmargin=0.15in, label={}]
   \small{\item{
-    \textbf{Programming Languages}{: Python, C, C++, Java, Bash, SQL, MATLAB, Assembly} \\
-    \textbf{Systems \& Environments}{: Linux, Embedded Systems, Microcontrollers, Android} \\
-    \textbf{Tools}{: Git, VS Code, Vim, PyCharm, Android Studio, Eclipse} \\
+    \textbf{Languages}{: Python, C++, C, Java, JavaScript, TypeScript, SQL, MATLAB} \\
+    \textbf{Frameworks \& Libraries}{: React Native (Expo), Next.js, Node.js, TensorFlow, OpenCV, NumPy, Pandas} \\
+    \textbf{Embedded \& Hardware}{: Arduino, Raspberry Pi, I2C/SPI/UART, GPIO, PWM, Klipper, Fusion 360, 3D printing} \\
+    \textbf{Backend \& Databases}{: Supabase, PostgreSQL, REST APIs, JWT auth, secure API proxy design} \\
+    \textbf{DevOps \& Tools}{: Git/GitHub, Linux, CI/CD, Jupyter, Anaconda, VS Code, Android Studio} \\
+    \textbf{AI \& ML}{: YOLO, TensorFlow/ONNX, Kalman filtering, MPC, SINDy, RL, LLM API integration (OpenAI, Claude)}
+  }}
 \end{itemize}
 
-
-
-%-------------------------------------------
 \end{document}

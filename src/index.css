@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+/* ---- Earthy / organic design tokens ---------------------------------- */
+@theme {
+  --color-bg: #14130d;
+  --color-bg-soft: #1d1b13;
+  --color-surface: #211f16;
+  --color-border: #3a3525;
+  --color-bone: #ece4d3;
+  --color-muted: #a89c80;
+  --color-moss: #9caa7b;
+  --color-clay: #c79a6a;
+
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+
+  --radius-card: 18px;
+}
+
+/* Lenis smooth-scroll: let JS drive scrolling when it's active. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-moss);
+    color: var(--color-bg);
+  }
+}
