@@ -28,13 +28,13 @@ export function ChapterCounter({
         <span className="text-sm text-muted">/ 0{chapters.length}</span>
       </div>
 
-      <div className="hidden items-center gap-2 sm:flex">
+      <div className="flex items-center gap-2">
         <button
           onClick={onPrev}
           disabled={index === 0}
           aria-label="Previous chapter"
           data-cursor="grow"
-          className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-border text-bone transition-colors hover:border-moss disabled:cursor-default disabled:opacity-30"
+          className="grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-border text-bone transition-colors hover:border-moss disabled:cursor-default disabled:opacity-30 sm:h-9 sm:w-9"
         >
           ↑
         </button>
@@ -43,7 +43,7 @@ export function ChapterCounter({
           disabled={index === chapters.length - 1}
           aria-label="Next chapter"
           data-cursor="grow"
-          className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-border text-bone transition-colors hover:border-moss disabled:cursor-default disabled:opacity-30"
+          className="grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-border text-bone transition-colors hover:border-moss disabled:cursor-default disabled:opacity-30 sm:h-9 sm:w-9"
         >
           ↓
         </button>

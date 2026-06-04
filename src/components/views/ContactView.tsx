@@ -37,7 +37,7 @@ export function ContactView({ accent }: { accent: string }) {
           <a
             href={`mailto:${profile.email}`}
             data-cursor="grow"
-            className="group mt-8 inline-flex cursor-pointer items-center gap-3 font-serif text-2xl text-clay transition-colors hover:text-bone md:text-3xl"
+            className="group mt-8 inline-flex max-w-full cursor-pointer items-center gap-3 break-words font-serif text-xl text-clay transition-colors hover:text-bone sm:text-2xl md:text-3xl"
           >
             {profile.email}
             <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1" style={{ color: accent }}>
@@ -47,13 +47,13 @@ export function ContactView({ accent }: { accent: string }) {
         </Item>
 
         <Item className="mt-8 flex flex-wrap justify-center gap-3">
-          <MagneticButton href={profile.links.linkedin} external className="rounded-full border border-border px-5 py-2.5 font-semibold text-bone transition-colors hover:border-moss">
+          <MagneticButton href={profile.links.linkedin} external className="rounded-full border border-border px-5 py-3 font-semibold text-bone transition-colors hover:border-moss sm:py-2.5">
             LinkedIn
           </MagneticButton>
-          <MagneticButton href={profile.links.github} external className="rounded-full border border-border px-5 py-2.5 font-semibold text-bone transition-colors hover:border-moss">
+          <MagneticButton href={profile.links.github} external className="rounded-full border border-border px-5 py-3 font-semibold text-bone transition-colors hover:border-moss sm:py-2.5">
             GitHub
           </MagneticButton>
-          <MagneticButton href={`tel:+1${profile.phone.replace(/\D/g, '')}`} className="rounded-full border border-border px-5 py-2.5 font-semibold text-bone transition-colors hover:border-moss">
+          <MagneticButton href={`tel:+1${profile.phone.replace(/\D/g, '')}`} className="rounded-full border border-border px-5 py-3 font-semibold text-bone transition-colors hover:border-moss sm:py-2.5">
             {profile.phone}
           </MagneticButton>
         </Item>

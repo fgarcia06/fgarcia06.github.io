@@ -26,7 +26,7 @@ export function TopBar({ index, onSelect }: { index: number; onSelect: (i: numbe
             Résumé
           </a>
           <button
-            className="cursor-pointer text-2xl text-bone md:hidden"
+            className="-mr-2 flex h-11 w-11 cursor-pointer items-center justify-center text-2xl text-bone md:hidden"
             aria-label="Open chapters"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}

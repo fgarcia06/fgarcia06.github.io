@@ -32,7 +32,7 @@ export function Stage({ direction, children }: { direction: number; children: Re
       animate="center"
       exit="exit"
       transition={{ duration: reduce ? 0.25 : 0.5, ease: EASE }}
-      className="absolute inset-0 overflow-y-auto overflow-x-hidden"
+      className="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
     >
       <div className="flex min-h-full items-center">
         <div className="mx-auto w-[min(1120px,calc(100%-2.5rem))] py-28">{children}</div>

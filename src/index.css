@@ -50,12 +50,17 @@ html.lenis body {
     margin: 0;
     /* The app is a fixed viewport stage; chapters scroll internally, not the page. */
     overflow: hidden;
+    overscroll-behavior: none;
     background-color: var(--color-bg);
     color: var(--color-bone);
     font-family: var(--font-sans);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Mobile polish: no tap flash, no iOS text auto-zoom. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   ::selection {
@@ -120,6 +125,24 @@ html.lenis body {
   50% {
     opacity: 0.9;
     transform: scale(1.05);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
   }
 }
 

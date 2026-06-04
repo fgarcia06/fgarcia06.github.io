@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { education, experience, type Job } from '../../data/experience'
 import { Stagger, Item } from '../stage/Stagger'
 import { ViewHeader } from '../stage/ViewHeader'
 import { GhostLabel } from '../stage/GhostLabel'
 import { TextReveal } from '../ui/TextReveal'
 import { CountUp } from '../ui/CountUp'
-import { Popup } from '../ui/Popup'
+import { Modal } from '../ui/Modal'
+
+const EASE = [0.22, 1, 0.36, 1] as const
 
 export function AboutView({ accent }: { accent: string }) {
   const [open, setOpen] = useState<Job | null>(null)
@@ -69,23 +71,40 @@ export function AboutView({ accent }: { accent: string }) {
 
       <AnimatePresence>
         {open && (
-          <Popup accent={accent} onClose={() => setOpen(null)}>
-            <p className="font-grotesk text-xs uppercase tracking-[0.2em]" style={{ color: accent }}>
-              {open.role} · {open.dates}
-            </p>
-            <h3 className="mt-2 font-serif text-3xl font-bold text-bone">{open.org}</h3>
-            <p className="mt-1 text-sm text-muted">{open.location}</p>
-            <ul className="mt-5 space-y-3 text-bone/90">
-              {open.points.map((p) => (
-                <li key={p} className="flex gap-3">
-                  <span aria-hidden style={{ color: accent }}>
-                    —
-                  </span>
-                  <TextReveal as="span" text={p} stagger={0.012} />
-                </li>
-              ))}
-            </ul>
-          </Popup>
+          <Modal accent={accent} onClose={() => setOpen(null)} ariaLabel={`${open.role} at ${open.org}`} size="lg">
+            <div className="p-6 sm:p-9">
+              <p className="font-grotesk text-xs uppercase tracking-[0.2em]" style={{ color: accent }}>
+                {open.role} · {open.dates}
+              </p>
+              <h3 className="mt-2 font-serif text-3xl font-bold leading-tight text-bone sm:text-4xl">{open.org}</h3>
+              <p className="mt-1 text-sm text-muted">{open.location}</p>
+              <p className="mt-4 max-w-2xl text-bone/85">{open.blurb}</p>
+
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {open.metrics.map((m) => (
+                  <div key={m.label} className="rounded-xl border border-border bg-bg/40 px-3 py-3" style={{ color: accent }}>
+                    <CountUp value={m.value} className="font-serif text-2xl font-bold" />
+                    <div className="mt-0.5 text-xs leading-snug text-muted">{m.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <ul className="mt-6 space-y-3">
+                {open.points.map((p, i) => (
+                  <motion.li
+                    key={p}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 0.05 * i, ease: EASE }}
+                    className="flex gap-3 text-bone/90"
+                  >
+                    <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: accent }} />
+                    <TextReveal as="span" text={p} stagger={0.01} />
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+          </Modal>
         )}
       </AnimatePresence>
     </div>
