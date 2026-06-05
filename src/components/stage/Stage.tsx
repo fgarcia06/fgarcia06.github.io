@@ -35,7 +35,7 @@ export function Stage({ direction, children }: { direction: number; children: Re
       className="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
     >
       <div className="flex min-h-full items-center">
-        <div className="mx-auto w-[min(1120px,calc(100%-2.5rem))] py-28">{children}</div>
+        <div className="mx-auto w-[min(1120px,calc(100%-2.5rem))] py-20 md:py-28">{children}</div>
       </div>
     </motion.section>
   )

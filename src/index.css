@@ -1,5 +1,27 @@
 @import 'tailwindcss';
 
+/* ---- Themed scrollbar (all scrollable elements) ---------------------- */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-moss);
+}
+
+/* Firefox: target the two main scroll containers explicitly */
+[data-stage-scroll] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
 /* ---- Earthy / organic design tokens ---------------------------------- */
 @theme {
   --color-bg: #14130d;
@@ -143,6 +165,15 @@ html.lenis body {
   }
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 

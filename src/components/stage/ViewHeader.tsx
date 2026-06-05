@@ -26,7 +26,7 @@ export function ViewHeader({
       </p>
       <h2
         className="font-serif font-bold leading-[0.95] tracking-[-0.03em] text-bone"
-        style={{ fontSize: 'var(--text-giant)' }}
+        style={{ fontSize: 'clamp(2rem, 7vw, 6rem)' }}
       >
         {title}
       </h2>

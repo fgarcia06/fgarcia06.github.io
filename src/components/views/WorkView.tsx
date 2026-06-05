@@ -1,24 +1,135 @@
-import { useMemo, useState } from 'react'
-import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
-import { Stagger, Item } from '../stage/Stagger'
+import { useEffect, useMemo, useState } from 'react'
+import { AnimatePresence, motion, useMotionValue, useSpring } from 'framer-motion'
+import { Stagger } from '../stage/Stagger'
 import { ViewHeader } from '../stage/ViewHeader'
 import { GhostLabel } from '../stage/GhostLabel'
-import { WorkCard } from '../works/WorkCard'
-import { WorkVisual } from '../works/WorkVisual'
+import { WorkPreviewCanvas } from '../canvas/WorkPreviewCanvas'
 import { WorkFilter, type FilterItem } from '../works/WorkFilter'
+import { WorkVisual } from '../works/WorkVisual'
 import { ProjectFlow } from '../works/ProjectFlow'
 import { Highlight } from '../ui/Highlight'
 import { CountUp } from '../ui/CountUp'
 import { Modal } from '../ui/Modal'
 import { projects, categoryOrder, type Project } from '../../data/projects'
-
 const EASE = [0.22, 1, 0.36, 1] as const
+const ROW_H = 340
+
+// ── Project visual row ────────────────────────────────────────────────────────
+
+function WorkProjectRow({
+  project,
+  index,
+  isHovered,
+  onEnter,
+  onLeave,
+  onOpen,
+}: {
+  project: Project
+  index: number
+  isHovered: boolean
+  onEnter: () => void
+  onLeave: () => void
+  onOpen: () => void
+}) {
+  const px = useMotionValue(0)
+  const py = useMotionValue(0)
+
+  function onMove(e: React.MouseEvent<HTMLDivElement>) {
+    const r = e.currentTarget.getBoundingClientRect()
+    px.set((e.clientX - r.left) / r.width - 0.5)
+    py.set((e.clientY - r.top) / r.height - 0.5)
+  }
+  function reset() {
+    px.set(0)
+    py.set(0)
+  }
+
+  return (
+    <motion.div
+      role="button"
+      tabIndex={0}
+      aria-label={`Open case study: ${project.title}`}
+      data-cursor="grow"
+      className="group relative h-[220px] cursor-pointer overflow-hidden border-b border-border sm:h-[340px]"
+      onMouseEnter={onEnter}
+      onMouseLeave={() => { onLeave(); reset() }}
+      onMouseMove={onMove}
+      onFocus={onEnter}
+      onBlur={onLeave}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen() }
+      }}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-24px' }}
+      transition={{ duration: 0.55, ease: EASE, delay: index * 0.05 }}
+    >
+      {/* Layer 1 — SVG concept animation, always playing */}
+      <motion.div
+        className="absolute inset-0"
+        animate={{ scale: isHovered ? 1.04 : 1 }}
+        transition={{ duration: 0.65, ease: EASE }}
+      >
+        <WorkVisual project={project} px={px} py={py} active={isHovered} bare />
+      </motion.div>
+
+      {/* Layer 2 — gradient overlays for text legibility */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-bg/80 via-bg/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-bg/65 to-transparent" />
+
+      {/* Layer 3 — text content (above particle canvas) */}
+      <div className="absolute inset-0 z-20 flex items-end justify-between p-6">
+        <div>
+          <div className="flex items-center gap-3">
+            <span
+              className="font-grotesk text-xs tabular-nums transition-colors duration-300"
+              style={{ color: isHovered ? project.accent : 'var(--color-muted)' }}
+            >
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <span
+              className="rounded-full border px-2.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.14em] transition-[border-color,color] duration-300"
+              style={{
+                borderColor: isHovered ? `${project.accent}88` : 'var(--color-border)',
+                color: isHovered ? project.accent : 'var(--color-muted)',
+              }}
+            >
+              {project.category}
+            </span>
+          </div>
+          <h3
+            className="mt-1.5 font-serif text-2xl leading-tight tracking-[-0.02em] transition-colors duration-300 sm:text-3xl"
+            style={{ color: isHovered ? project.accent : 'var(--color-bone)' }}
+          >
+            {project.title}
+          </h3>
+          <p className="mt-0.5 font-grotesk text-[11px] text-muted">{project.context}</p>
+        </div>
+
+        <motion.span
+          aria-hidden
+          className="shrink-0 pb-1 font-grotesk text-base"
+          style={{ color: project.accent }}
+          animate={{ opacity: isHovered ? 1 : 0.15, x: isHovered ? 0 : -8 }}
+          transition={{ duration: 0.25, ease: EASE }}
+        >
+          →
+        </motion.span>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Main view ─────────────────────────────────────────────────────────────────
 
 export function WorkView({ accent }: { accent: string }) {
-  const [active, setActive] = useState<Project | null>(null)
-  const [filter, setFilter] = useState<string>('all')
+  const [active, setActive]             = useState<Project | null>(null)
+  const [filter, setFilter]             = useState<string>('all')
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
-  // Filter chips: "All" plus every category that has at least one project.
+  const canvasY = useSpring(0, { stiffness: 300, damping: 32, restDelta: 0.5 })
+
   const filters = useMemo<FilterItem[]>(() => {
     const counts = new Map<string, number>()
     projects.forEach((p) => counts.set(p.category, (counts.get(p.category) ?? 0) + 1))
@@ -35,6 +146,12 @@ export function WorkView({ accent }: { accent: string }) {
     [filter],
   )
 
+  const canvasProject = hoveredIndex !== null ? shown[hoveredIndex] : shown[0]
+
+  useEffect(() => {
+    if (hoveredIndex !== null) canvasY.set(hoveredIndex * ROW_H)
+  }, [hoveredIndex, canvasY])
+
   return (
     <div className="relative">
       <GhostLabel text="Work" className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -45,28 +162,55 @@ export function WorkView({ accent }: { accent: string }) {
           accent={accent}
           eyebrow="Selected work"
           title="Things I've built"
-          intro="Ten projects across full-stack, embedded, security and ML. Filter the set, then open any card for the full case study."
+          intro="Ten projects across full-stack, embedded, security and ML."
         />
-
-        <Item className="mb-9">
-          <WorkFilter items={filters} active={filter} onChange={setFilter} accent={accent} />
-        </Item>
       </Stagger>
 
-      <motion.div layout className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <AnimatePresence mode="popLayout">
-          {shown.map((p, i) => (
-            <motion.div
-              key={p.id}
-              layout
-              exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.28, ease: 'easeOut' } }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-            >
-              <WorkCard project={p} index={i} onOpen={() => setActive(p)} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <div className="mt-4">
+        <div className="mb-6">
+          <WorkFilter
+            items={filters}
+            active={filter}
+            onChange={(f) => { setFilter(f); setHoveredIndex(null) }}
+            accent={accent}
+          />
+        </div>
+
+        {/* Rows container — shared canvas slides to overlay the hovered row */}
+        <div className="relative border-t border-border">
+
+          {/* Three.js particle canvas — overlays hovered row */}
+          <motion.div
+            className="pointer-events-none absolute inset-x-0 z-10 h-[220px] mix-blend-screen sm:h-[340px]"
+            style={{ y: canvasY }}
+            animate={{ opacity: hoveredIndex !== null ? 1 : 0 }}
+            transition={{ duration: 0.22, ease: EASE }}
+          >
+            <WorkPreviewCanvas project={canvasProject} />
+          </motion.div>
+
+          {/* Project rows */}
+          <AnimatePresence mode="popLayout">
+            {shown.map((p, i) => (
+              <motion.div
+                key={p.id}
+                layout
+                exit={{ opacity: 0, transition: { duration: 0.18 } }}
+                transition={{ type: 'spring', stiffness: 340, damping: 34 }}
+              >
+                <WorkProjectRow
+                  project={p}
+                  index={i}
+                  isHovered={hoveredIndex === i}
+                  onEnter={() => setHoveredIndex(i)}
+                  onLeave={() => setHoveredIndex(null)}
+                  onOpen={() => setActive(p)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
 
       <AnimatePresence>
         {active && <CaseOverlay project={active} onClose={() => setActive(null)} />}
@@ -74,6 +218,8 @@ export function WorkView({ accent }: { accent: string }) {
     </div>
   )
 }
+
+// ── Case study overlay ────────────────────────────────────────────────────────
 
 type Tab = 'overview' | 'flow'
 
@@ -89,15 +235,19 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
 
   return (
     <Modal accent={project.accent} onClose={onClose} ariaLabel={`${project.title} case study`} size="xl">
-      {/* hero visual (shared-layout morph target) */}
-      <div className="aspect-[16/9] sm:aspect-[2/1]">
-        <motion.div layoutId={`visual-${project.id}`} className="h-full w-full">
+      <motion.div
+        className="aspect-[16/9] sm:aspect-[2/1]"
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.38, ease: EASE }}
+        style={{ '--card-accent': project.accent } as React.CSSProperties}
+      >
+        <div className="h-full w-full">
           <WorkVisual project={project} px={px} py={py} active />
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
       <div className="p-5 sm:p-7">
-        {/* header */}
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-muted">{project.context}</p>
@@ -108,7 +258,7 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
               accent={project.accent}
               className="mt-2 block font-serif text-lg leading-snug text-bone/85"
             />
-            <p className="mt-2 text-sm text-[color:var(--card-accent)]">{project.label}</p>
+            <p className="mt-2 text-sm" style={{ color: project.accent }}>{project.label}</p>
           </div>
           <span
             className="hidden shrink-0 rounded-full border px-3 py-1 font-grotesk text-[11px] uppercase tracking-[0.14em] sm:block"
@@ -118,7 +268,6 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
           </span>
         </div>
 
-        {/* tab bar */}
         <div role="tablist" aria-label="Case study sections" className="mt-6 flex gap-6 border-b border-border">
           {tabs.map((t) => {
             const on = tab === t.key
@@ -145,7 +294,6 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
           })}
         </div>
 
-        {/* tab content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
@@ -169,7 +317,10 @@ function Overview({ project }: { project: Project }) {
     <div className="space-y-6">
       <p className="text-bone/90">{project.summary}</p>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+        style={{ '--card-accent': project.accent } as React.CSSProperties}
+      >
         {project.metrics.map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-bg/40 px-3 py-3">
             <CountUp value={m.value} className="font-serif text-2xl font-bold text-[color:var(--card-accent)]" />
@@ -193,12 +344,12 @@ function Overview({ project }: { project: Project }) {
         ))}
       </ul>
 
-      <div className="flex flex-wrap gap-2 border-t border-border pt-5">
+      <div
+        className="flex flex-wrap gap-2 border-t border-border pt-5"
+        style={{ '--card-accent': project.accent } as React.CSSProperties}
+      >
         {project.tags.map((t) => (
-          <span
-            key={t}
-            className="rounded-full border border-border bg-white/[0.03] px-3 py-1 text-sm text-bone/90 transition-colors duration-200 hover:border-[color:var(--card-accent)] hover:text-bone"
-          >
+          <span key={t} className="rounded-full border border-border bg-white/[0.03] px-3 py-1 text-sm text-bone/90 transition-colors duration-200 hover:border-[color:var(--card-accent)] hover:text-bone">
             {t}
           </span>
         ))}
@@ -211,19 +362,12 @@ function HowItWorks({ project }: { project: Project }) {
   return (
     <div className="space-y-7">
       <ProjectFlow stages={project.flow} accent={project.accent} />
-
-      {/* key-insight callout */}
-      <div
-        className="flex gap-3 rounded-xl border-l-2 bg-bg/40 p-4"
-        style={{ borderColor: project.accent }}
-      >
+      <div className="flex gap-3 rounded-xl border-l-2 bg-bg/40 p-4" style={{ borderColor: project.accent }}>
         <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0" fill="none" stroke={project.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z" />
         </svg>
         <div>
-          <p className="font-grotesk text-[11px] uppercase tracking-[0.16em]" style={{ color: project.accent }}>
-            Key insight
-          </p>
+          <p className="font-grotesk text-[11px] uppercase tracking-[0.16em]" style={{ color: project.accent }}>Key insight</p>
           <p className="mt-1 text-bone/90">{project.takeaway}</p>
         </div>
       </div>

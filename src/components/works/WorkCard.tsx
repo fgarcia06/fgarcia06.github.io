@@ -1,25 +1,38 @@
 import { useRef } from 'react'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import type { Project } from '../../data/projects'
 import { useInteractive } from '../../hooks/useMediaQuery'
 import { WorkVisual } from './WorkVisual'
 import { CountUp } from '../ui/CountUp'
 import { Highlight } from '../ui/Highlight'
 
-/**
- * Interactive project tile: pointer-driven 3D tilt with parallax visual layers,
- * a category badge + index over the generated visual, a short tag set, and a
- * soft accent glow on hover. Click / Enter / Space opens the case overlay.
- */
-export function WorkCard({ project, index, onOpen }: { project: Project; index?: number; onOpen: () => void }) {
+const EASE = [0.22, 1, 0.36, 1] as const
+
+export function WorkCard({
+  project,
+  index,
+  onOpen,
+}: {
+  project: Project
+  index?: number
+  onOpen: () => void
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const interactive = useInteractive()
+  const idx = index ?? 0
 
-  // Pointer position within the card, normalized to [-0.5, 0.5].
+  // Scroll-driven parallax: visual layer shifts ±14px as card travels through viewport
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  })
+  const visualY = useTransform(scrollYProgress, [0, 1], [14, -14])
+
+  // Mouse tilt
   const px = useMotionValue(0)
   const py = useMotionValue(0)
-  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [7, -7]), { stiffness: 200, damping: 20 })
-  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-9, 9]), { stiffness: 200, damping: 20 })
+  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [5, -5]), { stiffness: 200, damping: 20 })
+  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-7, 7]), { stiffness: 200, damping: 20 })
 
   function onMove(e: React.MouseEvent) {
     if (!interactive || !ref.current) return
@@ -48,74 +61,90 @@ export function WorkCard({ project, index, onOpen }: { project: Project; index?:
           onOpen()
         }
       }}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.9, y: 48 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      whileHover={{ scale: 1.018, transition: { duration: 0.3, ease: EASE } }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{
+        opacity: { duration: 0.5 },
+        y: { duration: 0.72, ease: EASE },
+        scale: { duration: 0.88, ease: EASE },
+      }}
       style={
-        {
-          rotateX: interactive ? rotX : 0,
-          rotateY: interactive ? rotY : 0,
-          transformPerspective: 1000,
-          '--card-accent': project.accent,
-        } as React.CSSProperties
+        interactive
+          ? ({
+              rotateX: rotX,
+              rotateY: rotY,
+              transformPerspective: 1000,
+              '--card-accent': project.accent,
+            } as React.CSSProperties)
+          : ({ '--card-accent': project.accent } as React.CSSProperties)
       }
-      className="group relative flex h-full cursor-pointer flex-col rounded-[var(--radius-card)] border border-border bg-surface/70 p-4 backdrop-blur-sm transition-[border-color,box-shadow] duration-300 hover:border-[color:var(--card-accent)] hover:shadow-[0_22px_60px_-26px_var(--card-accent)] focus-visible:border-[color:var(--card-accent)]"
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[var(--radius-card)] border border-border bg-surface/70 backdrop-blur-sm transition-[border-color,box-shadow] duration-300 hover:border-[color:var(--card-accent)] hover:shadow-[0_24px_64px_-28px_var(--card-accent)] focus-visible:border-[color:var(--card-accent)]"
     >
-      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
-        <motion.div layoutId={`visual-${project.id}`} className="h-full w-full">
-          <WorkVisual project={project} px={px} py={py} />
+      {/* ── Visual ── overflow-hidden container clips the taller inner layer */}
+      <div className="relative h-[260px] overflow-hidden sm:h-[280px]">
+        {/* Parallax layer: extends 18px beyond clip on top/bottom so it can shift ±14px */}
+        <motion.div
+          className="absolute inset-x-0"
+          style={{ top: -18, bottom: -18, y: visualY }}
+        >
+          {/* CSS zoom on hover, isolated from the layoutId morph */}
+          <div className="h-full w-full origin-center transition-transform duration-500 ease-out group-hover:scale-[1.07]">
+            <motion.div layoutId={`visual-${project.id}`} className="h-full w-full">
+              <WorkVisual project={project} px={px} py={py} />
+            </motion.div>
+          </div>
         </motion.div>
 
-        {/* category badge + running index, floating over the visual */}
+        {/* category badge */}
         <span
-          className="pointer-events-none absolute left-3 top-3 rounded-full border bg-bg/55 px-2.5 py-1 font-grotesk text-[10px] uppercase tracking-[0.14em] backdrop-blur-sm"
+          className="pointer-events-none absolute left-3 top-3 rounded-full border bg-bg/60 px-2.5 py-1 font-grotesk text-[10px] uppercase tracking-[0.14em] backdrop-blur-sm"
           style={{ borderColor: `${project.accent}66`, color: project.accent }}
         >
           {project.category}
         </span>
-        {index != null && (
-          <span className="pointer-events-none absolute right-3 top-2 font-serif text-2xl font-bold text-bone/25 tabular-nums">
-            {String(index + 1).padStart(2, '0')}
-          </span>
-        )}
+        <span className="pointer-events-none absolute right-3 top-2 font-serif text-2xl font-bold tabular-nums text-bone/20">
+          {String(idx + 1).padStart(2, '0')}
+        </span>
+
+        {/* Bottom gradient vignette for content legibility */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface/60 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/[0.025]" />
       </div>
 
-      <div className="mt-5 text-center">
-        <p className="font-grotesk text-xs uppercase tracking-[0.18em] text-muted">{project.context}</p>
-        <h3 className="mt-1 font-serif text-3xl font-semibold leading-tight tracking-[-0.02em] text-bone">
+      {/* ── Content ── left-aligned, title + tagline front and center */}
+      <div className="flex flex-col p-5 sm:p-6">
+        <p className="font-grotesk text-[11px] uppercase tracking-[0.2em] text-muted">
+          {project.context}
+        </p>
+        <h3 className="mt-1 font-serif text-2xl font-semibold leading-tight tracking-[-0.02em] text-bone sm:text-[1.75rem]">
           {project.title}
         </h3>
         <Highlight
           text={project.tagline}
           terms={project.highlights}
           accent={project.accent}
-          className="mx-auto mt-2 block max-w-sm text-bone/80"
+          className="mt-1.5 block font-serif text-base leading-snug text-bone/75"
         />
-      </div>
+        <p className="mt-1 text-sm font-medium text-[color:var(--card-accent)]">{project.label}</p>
 
-      {/* top tags */}
-      <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-        {project.tags.slice(0, 3).map((t) => (
-          <span key={t} className="rounded-full border border-border px-2.5 py-0.5 text-[11px] text-muted">
-            {t}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-4 flex flex-wrap justify-center gap-x-8 gap-y-3 border-t border-border pt-4">
-        {project.metrics.map((m) => (
-          <div key={m.label} className="text-center">
-            <CountUp value={m.value} className="font-serif text-xl font-bold text-[color:var(--card-accent)]" />
-            <span className="mt-0.5 block text-xs text-muted">{m.label}</span>
+        {/* Metrics + CTA in one row */}
+        <div className="mt-4 flex items-end justify-between gap-4 border-t border-border pt-4">
+          <div className="flex flex-wrap gap-x-6 gap-y-1.5">
+            {project.metrics.slice(0, 2).map((m) => (
+              <div key={m.label}>
+                <CountUp value={m.value} className="font-serif text-lg font-bold text-[color:var(--card-accent)]" />
+                <span className="ml-0.5 block text-[11px] text-muted">{m.label}</span>
+              </div>
+            ))}
           </div>
-        ))}
+          <p className="shrink-0 font-grotesk text-xs uppercase tracking-[0.2em] text-[color:var(--card-accent)]">
+            Case study{' '}
+            <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </p>
+        </div>
       </div>
-
-      <p className="mt-4 text-center font-grotesk text-xs uppercase tracking-[0.2em] text-[color:var(--card-accent)]">
-        Open case study{' '}
-        <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
-      </p>
     </motion.div>
   )
 }

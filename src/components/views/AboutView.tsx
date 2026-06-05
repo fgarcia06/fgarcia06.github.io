@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { education, experience, type Job } from '../../data/experience'
-import { Stagger, Item } from '../stage/Stagger'
+import { Stagger, Item } from '../stage/Stagger' // Item still used for education row
 import { ViewHeader } from '../stage/ViewHeader'
 import { GhostLabel } from '../stage/GhostLabel'
 import { TextReveal } from '../ui/TextReveal'
@@ -27,19 +27,25 @@ export function AboutView({ accent }: { accent: string }) {
         />
 
         <div className="flex w-full max-w-3xl flex-col divide-y divide-border border-y border-border">
-          {experience.map((job) => (
-            <Item key={job.role + job.org}>
+          {experience.map((job, idx) => (
+            <motion.div
+              key={job.role + job.org}
+              initial={{ opacity: 0, x: idx % 2 === 0 ? -32 : 32, y: 16 }}
+              whileInView={{ opacity: 1, x: 0, y: 0 }}
+              viewport={{ once: true, margin: '-48px' }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
               <button
                 onClick={() => setOpen(job)}
                 data-cursor="grow"
-                className="group flex w-full cursor-pointer flex-col items-center gap-4 py-8 text-center"
+                className="group flex w-full cursor-pointer flex-col items-center gap-3 py-6 text-center sm:gap-4 sm:py-8"
               >
                 <p className="font-grotesk text-xs uppercase tracking-[0.2em] text-muted">
                   {job.role} · {job.org} · {job.dates}
                 </p>
                 <h3
                   className="max-w-2xl font-serif font-semibold leading-[1] tracking-[-0.02em] text-bone transition-colors group-hover:text-[color:var(--a)]"
-                  style={{ ['--a' as string]: accent, fontSize: 'var(--text-display)' } as React.CSSProperties}
+                  style={{ ['--a' as string]: accent, fontSize: 'clamp(1.75rem, 4.5vw, 3.5rem)' } as React.CSSProperties}
                 >
                   {job.headline}
                 </h3>
@@ -58,7 +64,7 @@ export function AboutView({ accent }: { accent: string }) {
                   View details →
                 </span>
               </button>
-            </Item>
+            </motion.div>
           ))}
         </div>
 

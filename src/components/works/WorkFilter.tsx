@@ -33,7 +33,7 @@ export function WorkFilter({
             aria-selected={on}
             data-cursor="grow"
             onClick={() => onChange(it.key)}
-            className="relative cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors duration-200 sm:py-1.5"
+            className="relative flex min-h-[44px] cursor-pointer items-center rounded-full border px-4 py-1 text-sm transition-colors duration-200 sm:min-h-0 sm:py-1.5"
             style={{ borderColor: on ? accent : 'var(--color-border)' }}
           >
             {on && (
