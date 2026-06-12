@@ -6,6 +6,7 @@ import { Tag } from '../ui/Tag'
 import { ViewHeader } from '../stage/ViewHeader'
 import { GhostLabel } from '../stage/GhostLabel'
 import { MarqueeStrip } from '../ui/MarqueeStrip'
+import { Diamond, HatchBlock, CHAMFER_LG } from '../ui/HudDecor'
 import { useInteractive } from '../../hooks/useMediaQuery'
 
 const allTags = skillGroups.flatMap((g) => g.tags)
@@ -25,10 +26,10 @@ function TiltPanel({
   const interactive = useInteractive()
   const px = useMotionValue(0)
   const py = useMotionValue(0)
-  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [6, -6]), { stiffness: 220, damping: 22 })
-  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-8, 8]), { stiffness: 220, damping: 22 })
-  const glowOpacity = useSpring(0, { stiffness: 200, damping: 20 })
-  const entranceDelay = (index % 3) * 0.08
+  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [6, -6]), { stiffness: 260, damping: 20 })
+  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-8, 8]), { stiffness: 260, damping: 20 })
+  const glowOpacity = useSpring(0, { stiffness: 220, damping: 20 })
+  const entranceDelay = (index % 3) * 0.06
 
   function onMove(e: React.MouseEvent) {
     if (!interactive || !ref.current) return
@@ -48,25 +49,32 @@ function TiltPanel({
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={reset}
-      initial={{ opacity: 0, scale: 0.92, y: 32 }}
+      initial={{ opacity: 0, scale: 0.94, y: 28 }}
       whileInView={{ opacity: 1, scale: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: entranceDelay }}
-      style={
-        interactive
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: entranceDelay }}
+      style={{
+        clipPath: CHAMFER_LG,
+        ...(interactive
           ? {
               rotateX: rotX,
               rotateY: rotY,
               transformPerspective: 900,
             }
-          : {}
-      }
-      className={`group relative h-full rounded-[var(--radius-card)] border border-border bg-surface/70 p-5 backdrop-blur-sm transition-[border-color,box-shadow] duration-300 hover:border-moss/50 ${className}`}
+          : {}),
+      }}
+      className={`group relative h-full overflow-hidden border border-border bg-surface/70 p-5 backdrop-blur-sm transition-[border-color,box-shadow] duration-200 hover:border-moss/50 ${className}`}
     >
+      {/* Angular chrome */}
+      <HatchBlock color={accent} className="absolute right-0 top-0 h-8 w-24 opacity-25" flip />
+      <span
+        aria-hidden
+        className="absolute bottom-2 right-2 h-1 w-1 rotate-45 bg-border transition-colors duration-200 group-hover:bg-moss"
+      />
       {/* Edge highlight on hover */}
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[var(--radius-card)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         style={{
           background: `radial-gradient(120px circle at 50% 0%, ${accent}12 0%, transparent 80%)`,
         }}
@@ -101,7 +109,8 @@ export function SkillsView({ accent }: { accent: string }) {
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {skillGroups.map((g, i) => (
             <TiltPanel key={g.title} accent={accent} index={i} className="h-full">
-              <h3 className="font-serif text-xl font-semibold" style={{ color: accent }}>
+              <h3 className="flex items-center justify-center gap-2.5 font-serif text-xl font-semibold" style={{ color: accent }}>
+                <Diamond size={5} color={accent} />
                 {g.title}
               </h3>
               <div className="mt-3 flex flex-wrap justify-center gap-2">

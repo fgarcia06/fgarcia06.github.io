@@ -25,7 +25,7 @@ export function ViewHeader({
         {eyebrow}
       </p>
       <h2
-        className="font-serif font-bold leading-[0.95] tracking-[-0.03em] text-bone"
+        className="font-serif font-bold leading-[1.04] tracking-[-0.02em] text-bone"
         style={{ fontSize: 'clamp(2rem, 7vw, 6rem)' }}
       >
         {title}

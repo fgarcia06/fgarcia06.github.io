@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import type { MotionValue } from 'framer-motion'
 import { useIsMobile, usePrefersReducedMotion } from '../../hooks/useMediaQuery'
 import { StaticBackdrop } from './StaticBackdrop'
 import { SpotlightOverlay } from '../ui/SpotlightOverlay'
@@ -6,11 +7,18 @@ import { SpotlightOverlay } from '../ui/SpotlightOverlay'
 const HeroCanvas = lazy(() => import('./HeroCanvas'))
 
 /**
- * Full-viewport 3D field that lives behind every chapter and morphs with the
- * active chapter accent. Falls back to a tinted static gradient on mobile and
+ * Full-viewport 3D field that lives behind every section. Page scroll
+ * progress drives the camera through the field while the active section
+ * accent recolors it. Falls back to a tinted static gradient on mobile and
  * under reduced motion.
  */
-export function PersistentBackdrop({ accent, mood }: { accent: string; mood: number }) {
+export function PersistentBackdrop({
+  accent,
+  progress,
+}: {
+  accent: string
+  progress: MotionValue<number>
+}) {
   const isMobile = useIsMobile()
   const reduceMotion = usePrefersReducedMotion()
   const show3D = !isMobile && !reduceMotion
@@ -20,7 +28,7 @@ export function PersistentBackdrop({ accent, mood }: { accent: string; mood: num
       <div className="fixed inset-0 z-0" aria-hidden>
         {show3D ? (
           <Suspense fallback={<StaticBackdrop accent={accent} />}>
-            <HeroCanvas accent={accent} mood={mood} />
+            <HeroCanvas accent={accent} progress={progress} />
           </Suspense>
         ) : (
           <StaticBackdrop accent={accent} />

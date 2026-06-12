@@ -1,21 +1,29 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { PointMaterial } from '@react-three/drei'
+import type { MotionValue } from 'framer-motion'
 import * as THREE from 'three'
 
-// Earthy palette sampled per particle for an organic, garden-like field.
-const PALETTE = ['#9caa7b', '#6f7d52', '#c79a6a', '#ece4d3', '#8a8159'].map(
+// Cool, professional palette sampled per particle — azure, ice, violet, ink.
+const PALETTE = ['#6c8cff', '#3d5ab8', '#7cd4fd', '#e7eaf2', '#9d8cff'].map(
   (c) => new THREE.Color(c),
 )
 const WHITE = new THREE.Color('#ffffff')
 const COUNT = 2600
 
 /**
- * Persistent point field. `accent` and `mood` (the active chapter index) are
- * lerped every frame so the whole field gently recolors and drifts as the
- * visitor moves between chapters — the backdrop "changes display" with them.
+ * Persistent point field driven by page scroll. `progress` (0–1 across the
+ * whole document) dollies the camera forward through the particles and slowly
+ * rolls the field, so scrolling reads as travelling through depth — while
+ * `accent` recolors the material toward the active section.
  */
-export function ParticleField({ accent = '#9caa7b', mood = 0 }: { accent?: string; mood?: number }) {
+export function ParticleField({
+  accent = '#6c8cff',
+  progress,
+}: {
+  accent?: string
+  progress?: MotionValue<number>
+}) {
   const groupRef = useRef<THREE.Group>(null)
   const matRef = useRef<THREE.PointsMaterial>(null)
   const pointsRef = useRef<THREE.Points>(null)
@@ -57,14 +65,17 @@ export function ParticleField({ accent = '#9caa7b', mood = 0 }: { accent?: strin
     const points = pointsRef.current
     if (!group || !points) return
 
-    // Recolor the whole field toward the active chapter accent.
+    // Recolor the whole field toward the active section accent.
     if (matRef.current) matRef.current.color.lerp(target, 0.03)
 
-    // Per-chapter parallax: shift + tilt the field as chapters change.
-    const targetX = (mood - 2) * 0.5
-    const targetRotZ = (mood - 2) * 0.05
-    group.position.x += (targetX - group.position.x) * 0.03
-    group.rotation.z += (targetRotZ - group.rotation.z) * 0.03
+    // Scroll-driven travel: dolly the camera into the field and roll it
+    // gently over the full page — the backdrop becomes a journey, not a slide.
+    const p = progress?.get() ?? 0
+    const cam = state.camera
+    cam.position.z += (12 - p * 7 - cam.position.z) * 0.06
+    cam.position.y += (-p * 1.6 - cam.position.y) * 0.06
+    const targetRotZ = (p - 0.5) * 0.22
+    group.rotation.z += (targetRotZ - group.rotation.z) * 0.04
 
     // Slow ambient drift + gentle parallax toward the pointer.
     group.rotation.y += delta * 0.025

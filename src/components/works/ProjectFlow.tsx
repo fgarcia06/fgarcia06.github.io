@@ -32,7 +32,7 @@ export function ProjectFlow({ stages, accent }: { stages: FlowStage[]; accent: s
                 className="cursor-pointer rounded-full border px-3 py-1 font-grotesk text-[11px] uppercase tracking-[0.12em] transition-colors duration-200"
                 style={
                   on
-                    ? { backgroundColor: accent, borderColor: accent, color: '#14130d' }
+                    ? { backgroundColor: accent, borderColor: accent, color: '#07090e' }
                     : { borderColor: 'var(--color-border)', color: 'rgba(236,228,211,0.7)' }
                 }
               >
@@ -69,9 +69,9 @@ export function ProjectFlow({ stages, accent }: { stages: FlowStage[]; accent: s
               <span
                 aria-hidden
                 className="absolute left-0 top-3 grid h-[15px] w-[15px] place-items-center rounded-full border-2 transition-colors duration-200"
-                style={{ borderColor: accent, backgroundColor: on ? accent : '#14130d' }}
+                style={{ borderColor: accent, backgroundColor: on ? accent : '#07090e' }}
               >
-                <span className="font-grotesk text-[8px] font-bold tabular-nums" style={{ color: on ? '#14130d' : accent }}>
+                <span className="font-grotesk text-[8px] font-bold tabular-nums" style={{ color: on ? '#07090e' : accent }}>
                   {i + 1}
                 </span>
               </span>

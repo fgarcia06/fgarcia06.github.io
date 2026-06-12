@@ -1,11 +1,12 @@
 import { useRef } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { useInteractive } from '../../hooks/useMediaQuery'
+import { CHAMFER } from './HudDecor'
 
 /**
  * Element that drifts toward the pointer while hovered, then springs back.
  * Renders an anchor when `href` is given, otherwise a button (`onClick`).
- * Inert on touch / reduced-motion devices.
+ * `chamfer` applies the HUD corner cut. Inert on touch / reduced-motion.
  */
 export function MagneticButton({
   href,
@@ -14,6 +15,7 @@ export function MagneticButton({
   className = '',
   external = false,
   strength = 0.4,
+  chamfer = false,
 }: {
   href?: string
   onClick?: () => void
@@ -21,13 +23,14 @@ export function MagneticButton({
   className?: string
   external?: boolean
   strength?: number
+  chamfer?: boolean
 }) {
   const ref = useRef<HTMLElement>(null)
   const interactive = useInteractive()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 220, damping: 18, mass: 0.4 })
-  const sy = useSpring(y, { stiffness: 220, damping: 18, mass: 0.4 })
+  const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.35 })
+  const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.35 })
 
   function onMove(e: React.MouseEvent) {
     if (!interactive || !ref.current) return
@@ -43,7 +46,7 @@ export function MagneticButton({
   const common = {
     onMouseMove: onMove,
     onMouseLeave: reset,
-    style: { x: sx, y: sy },
+    style: { x: sx, y: sy, ...(chamfer ? { clipPath: CHAMFER } : {}) },
     'data-cursor': 'grow',
     className: `cursor-pointer ${className}`,
   } as const

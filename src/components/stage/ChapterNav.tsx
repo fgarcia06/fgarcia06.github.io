@@ -1,16 +1,11 @@
 import { chapters } from '../../chapters'
+import { scrollToId } from '../../hooks/useLenis'
 
-/** Fixed vertical chapter rail with active state, labels on hover/focus. */
-export function ChapterNav({
-  index,
-  onSelect,
-}: {
-  index: number
-  onSelect: (i: number) => void
-}) {
+/** Fixed vertical section rail with active state, labels on hover/focus. */
+export function ChapterNav({ index }: { index: number }) {
   return (
     <nav
-      aria-label="Chapters"
+      aria-label="Sections"
       className="fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-4 md:flex"
     >
       {chapters.map((c, i) => {
@@ -18,7 +13,7 @@ export function ChapterNav({
         return (
           <button
             key={c.id}
-            onClick={() => onSelect(i)}
+            onClick={() => scrollToId(c.id)}
             aria-label={`Go to ${c.label}`}
             aria-current={active ? 'true' : undefined}
             data-cursor="grow"
@@ -36,7 +31,7 @@ export function ChapterNav({
               style={{
                 width: active ? 26 : 8,
                 height: 8,
-                backgroundColor: active ? c.accent : 'rgba(168,156,128,0.5)',
+                backgroundColor: active ? c.accent : 'rgba(139,147,166,0.45)',
               }}
             />
           </button>

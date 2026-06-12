@@ -3,12 +3,15 @@ import { motion, useReducedMotion } from 'framer-motion'
 /**
  * Reveals a line of text word-by-word with a clip-rise stagger.
  * Falls back to plain text under reduced motion.
+ *
+ * The joining space is rendered BETWEEN the clip wrappers — a trailing space
+ * inside an inline-block is trimmed at layout, which would fuse the words.
  */
 export function SplitText({
   text,
   className = '',
   delay = 0,
-  stagger = 0.06,
+  stagger = 0.05,
   as: Tag = 'span',
 }: {
   text: string
@@ -34,20 +37,22 @@ export function SplitText({
       aria-label={text}
     >
       {words.map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom" aria-hidden>
-          <motion.span
-            className="inline-block"
-            variants={{
-              hidden: { y: '110%' },
-              visible: {
-                y: 0,
-                transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
-              },
-            }}
-          >
-            {word}
-            {i < words.length - 1 ? ' ' : ''}
-          </motion.span>
+        <span key={i} aria-hidden>
+          <span className="inline-block overflow-hidden align-bottom">
+            <motion.span
+              className="inline-block"
+              variants={{
+                hidden: { y: '110%' },
+                visible: {
+                  y: 0,
+                  transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                },
+              }}
+            >
+              {word}
+            </motion.span>
+          </span>
+          {i < words.length - 1 ? ' ' : ''}
         </span>
       ))}
     </MotionTag>

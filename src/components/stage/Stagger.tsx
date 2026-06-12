@@ -1,7 +1,10 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
-/** Container that staggers its <Item> children in each time a chapter mounts. */
+/**
+ * Container that staggers its <Item> children in as the section scrolls into
+ * view (once — sections all mount together on the continuous-scroll page).
+ */
 export function Stagger({
   children,
   className,
@@ -16,8 +19,9 @@ export function Stagger({
     <motion.div
       className={className}
       initial="hidden"
-      animate="show"
-      transition={{ staggerChildren: reduce ? 0 : 0.07, delayChildren: reduce ? 0 : delay }}
+      whileInView="show"
+      viewport={{ once: true, margin: '-15% 0px -15% 0px' }}
+      transition={{ staggerChildren: reduce ? 0 : 0.05, delayChildren: reduce ? 0 : delay }}
     >
       {children}
     </motion.div>
@@ -32,7 +36,7 @@ export function Item({ children, className }: { children: ReactNode; className?:
       className={className}
       variants={{
         hidden: { opacity: 0, y: 22 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+        show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
       }}
     >
       {children}

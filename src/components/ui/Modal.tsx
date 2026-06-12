@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { Grain, CornerTicks } from './Texture'
+import { getLenis } from '../../hooks/useLenis'
 
 const SIZES = { md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' } as const
 
@@ -17,7 +18,7 @@ const SIZES = { md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' } as const
  */
 export function Modal({
   onClose,
-  accent = '#9caa7b',
+  accent = '#6c8cff',
   ariaLabel,
   size = 'lg',
   children,
@@ -37,6 +38,7 @@ export function Modal({
 
     document.body.style.overflow = 'hidden'
     document.body.dataset.navLocked = '1'
+    getLenis()?.stop()
     root?.setAttribute('inert', '')
     root?.setAttribute('aria-hidden', 'true')
 
@@ -79,6 +81,7 @@ export function Modal({
       document.removeEventListener('keydown', onKey, true)
       document.body.style.overflow = prevOverflow
       delete document.body.dataset.navLocked
+      getLenis()?.start()
       root?.removeAttribute('inert')
       root?.removeAttribute('aria-hidden')
       prevFocused?.focus?.()
@@ -92,7 +95,7 @@ export function Modal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.22 }}
         onClick={onClose}
       />
 
@@ -104,7 +107,7 @@ export function Modal({
         initial={{ opacity: 0, y: 16, scale: 0.97, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
         exit={{ opacity: 0, y: 16, scale: 0.97, filter: 'blur(6px)' }}
-        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* field-notes signature */}
         <span aria-hidden className="absolute inset-x-0 top-0 z-20 h-[2px]" style={{ backgroundColor: accent }} />
