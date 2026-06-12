@@ -13,7 +13,7 @@ import { home, sections, sectionById, siteTitle } from '../data/site'
 
 /**
  * State-string router cloned from the reference's APP.go: states are
- * "home", "work", "work/<slug>", … pushed onto real history entries.
+ * "home", "projects", "projects/<slug>", … pushed onto real history entries.
  *
  * Timing choreography for detail pages matches main.js exactly:
  *   t=0     loader.show(0); previous page starts sliding out
@@ -37,7 +37,7 @@ const RouterContext = createContext<RouterValue | null>(null)
 function titleFor(state: string): string {
   const [section, page] = state.split('/')
   if (section === 'home' || !section) return home.pageTitle
-  if (section === 'info') return 'Francis Garcia | Info'
+  if (section === 'about') return 'Francis Garcia | About'
   const s = sectionById(section)
   if (!s) return siteTitle
   if (page) {
@@ -49,7 +49,7 @@ function titleFor(state: string): string {
 
 function isValid(state: string): boolean {
   const [section, page] = state.split('/')
-  if (section === 'home' || section === 'info') return !page
+  if (section === 'home' || section === 'about') return !page
   const s = sectionById(section)
   if (!s) return false
   if (!page) return true
@@ -84,6 +84,8 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   const timers = useRef<number[]>([])
 
   const go = useCallback((next: string, push = true) => {
+    // legacy routes from before the work→projects / info→about rename
+    next = next.replace(/^work(\/|$)/, 'projects$1').replace(/^info$/, 'about')
     if (stateRef.current === next) return
     if (!isValid(next)) next = 'home'
     const isDetail = next.includes('/')

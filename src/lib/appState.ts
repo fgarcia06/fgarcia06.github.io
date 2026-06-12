@@ -23,10 +23,10 @@ export function orbOpacityFor(state: string): number {
       return 1.0
     case 'prototypes':
       return 0.5
-    case 'info':
+    case 'about':
       return 0.4
     default:
-      // work, art, press + their details
+      // projects + their details
       return 0.3
   }
 }

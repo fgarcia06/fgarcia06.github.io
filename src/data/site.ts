@@ -12,7 +12,7 @@ import { projects, type Project } from './projects'
  * reference layout expects but my sources don't provide.
  */
 
-export type SectionId = 'work' | 'prototypes' | 'art' | 'press'
+export type SectionId = 'projects' | 'prototypes'
 
 export interface ListItem {
   title: string
@@ -43,11 +43,9 @@ export const home = {
 
 export const menu = [
   { title: 'home', link: 'home' },
-  { title: 'work', link: 'work' },
+  { title: 'projects', link: 'projects' },
   { title: 'prototypes', link: 'prototypes' },
-  { title: 'art', link: 'art' },
-  { title: 'press', link: 'press' },
-  { title: 'info', link: 'info' },
+  { title: 'about', link: 'about' },
   // TODO(content): the reference menu also has "reel" opening a showreel
   // video. No reel/video content exists in my sources, so it is omitted.
 ]
@@ -60,9 +58,9 @@ const bySlug = (id: string) => {
 
 export const sections: Section[] = [
   {
-    id: 'work',
-    title: 'work',
-    pageTitle: 'Francis Garcia | Work',
+    id: 'projects',
+    title: 'projects',
+    pageTitle: 'Francis Garcia | Projects',
     subtitle: 'Projects | Systems | Applications',
     list: [
       'ai-fitness',
@@ -84,24 +82,6 @@ export const sections: Section[] = [
       'dc-motor-controller',
       'russian-roulette-hmi',
     ].map(bySlug),
-  },
-  {
-    id: 'art',
-    title: 'art',
-    pageTitle: 'Francis Garcia | Art',
-    subtitle: '',
-    list: [],
-    todo:
-      'TODO(content): the reference has an art section (fractal/3D artwork). No artwork exists in resume.md or projects-info/ — add pieces here when available.',
-  },
-  {
-    id: 'press',
-    title: 'press',
-    pageTitle: 'Francis Garcia | Press',
-    subtitle: '',
-    list: [],
-    todo:
-      'TODO(content): the reference has a press section (magazine articles + interviews). No press/publications exist in resume.md or projects-info/ — add coverage here when available.',
   },
 ]
 
@@ -129,12 +109,12 @@ export function relatedFor(section: Section, item: ListItem, max = 6): ListItem[
 }
 
 /* ------------------------------------------------------------------ */
-/* info page — all content from resume.md                              */
+/* about page — all content from resume.md                             */
 /* ------------------------------------------------------------------ */
 
-export const info = {
-  title: 'info',
-  pageTitle: 'Francis Garcia | Info',
+export const about = {
+  title: 'about',
+  pageTitle: 'Francis Garcia | About',
   subtitle: 'About | Experience | Skills | Contact',
   portrait: profile.portrait,
   // Assembled strictly from resume.md facts (education, roles, skills).

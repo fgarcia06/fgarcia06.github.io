@@ -219,32 +219,189 @@ a {
   opacity: 1;
 }
 
+/* always-visible title panel: bottom gradient + accent rule (--accent is
+   set per item from the project's accent color) */
 .list-item .titles {
   position: absolute;
   text-transform: uppercase;
-  opacity: 0;
-  transition: 0.3s all;
-  width: 38.5vw;
-  height: 3vw;
-  padding: 2vw;
-  padding-top: 1vw;
-  background: rgba(0, 0, 0, 0.7);
+  left: 0;
+  right: 0;
   bottom: -1px;
+  padding: 4vw 2vw 1.4vw;
+  transition: 0.4s all;
+  background: linear-gradient(
+    to top,
+    rgba(4, 7, 9, 0.92),
+    rgba(4, 7, 9, 0.5) 55%,
+    rgba(4, 7, 9, 0) 100%
+  );
 }
-.list-item:hover .titles {
-  opacity: 1;
+.list-item .titles::before {
+  content: '';
+  display: block;
+  width: 2.4vw;
+  height: 2px;
+  margin-bottom: 0.7vw;
+  background: var(--accent, #9fc3d6);
+  box-shadow: 0 0 8px var(--accent, #9fc3d6);
+  transition: 0.4s width ease;
+}
+.list-item:hover .titles::before {
+  width: 5vw;
 }
 .list-item .title {
   color: white;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-size: 1.4vw;
+  font-size: 1.6vw;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  transition: 0.4s letter-spacing ease;
+}
+.list-item:hover .title {
+  letter-spacing: 2px;
 }
 .list-item .subtitle {
-  color: grey;
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
-  margin-bottom: 0.5vw;
-  font-size: 1vw;
+  margin-bottom: 0.4vw;
+  font-size: 0.95vw;
+  letter-spacing: 0.15vw;
+}
+
+/* ------------------------------------------------------------------ */
+/* generated thumbnail animation (classes used inside Thumb.tsx SVGs). */
+/* All animations are transform/opacity-only so they stay cheap; the   */
+/* whole set is disabled under prefers-reduced-motion.                 */
+/* ------------------------------------------------------------------ */
+
+/* marching dashes — set --p per element to a negative multiple of its
+   dash period so the loop wraps without a visible jump */
+.t-dash {
+  animation: t-dash 1.6s linear infinite;
+}
+@keyframes t-dash {
+  to {
+    stroke-dashoffset: var(--p, -40px);
+  }
+}
+
+.t-pulse {
+  animation: t-pulse 2.6s ease-in-out infinite;
+}
+@keyframes t-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.t-flicker {
+  animation: t-flicker 2.2s ease-in-out infinite;
+}
+@keyframes t-flicker {
+  0%,
+  100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.t-bob {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: t-bob 3.2s ease-in-out infinite alternate;
+}
+@keyframes t-bob {
+  from {
+    transform: translateY(3px);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+/* bars growing from their bottom edge */
+.t-grow {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: t-grow 1.3s ease-in-out infinite alternate;
+}
+@keyframes t-grow {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1.05);
+  }
+}
+
+/* equalizer bars scaling about their middle */
+.t-eq {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: t-eq 0.9s ease-in-out infinite alternate;
+}
+@keyframes t-eq {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1.1);
+  }
+}
+
+/* gauge needle sweeping around its pivot (view-box coords) */
+.t-needle {
+  transform-box: view-box;
+  transform-origin: 300px 150px;
+  animation: t-needle 2.6s ease-in-out infinite alternate;
+}
+@keyframes t-needle {
+  from {
+    transform: rotate(-48deg);
+  }
+  to {
+    transform: rotate(28deg);
+  }
+}
+
+/* chase light — stagger animation-delay per element for a rotating dot */
+.t-chase {
+  animation: t-chase 2.4s linear infinite;
+}
+@keyframes t-chase {
+  0%,
+  8% {
+    opacity: 1;
+  }
+  30%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+/* slow ambient accent glow drifting across the card */
+.t-drift {
+  animation: t-drift 9s ease-in-out infinite alternate;
+}
+@keyframes t-drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-110px, 45px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb-anim * {
+    animation: none !important;
+  }
 }
 
 /* clearly-marked missing-content block */
@@ -517,19 +674,15 @@ a {
 /* ------------------------------------------------------------------ */
 /* detail pages                                                        */
 /* ------------------------------------------------------------------ */
-.work-detail .page-title,
-.prototypes-detail .page-title,
-.art-detail .page-title,
-.press-detail .page-title {
+.projects-detail .page-title,
+.prototypes-detail .page-title {
   font-size: 3.5vw;
   letter-spacing: 0.5vw;
   top: 30vh;
   color: #3d5257;
 }
-.work-detail .page-subtitle,
-.prototypes-detail .page-subtitle,
-.art-detail .page-subtitle,
-.press-detail .page-subtitle {
+.projects-detail .page-subtitle,
+.prototypes-detail .page-subtitle {
   top: 25vh;
 }
 
@@ -692,12 +845,15 @@ a {
 .related-list .list-item .titles {
   position: absolute;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.85;
   width: 94%;
   height: 30px;
   padding: 10px;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to top, rgba(4, 7, 9, 0.85), rgba(4, 7, 9, 0) 100%);
   bottom: 0;
+}
+.related-list .list-item .titles::before {
+  display: none;
 }
 .related-list .list-item .title {
   font-size: 1vw;
@@ -754,12 +910,12 @@ a {
 }
 
 /* ------------------------------------------------------------------ */
-/* info                                                                */
+/* about                                                               */
 /* ------------------------------------------------------------------ */
-.info .feature {
+.about .feature {
   margin-top: 30vw;
 }
-.info .info-portrait {
+.about .info-portrait {
   display: block;
   width: 38vw;
   max-width: 420px;
@@ -769,12 +925,12 @@ a {
   filter: grayscale(30%);
   border: 1px solid #222;
 }
-.info .bio {
+.about .bio {
   margin-left: 5vw;
   width: 90vw;
   font-size: 1.4vw;
 }
-.info .bio p {
+.about .bio p {
   opacity: 0.7;
 }
 
@@ -917,13 +1073,19 @@ a {
     height: 44vw;
   }
   .list-item .titles {
-    width: 77vw;
-    padding: 4vw;
-    padding-top: 2vw;
-    height: 8vw;
+    width: auto;
+    padding: 8vw 4vw 2.5vw;
+    height: auto;
+  }
+  .list-item .titles::before {
+    width: 7vw;
+    margin-bottom: 1.5vw;
+  }
+  .list-item:hover .titles::before {
+    width: 12vw;
   }
   .list-item .title {
-    font-size: 3.4vw;
+    font-size: 3.8vw;
   }
   .list-item .subtitle {
     font-size: 2.4vw;
@@ -949,10 +1111,8 @@ a {
     font-size: 2.6vw;
   }
 
-  .work-detail .page-title,
-  .prototypes-detail .page-title,
-  .art-detail .page-title,
-  .press-detail .page-title {
+  .projects-detail .page-title,
+  .prototypes-detail .page-title {
     top: 16vh;
     color: white;
     font-size: 4.5vw;
@@ -960,10 +1120,8 @@ a {
     letter-spacing: 1vw;
     white-space: normal;
   }
-  .work-detail .page-subtitle,
-  .prototypes-detail .page-subtitle,
-  .art-detail .page-subtitle,
-  .press-detail .page-subtitle {
+  .projects-detail .page-subtitle,
+  .prototypes-detail .page-subtitle {
     top: 13vh;
   }
   .feature {
@@ -994,16 +1152,16 @@ a {
     height: 18vw;
   }
 
-  .info .feature {
+  .about .feature {
     margin-top: 25vh;
   }
-  .info .info-portrait {
+  .about .info-portrait {
     width: 70vw;
   }
-  .info .section-title {
+  .about .section-title {
     margin-top: 7vh;
   }
-  .info .bio {
+  .about .bio {
     font-size: 2vh;
   }
   .experience-role {

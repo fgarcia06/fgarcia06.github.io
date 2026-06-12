@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import Page from './Page'
 import Thumb from './Thumb'
-import { home, info, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
+import { home, about, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
 import { useRouter } from '../../lib/router'
 import { useTilt } from '../../lib/tilt'
 import { GitHubIcon, LinkedInIcon, EmailIcon, TwitterIcon, FacebookIcon } from './icons'
@@ -31,7 +31,7 @@ export function HomePage() {
 }
 
 /* ------------------------------------------------------------------ */
-/* section list pages (work / prototypes / art / press)                */
+/* section list pages (projects / prototypes)                          */
 /* ------------------------------------------------------------------ */
 
 function ListEntry({ item, align, onOpen }: { item: ListItem; align: string; onOpen: () => void }) {
@@ -40,6 +40,7 @@ function ListEntry({ item, align, onOpen }: { item: ListItem; align: string; onO
     <div
       data-aos="fade-up"
       className={`list-item work-item ${align}`}
+      style={{ '--accent': item.project.accent } as CSSProperties}
       onClick={onOpen}
     >
       <div className="tilt" ref={tilt}>
@@ -84,22 +85,22 @@ export function SectionPage({ section }: { section: Section }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* info                                                                */
+/* about                                                               */
 /* ------------------------------------------------------------------ */
 
-export function InfoPage() {
+export function AboutPage() {
   const { visibleState } = useRouter()
   return (
-    <Page id="info" active={visibleState === 'info'}>
+    <Page id="about" active={visibleState === 'about'}>
       <div className="page-title" data-aos="zoom-in">
-        {info.title}
+        {about.title}
       </div>
       <div className="page-subtitle" data-aos="zoom-in">
-        {info.subtitle}
+        {about.subtitle}
       </div>
       <div className="feature" data-aos="zoom-in">
         <div className="feature-content">
-          <img className="info-portrait" src={info.portrait} alt="Francis Garcia" />
+          <img className="info-portrait" src={about.portrait} alt="Francis Garcia" />
         </div>
       </div>
 
@@ -107,7 +108,7 @@ export function InfoPage() {
         [ bio ]
       </div>
       <div className="bio" data-aos="fade-in">
-        {info.bio.map((p, i) => (
+        {about.bio.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
       </div>
@@ -117,7 +118,7 @@ export function InfoPage() {
           [ experience ]
         </div>
         <div className="experience-list">
-          {info.experience.map((job) => (
+          {about.experience.map((job) => (
             <div className="experience-item" data-aos="fade-in" key={job.org}>
               <div className="experience-role">{job.role}</div>
               <div className="experience-org">
@@ -138,9 +139,9 @@ export function InfoPage() {
           [ education ]
         </div>
         <div className="education" data-aos="fade-in">
-          <div className="experience-role">{info.education.degree}</div>
+          <div className="experience-role">{about.education.degree}</div>
           <div className="experience-org">
-            {info.education.school} — {info.education.location} · {info.education.dates}
+            {about.education.school} — {about.education.location} · {about.education.dates}
           </div>
         </div>
       </div>
@@ -150,7 +151,7 @@ export function InfoPage() {
           [ skills ]
         </div>
         <div className="skills-list">
-          {info.skillGroups.map((g) => (
+          {about.skillGroups.map((g) => (
             <div className="skills-group" data-aos="fade-in" key={g.title}>
               <b>{g.title}</b>
               <span>{g.tags.join(', ')}</span>
@@ -164,7 +165,7 @@ export function InfoPage() {
           [ contact | social ]
         </div>
         <div className="contact-line" data-aos="fade-in">
-          {info.contact.email} · {info.contact.phone} · {info.contact.location}
+          {about.contact.email} · {about.contact.phone} · {about.contact.location}
         </div>
         <div className="social-list" data-aos="fade-in">
           {social.map((s) => (
@@ -194,7 +195,12 @@ export function InfoPage() {
 function RelatedEntry({ item, onOpen }: { item: ListItem; onOpen: () => void }) {
   const tilt = useTilt<HTMLDivElement>()
   return (
-    <div className="tilt list-item" ref={tilt} onClick={onOpen}>
+    <div
+      className="tilt list-item"
+      ref={tilt}
+      style={{ '--accent': item.project.accent } as CSSProperties}
+      onClick={onOpen}
+    >
       <Thumb project={item.project} className="thumb-img" />
       <div className="titles">
         <div className="subtitle">{item.subtitle}</div>
