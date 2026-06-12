@@ -36,3 +36,15 @@ export function useInteractive() {
   const reduce = usePrefersReducedMotion()
   return fine && !reduce
 }
+
+/**
+ * True when continuous, decorative animation should be suppressed: either the
+ * user asked for reduced motion, or we're on a phone where the constant
+ * repaint of looping SVG/CSS animations tanks scroll performance. One-shot
+ * entrance transitions stay on; only the always-running loops are gated.
+ */
+export function useStillMotion() {
+  const reduce = usePrefersReducedMotion()
+  const mobile = useIsMobile()
+  return reduce || mobile
+}

@@ -1,4 +1,4 @@
-import { useReducedMotion } from 'framer-motion'
+import { useStillMotion } from '../../hooks/useMediaQuery'
 
 interface MarqueeStripProps {
   items: string[]
@@ -13,7 +13,7 @@ interface MarqueeStripProps {
  * Doubles the array for a seamless loop. Respects prefers-reduced-motion.
  */
 export function MarqueeStrip({ items, accent, speed = 45, reverse = false, className = '' }: MarqueeStripProps) {
-  const reduce = useReducedMotion()
+  const reduce = useStillMotion()
   const doubled = [...items, ...items]
 
   return (

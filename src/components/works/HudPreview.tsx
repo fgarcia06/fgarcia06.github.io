@@ -1,7 +1,8 @@
-import { motion, useReducedMotion, useTransform, type MotionValue } from 'framer-motion'
+import { motion, useTransform, type MotionValue } from 'framer-motion'
 import type { ComponentType } from 'react'
 import type { Project, VisualKind } from '../../data/projects'
 import { CrossGrid, CornerTicks } from '../ui/Texture'
+import { useStillMotion } from '../../hooks/useMediaQuery'
 
 /**
  * Wuthering-Waves-styled generated project preview: a dark HUD panel with
@@ -26,6 +27,7 @@ export function HudPreview({
   active = false,
   bare = false,
   index,
+  still = false,
 }: {
   project: Project
   px: Px
@@ -33,8 +35,13 @@ export function HudPreview({
   active?: boolean
   bare?: boolean
   index?: number
+  /** Force a fully static HUD (no looping animation) regardless of viewport. */
+  still?: boolean
 }) {
-  const reduce = useReducedMotion()
+  // Phones get the static HUD: 10 of these animating at once destroys scroll.
+  // `still` also freezes it inside the opened case-study modal so scrolling
+  // the dialog stays smooth.
+  const reduce = useStillMotion() || still
   const a = project.accent
   const Art = ART[project.visual]
 

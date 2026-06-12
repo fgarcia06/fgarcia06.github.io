@@ -125,7 +125,13 @@ export function Modal({
           </svg>
         </button>
 
-        <div className="relative z-10 overflow-y-auto">{children}</div>
+        <div
+          className="relative z-10 overflow-y-auto overscroll-contain"
+          data-lenis-prevent
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
+          {children}
+        </div>
       </motion.div>
     </div>,
     document.body,

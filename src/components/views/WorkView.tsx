@@ -276,7 +276,7 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
         style={{ '--card-accent': project.accent } as React.CSSProperties}
       >
         <div className="h-full w-full">
-          <HudPreview project={project} px={px} py={py} active index={projectIndex} bare />
+          <HudPreview project={project} px={px} py={py} active index={projectIndex} bare still />
         </div>
       </motion.div>
 

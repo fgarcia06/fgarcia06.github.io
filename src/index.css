@@ -102,6 +102,17 @@ html.lenis body {
   cursor: none !important;
 }
 
+/* Mobile performance: backdrop-filter blur is one of the most expensive
+   per-frame GPU operations on phones (every scroll frame re-samples the
+   layers beneath). Drop it on small screens — the translucent background
+   colour stays, so panels still read as glassy without the blur cost. */
+@media (max-width: 768px) {
+  [class*='backdrop-blur'] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 /* ---- Organic motion for the interactive project visuals ---------------- */
 @keyframes drift {
   0%,

@@ -1,4 +1,4 @@
-import { useReducedMotion } from 'framer-motion'
+import { useStillMotion } from '../../hooks/useMediaQuery'
 
 /**
  * Shared HUD decoration kit — the angular Wuthering-Waves / Edgerunners
@@ -54,7 +54,7 @@ export function Readout({
   flicker?: boolean
   className?: string
 }) {
-  const reduce = useReducedMotion()
+  const reduce = useStillMotion()
   return (
     <span
       className={`font-grotesk text-[10px] uppercase ${className}`}
@@ -106,7 +106,7 @@ export function Waveform({
   className?: string
   active?: boolean
 }) {
-  const reduce = useReducedMotion()
+  const reduce = useStillMotion()
   const heights = [40, 75, 55, 100, 65, 85, 45, 95, 60, 78, 50, 88, 42, 70, 58, 92]
   return (
     <span aria-hidden className={`flex h-4 items-end gap-[3px] ${className}`}>
@@ -132,7 +132,7 @@ export function Waveform({
  * soft band drifting down. Sits above the 3D backdrop, below the content.
  */
 export function ScanlineOverlay() {
-  const reduce = useReducedMotion()
+  const reduce = useStillMotion()
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[2]">
       <div

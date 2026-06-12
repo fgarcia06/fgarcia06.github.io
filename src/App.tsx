@@ -3,7 +3,7 @@ import { motion, useScroll, useSpring, useTransform, useVelocity } from 'framer-
 import { chapters } from './chapters'
 import { useSmoothScroll, scrollToId } from './hooks/useLenis'
 import { useActiveSection } from './hooks/useActiveSection'
-import { usePrefersReducedMotion } from './hooks/useMediaQuery'
+import { usePrefersReducedMotion, useIsMobile } from './hooks/useMediaQuery'
 import { PersistentBackdrop } from './components/canvas/PersistentBackdrop'
 import { Cursor } from './components/ui/Cursor'
 import { ScanlineOverlay } from './components/ui/HudDecor'
@@ -32,10 +32,14 @@ function Section({ id, children }: { id: string; children: ReactNode }) {
 export default function App() {
   useSmoothScroll()
   const reduce = usePrefersReducedMotion()
+  const isMobile = useIsMobile()
   const index = useActiveSection(SECTION_IDS)
   const accent = chapters[index].accent
 
   // Scroll-velocity skew — the page leans into fast scrolls and settles back.
+  // Skipped on phones: skewing the whole page every scroll frame repaints the
+  // entire document and is the single biggest cause of mobile scroll jank.
+  const skewOff = reduce || isMobile
   const { scrollY, scrollYProgress } = useScroll()
   const velocity = useVelocity(scrollY)
   const smoothVelocity = useSpring(velocity, { stiffness: 260, damping: 48, mass: 0.6 })
@@ -70,7 +74,7 @@ export default function App() {
       <ChapterNav index={index} />
 
       <main id="main" tabIndex={-1} className="relative z-10 outline-none">
-        <motion.div style={reduce ? undefined : { skewY, transformOrigin: '50% 50%' }}>
+        <motion.div style={skewOff ? undefined : { skewY, transformOrigin: '50% 50%' }}>
           {sections.map((s) => (
             <Section key={s.id} id={s.id}>
               {s.node}
