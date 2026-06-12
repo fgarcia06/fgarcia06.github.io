@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Francis Garcia | Portfolio</title>
+    <script>
+      // GitHub Pages serves this for deep links like /work/secure-fs.
+      // Remember the requested path and bounce to the SPA root; the router
+      // restores it on boot (see RouterProvider).
+      sessionStorage.setItem(
+        'spa-redirect',
+        location.pathname + location.search + location.hash
+      )
+      location.replace('/')
+    </script>
+  </head>
+  <body></body>
+</html>
