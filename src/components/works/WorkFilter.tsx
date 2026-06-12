@@ -45,7 +45,7 @@ export function WorkFilter({
                 aria-hidden
                 className="absolute inset-0"
                 style={{ backgroundColor: `${accent}22`, clipPath: CHAMFER }}
-                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                transition={{ type: 'spring', stiffness: 600, damping: 40 }}
               />
             )}
             <span className={`relative z-10 flex items-center gap-1.5 ${on ? 'text-bone' : 'text-muted hover:text-bone'} transition-colors duration-200`}>

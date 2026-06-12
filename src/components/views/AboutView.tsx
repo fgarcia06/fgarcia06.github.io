@@ -30,7 +30,7 @@ function JobPanel({
       initial={{ opacity: 0, x: -28 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.45, ease: EASE, delay: index * 0.08 }}
+      transition={{ duration: 0.35, ease: EASE, delay: index * 0.06 }}
     >
       {/* Timeline node — pulsing diamond on the rail */}
       <span aria-hidden className="absolute left-0 top-9 hidden sm:block">
@@ -65,7 +65,7 @@ function JobPanel({
         )}
         <span
           aria-hidden
-          className="absolute left-0 top-0 h-full w-[3px] origin-top scale-y-0 transition-transform duration-300 group-hover:scale-y-100"
+          className="absolute left-0 top-0 h-full w-[3px] origin-top scale-y-0 transition-transform duration-200 group-hover:scale-y-100"
           style={{ backgroundColor: accent, transform: 'skewY(-12deg)' }}
         />
 
@@ -182,7 +182,7 @@ export function AboutView({ accent }: { accent: string }) {
                     key={p}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.04 * i, ease: EASE }}
+                    transition={{ duration: 0.24, delay: 0.03 * i, ease: EASE }}
                     className="flex gap-3 leading-relaxed text-bone/90"
                   >
                     <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rotate-45" style={{ backgroundColor: accent }} />

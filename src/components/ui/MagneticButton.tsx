@@ -29,8 +29,8 @@ export function MagneticButton({
   const interactive = useInteractive()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.35 })
-  const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.35 })
+  const sx = useSpring(x, { stiffness: 380, damping: 20, mass: 0.3 })
+  const sy = useSpring(y, { stiffness: 380, damping: 20, mass: 0.3 })
 
   function onMove(e: React.MouseEvent) {
     if (!interactive || !ref.current) return

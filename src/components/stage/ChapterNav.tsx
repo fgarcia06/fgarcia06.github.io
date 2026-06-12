@@ -20,14 +20,14 @@ export function ChapterNav({ index }: { index: number }) {
             className="group flex cursor-pointer items-center justify-end gap-3"
           >
             <span
-              className={`text-xs uppercase tracking-[0.18em] transition-all duration-300 ${
+              className={`text-xs uppercase tracking-[0.18em] transition-all duration-200 ${
                 active ? 'text-bone opacity-100' : 'text-muted opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
               }`}
             >
               {c.label}
             </span>
             <span
-              className="block rounded-full transition-all duration-300"
+              className="block rounded-full transition-all duration-200"
               style={{
                 width: active ? 26 : 8,
                 height: 8,

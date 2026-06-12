@@ -45,7 +45,7 @@ export function SplitText({
                 hidden: { y: '110%' },
                 visible: {
                   y: 0,
-                  transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                  transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
                 },
               }}
             >

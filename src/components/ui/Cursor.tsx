@@ -14,8 +14,8 @@ export function Cursor() {
 
   const x = useMotionValue(-100)
   const y = useMotionValue(-100)
-  const ringX = useSpring(x, { stiffness: 350, damping: 28, mass: 0.5 })
-  const ringY = useSpring(y, { stiffness: 350, damping: 28, mass: 0.5 })
+  const ringX = useSpring(x, { stiffness: 800, damping: 35, mass: 0.35 })
+  const ringY = useSpring(y, { stiffness: 800, damping: 35, mass: 0.35 })
 
   useEffect(() => {
     if (!interactive) return
@@ -61,7 +61,7 @@ export function Cursor() {
           height: grow ? 56 : 30,
           backgroundColor: grow ? 'rgba(108,140,255,0.14)' : 'rgba(108,140,255,0)',
         }}
-        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+        transition={{ type: 'spring', stiffness: 600, damping: 32 }}
       />
     </>
   )

@@ -7,7 +7,7 @@ export function StaticBackdrop({ accent = '#6c8cff' }: { accent?: string }) {
   return (
     <div
       aria-hidden
-      className="absolute inset-0 transition-[background] duration-700"
+      className="absolute inset-0 transition-[background] duration-500"
       style={{
         background:
           `radial-gradient(720px 460px at 24% 28%, ${accent}33, transparent 60%),` +

@@ -26,10 +26,10 @@ function TiltPanel({
   const interactive = useInteractive()
   const px = useMotionValue(0)
   const py = useMotionValue(0)
-  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [6, -6]), { stiffness: 260, damping: 20 })
-  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-8, 8]), { stiffness: 260, damping: 20 })
-  const glowOpacity = useSpring(0, { stiffness: 220, damping: 20 })
-  const entranceDelay = (index % 3) * 0.06
+  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [6, -6]), { stiffness: 400, damping: 26 })
+  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-8, 8]), { stiffness: 400, damping: 26 })
+  const glowOpacity = useSpring(0, { stiffness: 400, damping: 26 })
+  const entranceDelay = (index % 3) * 0.045
 
   function onMove(e: React.MouseEvent) {
     if (!interactive || !ref.current) return
@@ -52,7 +52,7 @@ function TiltPanel({
       initial={{ opacity: 0, scale: 0.94, y: 28 }}
       whileInView={{ opacity: 1, scale: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: entranceDelay }}
+      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1], delay: entranceDelay }}
       style={{
         clipPath: CHAMFER_LG,
         ...(interactive

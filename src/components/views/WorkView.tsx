@@ -64,13 +64,13 @@ function WorkProjectRow({
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-24px' }}
-      transition={{ duration: 0.4, ease: EASE, delay: index * 0.04 }}
+      transition={{ duration: 0.32, ease: EASE, delay: index * 0.03 }}
     >
       {/* Layer 1 — HUD preview, always alive, breathes in on hover */}
       <motion.div
         className="absolute inset-0"
         animate={{ scale: isHovered ? 1.02 : 1 }}
-        transition={{ duration: 0.3, ease: EASE }}
+        transition={{ duration: 0.2, ease: EASE }}
       >
         <HudPreview project={project} px={px} py={py} active={isHovered} index={index} bare />
       </motion.div>
@@ -83,7 +83,7 @@ function WorkProjectRow({
         className="pointer-events-none absolute inset-0"
         style={{ background: `linear-gradient(100deg, ${project.accent}16 0%, transparent 45%)` }}
         animate={{ opacity: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.28, ease: EASE }}
+        transition={{ duration: 0.18, ease: EASE }}
       />
 
       {/* Hover chrome — slanted accent blade + top edge line */}
@@ -92,20 +92,20 @@ function WorkProjectRow({
         className="absolute left-0 top-0 h-full w-[3px] origin-top"
         style={{ backgroundColor: project.accent, transform: 'skewY(-12deg)' }}
         animate={{ scaleY: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.3, ease: EASE }}
+        transition={{ duration: 0.2, ease: EASE }}
       />
       <motion.span
         aria-hidden
         className="absolute left-0 top-0 h-px w-full origin-left"
         style={{ backgroundColor: `${project.accent}88` }}
         animate={{ scaleX: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.4, ease: EASE }}
+        transition={{ duration: 0.26, ease: EASE }}
       />
 
       {/* Oversized watermark index — deep layer, right side */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -right-2 top-1/2 hidden -translate-y-1/2 select-none font-serif text-[9rem] font-bold leading-none tracking-tight transition-colors duration-300 lg:block"
+        className="pointer-events-none absolute -right-2 top-1/2 hidden -translate-y-1/2 select-none font-serif text-[9rem] font-bold leading-none tracking-tight transition-colors duration-200 lg:block"
         style={{ color: isHovered ? `${project.accent}14` : 'rgba(231,234,242,0.04)' }}
       >
         {String(index + 1).padStart(2, '0')}
@@ -116,18 +116,18 @@ function WorkProjectRow({
         <div>
           <div className="flex items-center gap-3">
             <span
-              className="flex items-center gap-2 font-grotesk text-xs tabular-nums tracking-[0.12em] transition-colors duration-300"
+              className="flex items-center gap-2 font-grotesk text-xs tabular-nums tracking-[0.12em] transition-colors duration-200"
               style={{ color: isHovered ? project.accent : 'var(--color-muted)' }}
             >
               <span
                 aria-hidden
-                className="inline-block h-1.5 w-1.5 rotate-45 transition-colors duration-300"
+                className="inline-block h-1.5 w-1.5 rotate-45 transition-colors duration-200"
                 style={{ backgroundColor: isHovered ? project.accent : 'var(--color-border)' }}
               />
               {String(index + 1).padStart(2, '0')}
             </span>
             <span
-              className="border px-2.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.18em] transition-[border-color,color,background-color] duration-300"
+              className="border px-2.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.18em] transition-[border-color,color,background-color] duration-200"
               style={{
                 clipPath: CHAMFER,
                 borderColor: isHovered ? `${project.accent}88` : 'var(--color-border)',
@@ -139,10 +139,10 @@ function WorkProjectRow({
             </span>
           </div>
           <motion.h3
-            className="mt-2.5 font-serif text-2xl font-semibold leading-snug tracking-[-0.01em] transition-colors duration-300 sm:text-3xl"
+            className="mt-2.5 font-serif text-2xl font-semibold leading-snug tracking-[-0.01em] transition-colors duration-200 sm:text-3xl"
             style={{ color: isHovered ? project.accent : 'var(--color-bone)' }}
             animate={{ x: isHovered ? 10 : 0 }}
-            transition={{ duration: 0.3, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
           >
             {project.title}
           </motion.h3>
@@ -162,7 +162,7 @@ function WorkProjectRow({
             backgroundColor: `${project.accent}10`,
           }}
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 16 }}
-          transition={{ duration: 0.25, ease: EASE }}
+          transition={{ duration: 0.17, ease: EASE }}
         >
           Open
           <span className="text-sm leading-none">→</span>
@@ -227,8 +227,8 @@ export function WorkView({ accent }: { accent: string }) {
               <motion.div
                 key={p.id}
                 layout
-                exit={{ opacity: 0, transition: { duration: 0.18 } }}
-                transition={{ type: 'spring', stiffness: 340, damping: 34 }}
+                exit={{ opacity: 0, transition: { duration: 0.14 } }}
+                transition={{ type: 'spring', stiffness: 520, damping: 38 }}
               >
                 <WorkProjectRow
                   project={p}
@@ -272,7 +272,7 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
         className="aspect-[16/9] sm:aspect-[2/1]"
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.38, ease: EASE }}
+        transition={{ duration: 0.26, ease: EASE }}
         style={{ '--card-accent': project.accent } as React.CSSProperties}
       >
         <div className="h-full w-full">
@@ -323,7 +323,7 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
                     layoutId="case-tab-underline"
                     className="absolute inset-x-0 -bottom-px h-0.5 rounded-full"
                     style={{ backgroundColor: project.accent }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    transition={{ type: 'spring', stiffness: 600, damping: 40 }}
                   />
                 )}
               </button>
@@ -338,7 +338,7 @@ function CaseOverlay({ project, onClose }: { project: Project; onClose: () => vo
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.26, ease: EASE }}
+            transition={{ duration: 0.18, ease: EASE }}
             className="pt-6"
           >
             {tab === 'overview' ? <Overview project={project} /> : <HowItWorks project={project} />}
@@ -372,7 +372,7 @@ function Overview({ project }: { project: Project }) {
             key={pt}
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.05 * i, ease: EASE }}
+            transition={{ duration: 0.3, delay: 0.035 * i, ease: EASE }}
             className="flex gap-3 leading-relaxed text-bone/90"
           >
             <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rotate-45" style={{ backgroundColor: project.accent }} />

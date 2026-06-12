@@ -60,7 +60,7 @@ export function ProjectFlow({ stages, accent }: { stages: FlowStage[]; accent: s
               initial={reduce ? false : { opacity: 0, x: -10 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.08, ease: EASE }}
+              transition={{ duration: 0.35, delay: i * 0.06, ease: EASE }}
               onMouseEnter={() => setActive(i)}
               className="relative cursor-default rounded-lg py-2 pl-7 pr-3 transition-colors duration-200"
               style={{ backgroundColor: on ? `${accent}12` : 'transparent' }}

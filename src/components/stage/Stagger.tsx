@@ -21,7 +21,7 @@ export function Stagger({
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, margin: '-15% 0px -15% 0px' }}
-      transition={{ staggerChildren: reduce ? 0 : 0.05, delayChildren: reduce ? 0 : delay }}
+      transition={{ staggerChildren: reduce ? 0 : 0.04, delayChildren: reduce ? 0 : delay }}
     >
       {children}
     </motion.div>
@@ -36,7 +36,7 @@ export function Item({ children, className }: { children: ReactNode; className?:
       className={className}
       variants={{
         hidden: { opacity: 0, y: 22 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+        show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] } },
       }}
     >
       {children}

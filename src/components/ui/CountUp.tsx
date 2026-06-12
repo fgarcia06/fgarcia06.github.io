@@ -10,7 +10,7 @@ import { useReducedMotion } from 'framer-motion'
 export function CountUp({
   value,
   className,
-  duration = 1200,
+  duration = 900,
 }: {
   value: string
   className?: string

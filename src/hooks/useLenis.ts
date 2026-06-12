@@ -21,7 +21,7 @@ export function useSmoothScroll() {
   useEffect(() => {
     if (reduce) return
     const instance = new Lenis({
-      duration: 0.95,
+      duration: 0.8,
       easing: EASE_OUT_EXPO,
       smoothWheel: true,
       touchMultiplier: 1.4,
@@ -45,6 +45,6 @@ export function useSmoothScroll() {
 export function scrollToId(id: string) {
   const el = document.getElementById(id)
   if (!el) return
-  if (lenis) lenis.scrollTo(el, { duration: 1.1, easing: EASE_OUT_EXPO })
+  if (lenis) lenis.scrollTo(el, { duration: 0.9, easing: EASE_OUT_EXPO })
   else el.scrollIntoView({ behavior: 'smooth' })
 }

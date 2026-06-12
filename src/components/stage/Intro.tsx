@@ -13,7 +13,7 @@ export function Intro() {
 
   useEffect(() => {
     if (reduce) return
-    const t = setTimeout(() => setShow(false), 950)
+    const t = setTimeout(() => setShow(false), 650)
     return () => clearTimeout(t)
   }, [reduce])
 
@@ -25,13 +25,13 @@ export function Intro() {
         <motion.div
           className="fixed inset-0 z-[80] grid place-items-center bg-bg"
           exit={{ y: '-100%' }}
-          transition={{ duration: 0.65, ease: [0.76, 0, 0.24, 1] }}
+          transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
         >
           <div className="overflow-hidden px-6">
             <motion.h1
               initial={{ y: '110%' }}
               animate={{ y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
               className="glitch glitch-now font-serif text-[clamp(2.5rem,9vw,7rem)] font-bold tracking-[-0.02em] text-bone"
               data-text="Francis Garcia"
             >
@@ -41,7 +41,7 @@ export function Intro() {
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
+            transition={{ delay: 0.32, duration: 0.35 }}
             className="absolute bottom-10 font-grotesk text-xs uppercase tracking-[0.3em] text-moss"
           >
             Robotics · Software · ML

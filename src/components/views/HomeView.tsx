@@ -90,14 +90,14 @@ export function HomeView() {
         className="flex w-full flex-col items-center"
       >
         {/* delay ≈ intro-curtain lift so the entrance plays in the open */}
-        <Stagger delay={1.0} className="flex flex-col items-center">
+        <Stagger delay={0.7} className="flex flex-col items-center">
           {/* Portrait — nearest parallax plane, framed by a rotating reticle */}
           <Item>
             <motion.div style={{ x: portraitX, y: portraitY }}>
               <motion.div
                 initial={reduce ? false : { opacity: 0, scale: 0.85, filter: 'blur(8px)' }}
                 animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.95 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.66 }}
                 className="relative mx-auto h-28 w-28 md:h-32 md:w-32"
               >
                 <div
@@ -157,7 +157,7 @@ export function HomeView() {
                   className="inline-block"
                   initial={reduce ? false : { y: '110%' }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 1.05 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.74 }}
                   style={{ textShadow: '0 0 45px rgba(108,140,255,0.45), 0 0 100px rgba(108,140,255,0.15)' }}
                 >
                   Francis
@@ -170,7 +170,7 @@ export function HomeView() {
                   className="inline-block"
                   initial={reduce ? false : { y: '110%' }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 1.18 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.83 }}
                   style={{ textShadow: '0 0 45px rgba(124,212,253,0.4), 0 0 100px rgba(124,212,253,0.12)' }}
                 >
                   Garcia
@@ -181,12 +181,12 @@ export function HomeView() {
 
           <TextReveal
             text={profile.statement}
-            delay={1.35}
+            delay={0.95}
             className="mx-auto mt-6 max-w-2xl text-center font-serif text-xl font-medium italic leading-snug text-bone/90 sm:text-2xl"
           />
           <TextReveal
             text={profile.tagline}
-            delay={1.5}
+            delay={1.05}
             className="mx-auto mt-3 max-w-md text-center text-muted"
           />
 

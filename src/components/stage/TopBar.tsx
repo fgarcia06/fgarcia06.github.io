@@ -44,7 +44,7 @@ export function TopBar({ index }: { index: number }) {
     <motion.header
       className="fixed inset-x-0 top-0 z-40"
       animate={{ y: hidden ? '-110%' : '0%' }}
-      transition={{ duration: 0.45, ease: EASE }}
+      transition={{ duration: 0.32, ease: EASE }}
     >
       <div className="bg-gradient-to-b from-bg/85 to-transparent pb-3 backdrop-blur-[2px]">
         <div className="mx-auto flex min-h-[64px] w-[min(1120px,calc(100%-2.5rem))] items-center justify-between">
@@ -97,7 +97,7 @@ export function TopBar({ index }: { index: number }) {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: EASE }}
+              transition={{ duration: 0.16, ease: EASE }}
               aria-label="Sections"
               className="mx-auto w-[min(1120px,calc(100%-2.5rem))] md:hidden"
             >

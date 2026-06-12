@@ -95,7 +95,7 @@ export function Modal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.22 }}
+        transition={{ duration: 0.16 }}
         onClick={onClose}
       />
 
@@ -107,7 +107,7 @@ export function Modal({
         initial={{ opacity: 0, y: 16, scale: 0.97, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
         exit={{ opacity: 0, y: 16, scale: 0.97, filter: 'blur(6px)' }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* field-notes signature */}
         <span aria-hidden className="absolute inset-x-0 top-0 z-20 h-[2px]" style={{ backgroundColor: accent }} />
