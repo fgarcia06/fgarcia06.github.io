@@ -444,8 +444,11 @@ a {
   pointer-events: none;
   font-size: 5vw;
   letter-spacing: 2.6vw;
-  color: hsla(192, 18%, 49%, 1);
-  filter: drop-shadow(0px 6px 10px #3d5257);
+  /* bright ice-white reads cleanly over the crystalline Tacet Mark; the dark
+     drop-shadows carve the glyphs out of the bright central spikes */
+  color: hsla(200, 40%, 96%, 1);
+  filter: drop-shadow(0 2px 10px rgba(2, 6, 14, 0.85))
+    drop-shadow(0 0 34px rgba(4, 10, 22, 0.9));
   text-indent: 2.6vw;
   /* Jost 100 reads thinner than the reference's futura-pt light — 200
      matches its optical weight */
@@ -468,7 +471,8 @@ a {
   left: auto;
   padding: 0;
   margin: 0;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 2px 8px rgba(2, 6, 14, 0.85);
 }
 
 .footer-menu {
@@ -928,10 +932,14 @@ a {
 .about .bio {
   margin-left: 5vw;
   width: 90vw;
-  font-size: 1.4vw;
+  font-size: 1.7vw;
+  text-align: center;
 }
 .about .bio p {
-  opacity: 0.7;
+  opacity: 0.85;
+  max-width: 60vw;
+  margin: 0 auto 1.2vh;
+  line-height: 1.6;
 }
 
 .experience-list,
@@ -941,29 +949,174 @@ a {
 }
 .experience-item {
   margin-bottom: 6vh;
+  padding-left: 1.4vw;
+  border-left: 2px solid rgba(120, 200, 230, 0.35);
 }
 .experience-role {
   text-transform: uppercase;
   letter-spacing: 0.3vw;
-  font-size: 1.2vw;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.45vw;
+  color: rgba(255, 255, 255, 1);
 }
 .experience-org {
   text-transform: uppercase;
   letter-spacing: 0.15vw;
-  font-size: 0.9vw;
-  color: rgba(255, 255, 255, 0.45);
-  margin-top: 0.5vh;
+  font-size: 1.05vw;
+  color: rgba(150, 210, 235, 0.85);
+  margin-top: 0.6vh;
 }
 .experience-item ul {
   margin-top: 2vh;
   padding-left: 1.2vw;
 }
 .experience-item li {
-  font-size: 1.1vw;
-  line-height: 1.8;
-  opacity: 0.7;
-  margin-bottom: 0.8vh;
+  font-size: 1.3vw;
+  line-height: 1.75;
+  opacity: 0.92;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 1vh;
+}
+
+/* standalone skills page: push the block clear of the oversized page title */
+.skills .skills-block {
+  margin-top: 38vh;
+}
+
+/* ---- interactive "resonance stack": Tacet/HUD panels with a restrained
+   Wuthering-Waves + Edgerunners edge (clipped corners, neon accents) ---- */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6vw;
+  width: 82vw;
+  margin: 0 auto;
+}
+.skill-card {
+  perspective: 1000px;
+}
+.skill-card-tilt {
+  position: relative;
+  padding: 2.2vh 1.6vw;
+  background: linear-gradient(160deg, rgba(12, 20, 30, 0.72), rgba(6, 10, 16, 0.58));
+  border: 1px solid rgba(120, 200, 230, 0.18);
+  /* angular clipped corners, like a Tacet Field / HUD readout */
+  clip-path: polygon(
+    0 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  );
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+/* cyan power-line that runs along the top edge and extends on hover */
+.skill-card-tilt::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 38%;
+  background: linear-gradient(90deg, #38e1ff, transparent);
+  opacity: 0.5;
+  transition: 0.35s ease;
+}
+.skill-card:hover .skill-card-tilt {
+  border-color: rgba(120, 225, 255, 0.6);
+  box-shadow: 0 0 24px rgba(40, 180, 230, 0.22), inset 0 0 18px rgba(40, 160, 210, 0.08);
+  background: linear-gradient(160deg, rgba(16, 28, 40, 0.82), rgba(8, 12, 20, 0.66));
+}
+.skill-card:hover .skill-card-tilt::before {
+  width: 88%;
+  opacity: 1;
+}
+/* edgerunner-yellow corner brackets, lit on hover */
+.skill-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  border-color: rgba(255, 210, 70, 0);
+  transition: 0.3s ease;
+}
+.skill-corner.tl {
+  top: 6px;
+  left: 6px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.skill-corner.br {
+  bottom: 6px;
+  right: 6px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+.skill-card:hover .skill-corner {
+  border-color: rgba(255, 210, 70, 0.85);
+}
+.skill-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6vw;
+  margin-bottom: 1.4vh;
+}
+.skill-index {
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.82vw;
+  color: #38e1ff;
+  opacity: 0.85;
+  letter-spacing: 0.08vw;
+}
+.skill-card-title {
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.15vw;
+  font-size: 1.05vw;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+.skill-glyph {
+  color: #9fd9ff;
+  font-size: 0.95vw;
+  opacity: 0.5;
+  transition: transform 0.4s ease, opacity 0.3s, color 0.3s;
+}
+.skill-card:hover .skill-glyph {
+  opacity: 1;
+  color: #ffd24a;
+  transform: rotate(90deg) scale(1.15);
+}
+.skill-scanline {
+  height: 1px;
+  width: 100%;
+  margin-bottom: 1.6vh;
+  background: linear-gradient(90deg, transparent, rgba(120, 200, 230, 0.4), transparent);
+}
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5vw;
+}
+.skill-tag {
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.8vw;
+  letter-spacing: 0.02vw;
+  padding: 0.5vh 0.7vw;
+  color: rgba(190, 225, 240, 0.78);
+  background: rgba(120, 200, 230, 0.06);
+  border: 1px solid rgba(120, 200, 230, 0.16);
+  border-radius: 2px;
+  transition: 0.2s ease;
+  cursor: default;
+}
+.skill-tag:hover {
+  color: #06121a;
+  background: #7fe3ff;
+  border-color: #7fe3ff;
+  box-shadow: 0 0 12px rgba(120, 225, 255, 0.6);
 }
 
 .skills-list {
@@ -1094,7 +1247,7 @@ a {
   .home .page-title {
     font-size: 8vw;
     font-weight: 300;
-    color: hsla(192, 22%, 62%, 1);
+    color: hsla(200, 40%, 96%, 1);
   }
   .home .page-subtitle {
     font-size: 2.2vw;
@@ -1177,7 +1330,33 @@ a {
   .skills-group b {
     font-size: 2.6vw;
   }
+  .experience-item li {
+    font-size: 3vw;
+  }
   .contact-line {
     font-size: 2.4vw;
+  }
+
+  /* skills cards stack into one column and scale their text up */
+  .skills-grid {
+    grid-template-columns: 1fr;
+    gap: 4vw;
+    width: 86vw;
+  }
+  .skill-card-tilt {
+    padding: 3vw 4vw;
+  }
+  .skill-index {
+    font-size: 2.6vw;
+  }
+  .skill-card-title {
+    font-size: 3.6vw;
+  }
+  .skill-glyph {
+    font-size: 3.2vw;
+  }
+  .skill-tag {
+    font-size: 2.6vw;
+    padding: 0.6vh 2vw;
   }
 }

@@ -45,6 +45,7 @@ export const menu = [
   { title: 'home', link: 'home' },
   { title: 'projects', link: 'projects' },
   { title: 'prototypes', link: 'prototypes' },
+  { title: 'skills', link: 'skills' },
   { title: 'about', link: 'about' },
   // TODO(content): the reference menu also has "reel" opening a showreel
   // video. No reel/video content exists in my sources, so it is omitted.
@@ -112,21 +113,29 @@ export function relatedFor(section: Section, item: ListItem, max = 6): ListItem[
 /* about page — all content from resume.md                             */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* skills page — its own section, lifted out of about                  */
+/* ------------------------------------------------------------------ */
+
+export const skills = {
+  title: 'skills',
+  pageTitle: 'Francis Garcia | Skills',
+  subtitle: 'Languages | Frameworks | Hardware | AI/ML',
+  groups: skillGroups,
+}
+
 export const about = {
   title: 'about',
   pageTitle: 'Francis Garcia | About',
-  subtitle: 'About | Experience | Skills | Contact',
+  subtitle: 'About | Experience | Contact',
   portrait: profile.portrait,
   // Assembled strictly from resume.md facts (education, roles, skills).
   bio: [
-    `Francis Garcia is a Computer Engineering student (B.Sc., Software Co-op) at the ${education.school} in ${profile.location} (${education.dates}), building automation, full-stack, and applied-ML systems.`,
-    'As a Junior Robotics Engineer at TRICCA Technologies he delivered a production-ready automated pipetting system for a University of Alberta chemistry lab — engineering Python and C++ control modules over I2C, SPI, GPIO, and serial protocols on a Klipper/Moonraker/Mainsail firmware stack, cutting QA cycle time by 60% with automated test pipelines, and shipping a full-stack web app for browser-based remote operation.',
-    'As a Process Control Lab Assistant at a University of Alberta research lab he implemented a SINDy pipeline reconstructing governing ODEs from experimental sensor data to under 5% model error, and applied Kalman filtering, PID tuning, and MPC to improve closed-loop control fidelity.',
-    'His toolset spans Python, C++, C, Java, JavaScript/TypeScript, SQL, and MATLAB; React Native, Next.js, Node.js, TensorFlow, OpenCV, NumPy, and Pandas; and embedded work with Arduino, Raspberry Pi, I2C/SPI/UART, PWM, Klipper, Fusion 360, and 3D printing. On the AI/ML side: YOLO, TensorFlow/ONNX, Kalman filtering, MPC, SINDy, RL, and LLM API integration (OpenAI, Claude).',
+    `I'm a Computer Engineering student at the ${education.school}, building robotics, full-stack, and applied-ML systems.`,
+    'I make machines move and software think — from production lab robots to real-time perception and data-driven control.',
   ],
   education,
   experience,
-  skillGroups,
   contact: {
     email: profile.email,
     phone: profile.phone,

@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { loader } from './loader'
-import { appState, orbOpacityFor } from './appState'
+import { appState, orbOpacityFor, shapeFor } from './appState'
 import { home, sections, sectionById, siteTitle } from '../data/site'
 
 /**
@@ -38,6 +38,7 @@ function titleFor(state: string): string {
   const [section, page] = state.split('/')
   if (section === 'home' || !section) return home.pageTitle
   if (section === 'about') return 'Francis Garcia | About'
+  if (section === 'skills') return 'Francis Garcia | Skills'
   const s = sectionById(section)
   if (!s) return siteTitle
   if (page) {
@@ -49,7 +50,7 @@ function titleFor(state: string): string {
 
 function isValid(state: string): boolean {
   const [section, page] = state.split('/')
-  if (section === 'home' || section === 'about') return !page
+  if (section === 'home' || section === 'about' || section === 'skills') return !page
   const s = sectionById(section)
   if (!s) return false
   if (!page) return true
@@ -97,6 +98,9 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     setState(next)
     document.title = titleFor(next)
     appState.orbTarget = orbOpacityFor(next)
+    appState.shapeTarget = shapeFor(next)
+    // kick the Tacet Mark's section-change burst (decayed in Background)
+    appState.pulse = 1.0
     if (push) {
       window.history.pushState(next, '', next === 'home' ? '/' : `/${next}`)
     }

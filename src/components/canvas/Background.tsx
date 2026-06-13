@@ -36,15 +36,15 @@ function ShaderPlane() {
       adj: { value: 0.2 - window.innerHeight / window.innerWidth },
       orbOpacity: { value: 1.0 },
       intensity: { value: 1.0 },
+      pulse: { value: 0.0 },
+      shape: { value: 0.0 },
     }),
     [],
   )
 
-  const fragment = useMemo(
-    // Mobile gets a lighter raymarch (fewer steps) — same look, less cost.
-    () => makeBackgroundFragment(isMobile ? 28 : 60),
-    [],
-  )
+  // The 3D Tacet Mark is raymarched — mobile gets fewer steps for the same
+  // look at lower cost.
+  const fragment = useMemo(() => makeBackgroundFragment(isMobile ? 40 : 80), [])
 
   useFrame((_, delta) => {
     const u = uniforms
@@ -55,8 +55,15 @@ function ShaderPlane() {
     u.iMouse.value.x += (appState.mouse.x - u.iMouse.value.x) * 0.05
     u.iMouse.value.y += (appState.mouse.y - u.iMouse.value.y) * 0.05
     // section orb opacity tween
-    u.orbOpacity.value = THREE.MathUtils.damp(u.orbOpacity.value, appState.orbTarget, 2.2, delta)
+    // snappier than the original 2.2 so the tacet↔abstract morph feels fast
+    u.orbOpacity.value = THREE.MathUtils.damp(u.orbOpacity.value, appState.orbTarget, 3.4, delta)
+    // which abstract shape the mark morphs into — eased so the gyroid↔ring
+    // swap cross-fades smoothly when moving between section groups
+    u.shape.value = THREE.MathUtils.damp(u.shape.value, appState.shapeTarget, 3.0, delta)
     u.intensity.value = appState.intensity
+    // decay the navigation burst toward 0 (~1s tail) and feed it to the shader
+    appState.pulse = THREE.MathUtils.damp(appState.pulse, 0, 3.2, delta)
+    u.pulse.value = appState.pulse
     u.iResolution.value.set(size.width, size.height)
     u.adj.value = 0.2 - size.height / size.width
   })

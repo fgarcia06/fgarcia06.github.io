@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import Page from './Page'
 import Thumb from './Thumb'
-import { home, about, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
+import { home, about, skills, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
 import { useRouter } from '../../lib/router'
 import { useTilt } from '../../lib/tilt'
 import { GitHubIcon, LinkedInIcon, EmailIcon, TwitterIcon, FacebookIcon } from './icons'
@@ -85,6 +85,65 @@ export function SectionPage({ section }: { section: Section }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* skills                                                              */
+/* ------------------------------------------------------------------ */
+
+function SkillCard({ group, index }: { group: (typeof skills.groups)[number]; index: number }) {
+  const tilt = useTilt<HTMLDivElement>()
+  return (
+    <div
+      className="skill-card"
+      data-aos="fade-up"
+      style={{ transitionDelay: `${index * 90}ms` }}
+    >
+      <div className="skill-card-tilt" ref={tilt}>
+        {/* angular Tacet-style corner brackets */}
+        <span className="skill-corner tl" />
+        <span className="skill-corner br" />
+        <div className="skill-card-head">
+          <span className="skill-index">{String(index + 1).padStart(2, '0')}</span>
+          <span className="skill-card-title">{group.title}</span>
+          <span className="skill-glyph" aria-hidden>◆</span>
+        </div>
+        <div className="skill-scanline" />
+        <div className="skill-tags">
+          {group.tags.map((t) => (
+            <span className="skill-tag" key={t}>
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function SkillsPage() {
+  const { visibleState } = useRouter()
+  return (
+    <Page id="skills" active={visibleState === 'skills'}>
+      <div className="page-title" data-aos="zoom-in">
+        {skills.title}
+      </div>
+      <div className="page-subtitle" data-aos="zoom-in">
+        {skills.subtitle}
+      </div>
+
+      <div className="skills-block info-block">
+        <div className="section-title" data-aos="fade-in">
+          [ resonance stack ]
+        </div>
+        <div className="skills-grid">
+          {skills.groups.map((g, i) => (
+            <SkillCard key={g.title} group={g} index={i} />
+          ))}
+        </div>
+      </div>
+    </Page>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* about                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -113,6 +172,18 @@ export function AboutPage() {
         ))}
       </div>
 
+      <div className="education-block info-block">
+        <div className="section-title" data-aos="fade-in">
+          [ education ]
+        </div>
+        <div className="education" data-aos="fade-in">
+          <div className="experience-role">{about.education.degree}</div>
+          <div className="experience-org">
+            {about.education.school} — {about.education.location} · {about.education.dates}
+          </div>
+        </div>
+      </div>
+
       <div className="experience-block info-block">
         <div className="section-title" data-aos="fade-in">
           [ experience ]
@@ -129,32 +200,6 @@ export function AboutPage() {
                   <li key={i}>{p}</li>
                 ))}
               </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="education-block info-block">
-        <div className="section-title" data-aos="fade-in">
-          [ education ]
-        </div>
-        <div className="education" data-aos="fade-in">
-          <div className="experience-role">{about.education.degree}</div>
-          <div className="experience-org">
-            {about.education.school} — {about.education.location} · {about.education.dates}
-          </div>
-        </div>
-      </div>
-
-      <div className="skills-block info-block">
-        <div className="section-title" data-aos="fade-in">
-          [ skills ]
-        </div>
-        <div className="skills-list">
-          {about.skillGroups.map((g) => (
-            <div className="skills-group" data-aos="fade-in" key={g.title}>
-              <b>{g.title}</b>
-              <span>{g.tags.join(', ')}</span>
             </div>
           ))}
         </div>
