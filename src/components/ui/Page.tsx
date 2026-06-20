@@ -2,12 +2,14 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { useAos } from '../../lib/aos'
 
 /**
- * Clone of the reference's showPage/hidePage choreography:
- *  - show: remove .hide (re-enters DOM flow), then +100ms add .show
- *    (.8s ease-in-out slide-up + fade via CSS); page titles re-animate
- *    at +500ms like the section views do.
- *  - hide: remove .show immediately (slide-down + fade), add .hide
- *    (display:none) after 1000ms.
+ * Page show/hide choreography, reworked into a depth/zoom model so navigation
+ * reads as travelling through space:
+ *  - show: remove .hide (re-enters DOM flow), then +100ms add .show — the page
+ *    zooms in from deep space (scale up from far) and fades in; titles
+ *    re-animate at +500ms.
+ *  - hide: remove .show, add .zoom-through — the outgoing page rushes toward
+ *    and past the viewer (scale up + fade); .hide (display:none) lands at
+ *    +1000ms once it's gone. First paint hides instantly without animating.
  */
 export default function Page({
   id,
@@ -32,7 +34,7 @@ export default function Page({
     const timers: number[] = []
 
     if (active) {
-      el.classList.remove('hide')
+      el.classList.remove('hide', 'zoom-through')
       const titles = el.querySelectorAll('.page-title, .page-subtitle')
       titles.forEach((t) => t.classList.remove('aos-animate'))
       timers.push(window.setTimeout(() => el.classList.add('show'), 100))
@@ -46,7 +48,14 @@ export default function Page({
       if (first.current) {
         el.classList.add('hide')
       } else {
-        timers.push(window.setTimeout(() => el.classList.add('hide'), 1000))
+        // fly the outgoing page through the camera, then drop it from flow
+        el.classList.add('zoom-through')
+        timers.push(
+          window.setTimeout(() => {
+            el.classList.add('hide')
+            el.classList.remove('zoom-through')
+          }, 1000),
+        )
       }
     }
     first.current = false

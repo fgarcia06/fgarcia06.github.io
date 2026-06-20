@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { loader } from './loader'
+import { cinema } from './cinema'
 import { appState, orbOpacityFor, shapeFor } from './appState'
 import { home, sections, sectionById, siteTitle } from '../data/site'
 
@@ -84,7 +85,9 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef(state)
   const timers = useRef<number[]>([])
 
-  const go = useCallback((next: string, push = true) => {
+  // `silent` suppresses the cinematic transition (used for the first boot
+  // nav, where the page is arriving rather than cutting between scenes).
+  const go = useCallback((next: string, push = true, silent = false) => {
     // legacy routes from before the work→projects / info→about rename
     next = next.replace(/^work(\/|$)/, 'projects$1').replace(/^info$/, 'about')
     if (stateRef.current === next) return
@@ -101,6 +104,12 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     appState.shapeTarget = shapeFor(next)
     // kick the Tacet Mark's section-change burst (decayed in Background)
     appState.pulse = 1.0
+    // and fire the hyperspace jump that streaks the starfield forward
+    appState.warp = 1.0
+    // play the cinematic letterbox "scene cut" (skipped on the first boot nav)
+    if (!silent) {
+      cinema.play(next === 'home' ? 'home' : isDetail ? 'detail' : 'section')
+    }
     if (push) {
       window.history.pushState(next, '', next === 'home' ? '/' : `/${next}`)
     }
@@ -135,7 +144,7 @@ export function RouterProvider({ children }: { children: ReactNode }) {
       sessionStorage.removeItem('spa-redirect')
       window.history.replaceState(null, '', redirected)
     }
-    go(stateFromLocation(), false)
+    go(stateFromLocation(), false, true)
 
     const onPop = (e: PopStateEvent) => {
       const s = typeof e.state === 'string' && e.state ? e.state : stateFromLocation()

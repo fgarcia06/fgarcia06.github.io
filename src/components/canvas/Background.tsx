@@ -64,6 +64,8 @@ function ShaderPlane() {
     // decay the navigation burst toward 0 (~1s tail) and feed it to the shader
     appState.pulse = THREE.MathUtils.damp(appState.pulse, 0, 3.2, delta)
     u.pulse.value = appState.pulse
+    // decay the hyperspace warp on a slightly longer tail (read by Starfield)
+    appState.warp = THREE.MathUtils.damp(appState.warp, 0, 2.4, delta)
     u.iResolution.value.set(size.width, size.height)
     u.adj.value = 0.2 - size.height / size.width
   })
@@ -123,6 +125,79 @@ function ParticleCloud({ color, rotationSign }: { color: [number, number, number
   )
 }
 
+/* A field of stars streaming past the camera, giving the home scene a steady
+ * sense of forward flight through space. Points start far down the -z tunnel
+ * and travel toward the camera (+z); once they pass it they recycle to the
+ * far end with fresh x/y. sizeAttenuation makes near stars naturally larger,
+ * so they appear to rush by. */
+function Starfield() {
+  const points = useRef<THREE.Points>(null!)
+  const material = useRef<THREE.PointsMaterial>(null!)
+  const sprite = useMemo(makeSpriteTexture, [])
+  const COUNT = 480
+  const NEAR = 60 // just behind the camera (z=50)
+  const FAR = -220
+
+  const positions = useMemo(() => {
+    const arr = new Float32Array(COUNT * 3)
+    for (let i = 0; i < COUNT; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 160
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 110
+      arr[i * 3 + 2] = FAR + Math.random() * (NEAR - FAR)
+    }
+    return arr
+  }, [])
+
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    return geo
+  }, [positions])
+
+  useFrame((_, delta) => {
+    if (prefersReducedMotion) return
+    const warp = appState.warp
+    const attr = geometry.getAttribute('position') as THREE.BufferAttribute
+    const arr = attr.array as Float32Array
+    // cruise speed, with a big additive burst during a navigation warp
+    const step = delta * (26 + warp * warp * 320)
+    for (let i = 0; i < COUNT; i++) {
+      const zi = i * 3 + 2
+      arr[zi] += step
+      if (arr[zi] > NEAR) {
+        // recycle to the far end with a new transverse position
+        arr[zi] = FAR
+        arr[i * 3] = (Math.random() - 0.5) * 160
+        arr[i * 3 + 1] = (Math.random() - 0.5) * 110
+      }
+    }
+    attr.needsUpdate = true
+    // fatten + brighten the stars during the jump so they read as streaks
+    if (material.current) {
+      material.current.size = 0.6 + warp * 2.6
+      material.current.opacity = 0.55 + warp * 0.4
+    }
+  })
+
+  return (
+    <points ref={points}>
+      <primitive object={geometry} attach="geometry" />
+      <pointsMaterial
+        ref={material}
+        size={0.6}
+        map={sprite}
+        blending={THREE.AdditiveBlending}
+        depthTest={false}
+        depthWrite={false}
+        transparent
+        opacity={0.55}
+        sizeAttenuation
+        color={new THREE.Color(0.7, 0.85, 1)}
+      />
+    </points>
+  )
+}
+
 function CameraRig() {
   useFrame(({ camera }) => {
     camera.position.x += (-appState.mouse.x * 0.01 - camera.position.x) * 0.05
@@ -154,6 +229,7 @@ export default function Background() {
       <ShaderPlane />
       {!isMobile && (
         <>
+          <Starfield />
           <ParticleCloud color={[0.3, 0.7, 0.9]} rotationSign={1} />
           <ParticleCloud color={[0.3, 0.3, 0.8]} rotationSign={-2} />
           <CameraRig />

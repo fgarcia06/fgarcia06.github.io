@@ -16,6 +16,9 @@ export const appState = {
   intensity: 1.0,
   /** Spikes to 1 on navigation, decays to 0 — drives the mark's warp/flash. */
   pulse: 0.0,
+  /** Spikes to 1 on navigation, decays slower than pulse — drives the
+   * starfield hyperspace burst (the "travelling through space/time" jump). */
+  warp: 0.0,
   /** Pause rendering when an overlay would fully cover the canvas. */
   paused: false,
 }

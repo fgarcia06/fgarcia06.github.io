@@ -1,17 +1,105 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Page from './Page'
 import Thumb from './Thumb'
-import { home, about, skills, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
+import { home, about, skills, sections, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
 import { useRouter } from '../../lib/router'
 import { useTilt } from '../../lib/tilt'
+import { appState, shapeFor, orbOpacityFor } from '../../lib/appState'
+import { isMobile, prefersReducedMotion } from '../../lib/device'
 import { GitHubIcon, LinkedInIcon, EmailIcon, TwitterIcon, FacebookIcon } from './icons'
 
 /* ------------------------------------------------------------------ */
 /* home                                                                */
 /* ------------------------------------------------------------------ */
 
+/** The interactive entry nodes that replace the old bottom footer menu.
+ * Rather than a flat row, they're scattered around the central mark like
+ * waypoints floating in space: each sits at a screen corner, drifts on its
+ * own loop, and parallaxes by its `depth` as the camera (mouse) moves —
+ * nearer nodes swing further, selling the sense of depth. Hovering one
+ * morphs/pulses the background mark toward that section's shape, so the
+ * canvas previews where the click will take you. */
+const homeNodes = [
+  { link: 'projects', label: 'Projects', desc: 'Systems & applications', glyph: '▦', meta: `${sections[0].list.length} builds`, pos: 'tl', depth: 30, coord: 'SECTOR 01' },
+  { link: 'prototypes', label: 'Prototypes', desc: 'Hardware & experiments', glyph: '⬡', meta: `${sections[1].list.length} rigs`, pos: 'tr', depth: 18, coord: 'SECTOR 02' },
+  { link: 'skills', label: 'Skills', desc: 'The resonance stack', glyph: '❖', meta: `${skills.groups.length} domains`, pos: 'bl', depth: 22, coord: 'SECTOR 03' },
+  { link: 'about', label: 'About', desc: 'Profile & contact', glyph: '◎', meta: 'Bio · CV', pos: 'br', depth: 36, coord: 'SECTOR 04' },
+] as const
+
+function HomeNode({ node, index }: { node: (typeof homeNodes)[number]; index: number }) {
+  const { go } = useRouter()
+  return (
+    // pos layer: corner anchor + warp-in entrance (AOS transform)
+    <div className={`home-node-pos ${node.pos}`} data-aos="warp-in" style={{ transitionDelay: `${500 + index * 140}ms` }}>
+      {/* float layer: continuous drift (CSS animation transform) */}
+      <div
+        className="home-node-float"
+        style={{ animationDelay: `${index * -2.3}s`, animationDuration: `${9 + index * 1.7}s` }}
+      >
+        <button
+          type="button"
+          className="home-node"
+          // parallax layer: shifts by `--depth` against the mouse (set in JS)
+          style={{ '--depth': node.depth } as CSSProperties}
+          onClick={() => go(node.link)}
+          // preview the section live: morph the central mark into that
+          // section's shape (orbTarget drives morphAmount; shapeTarget picks
+          // which form) and give it a small flare. Reverts on mouse-leave.
+          onMouseEnter={() => {
+            appState.shapeTarget = shapeFor(node.link)
+            appState.orbTarget = orbOpacityFor(node.link)
+            appState.pulse = 0.6
+          }}
+          onMouseLeave={() => {
+            appState.shapeTarget = shapeFor('home')
+            appState.orbTarget = orbOpacityFor('home')
+          }}
+        >
+          <span className="home-node-corner tl" />
+          <span className="home-node-corner br" />
+          <span className="home-node-coord">{node.coord}</span>
+          <span className="home-node-glyph" aria-hidden>{node.glyph}</span>
+          <span className="home-node-index">{String(index + 1).padStart(2, '0')}</span>
+          <span className="home-node-label">{node.label}</span>
+          <span className="home-node-desc">{node.desc}</span>
+          <span className="home-node-meta">
+            {node.meta}
+            <span className="home-node-arrow" aria-hidden>→</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function HomePage() {
   const { visibleState } = useRouter()
+  const navRef = useRef<HTMLElement>(null)
+
+  // Drive parallax for every node from one rAF loop: publish the eased,
+  // normalized mouse offset as CSS vars; each node multiplies them by its
+  // own --depth. Disabled on touch / reduced-motion (mouse stays centered).
+  useEffect(() => {
+    if (isMobile || prefersReducedMotion) return
+    let raf = 0
+    let mx = 0
+    let my = 0
+    const tick = () => {
+      const tx = appState.mouse.x / (window.innerWidth / 2)
+      const ty = appState.mouse.y / (window.innerHeight / 2)
+      mx += (tx - mx) * 0.06
+      my += (ty - my) * 0.06
+      const el = navRef.current
+      if (el) {
+        el.style.setProperty('--mx', mx.toFixed(4))
+        el.style.setProperty('--my', my.toFixed(4))
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
     <Page id="home" active={visibleState === 'home'}>
       <div className="titles">
@@ -25,7 +113,16 @@ export function HomePage() {
         >
           {home.subtitle}
         </div>
+        <div className="home-hint" data-aos="fade-in" style={{ transitionDelay: '1.4s' }}>
+          choose a sector to engage
+        </div>
       </div>
+
+      <nav className="home-nav" aria-label="Sections" ref={navRef}>
+        {homeNodes.map((n, i) => (
+          <HomeNode key={n.link} node={n} index={i} />
+        ))}
+      </nav>
     </Page>
   )
 }
@@ -34,14 +131,18 @@ export function HomePage() {
 /* section list pages (projects / prototypes)                          */
 /* ------------------------------------------------------------------ */
 
-function ListEntry({ item, align, onOpen }: { item: ListItem; align: string; onOpen: () => void }) {
+function ListEntry({ item, align, index, onOpen }: { item: ListItem; align: string; index: number; onOpen: () => void }) {
   const tilt = useTilt<HTMLDivElement>()
   return (
     <div
-      data-aos="fade-up"
+      data-aos="warp-in"
       className={`list-item work-item ${align}`}
-      style={{ '--accent': item.project.accent } as CSSProperties}
+      style={{ '--accent': item.project.accent, transitionDelay: `${index * 90}ms` } as CSSProperties}
       onClick={onOpen}
+      // brush the background mark as the cursor crosses a card
+      onMouseEnter={() => {
+        appState.pulse = 0.45
+      }}
     >
       <div className="tilt" ref={tilt}>
         <Thumb project={item.project} className="thumb-img" />
@@ -70,6 +171,7 @@ export function SectionPage({ section }: { section: Section }) {
           <ListEntry
             key={item.slug}
             item={item}
+            index={i}
             align={i % 2 === 0 ? 'right' : ''}
             onOpen={() => go(`${section.id}/${item.slug}`)}
           />
@@ -93,8 +195,8 @@ function SkillCard({ group, index }: { group: (typeof skills.groups)[number]; in
   return (
     <div
       className="skill-card"
-      data-aos="fade-up"
-      style={{ transitionDelay: `${index * 90}ms` }}
+      data-aos="warp-in"
+      style={{ transitionDelay: `${index * 80}ms` }}
     >
       <div className="skill-card-tilt" ref={tilt}>
         {/* angular Tacet-style corner brackets */}
