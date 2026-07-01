@@ -8,11 +8,15 @@ import { useEffect } from 'react'
  * rather than IntersectionObserver, so reveals are deterministic.
  */
 
-/** Re-arm and observe all [data-aos] under root whenever `armed` flips true. */
+/** Re-arm and observe all [data-aos] under root whenever `armed` flips true.
+ *  `startDelay` controls when the first check fires after the page becomes
+ *  active — during a cinema navigation pass 1800 so the check fires after the
+ *  bars have fully opened; on boot/silent restores pass 100 for an instant check. */
 export function useAos(
   root: React.RefObject<HTMLElement | null>,
   armed: boolean,
   deps: unknown[] = [],
+  startDelay = 100,
 ) {
   useEffect(() => {
     const el = root.current
@@ -46,9 +50,13 @@ export function useAos(
       })
     }
 
-    // first pass after the page's .show transition has begun (the wrapper
-    // removes display:none immediately and adds .show at +100ms)
-    const timers = [window.setTimeout(check, 150), window.setTimeout(check, 1100)]
+    // first pass timed to when the page is fully revealed:
+    //   startDelay=1800 → fires ~1750ms after cinema bars started opening (3.5s cinema)
+    //   startDelay=100  → fires immediately on boot/silent restores
+    const timers = [
+      window.setTimeout(check, startDelay),
+      window.setTimeout(check, startDelay + 800),
+    ]
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
 
@@ -59,5 +67,5 @@ export function useAos(
       pending = new Set()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [armed, ...deps])
+  }, [armed, ...deps, startDelay])
 }

@@ -10,7 +10,7 @@ import {
 import { loader } from './loader'
 import { cinema } from './cinema'
 import { appState, orbOpacityFor, shapeFor } from './appState'
-import { home, sections, sectionById, siteTitle } from '../data/site'
+import { home, sections, sectionById, siteTitle, skills, about } from '../data/site'
 
 /**
  * State-string router cloned from the reference's APP.go: states are
@@ -116,11 +116,27 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     // play the cinematic letterbox "scene cut" (skipped on the first boot nav)
     if (!silent) {
       const sector = next.split('/')[0]
-      cinema.play(next === 'home' ? 'home' : isDetail ? 'detail' : 'section', sector)
-      // arm the page spring for this navigation; cleared after 5.1s (cinema + margin)
+      const kind = next === 'home' ? 'home' : isDetail ? 'detail' : 'section'
+      // look up destination metadata to populate the cinema dest panel
+      const sec = sectionById(sector)
+      const sectorOrder = ['projects', 'prototypes', 'skills', 'about']
+      const sectorIdx = sectorOrder.indexOf(sector)
+      cinema.play(kind, sector, {
+        desc: sec?.subtitle
+          ?? (sector === 'skills' ? skills.subtitle
+          : sector === 'about' ? about.subtitle
+          : sector === 'home' ? home.subtitle
+          : ''),
+        count: sec
+          ? `${String(sec.list.length).padStart(2, '0')} ASSETS`
+          : sector === 'skills' ? `${skills.groups.length} DOMAINS`
+          : '',
+        index: sectorIdx >= 0 ? String(sectorIdx + 1).padStart(2, '0') : '00',
+      })
+      // arm the page spring for this navigation; cleared after 3.1s (cinema 3.0s + margin)
       isAnimatingRef.current = true
       timers.current.push(
-        window.setTimeout(() => { isAnimatingRef.current = false }, 5100),
+        window.setTimeout(() => { isAnimatingRef.current = false }, 3100),
       )
     }
     if (push) {
@@ -132,16 +148,16 @@ export function RouterProvider({ children }: { children: ReactNode }) {
       loader.show()
       // hold an empty frame while we "travel": the outgoing page fades out, the
       // letterbox squeezes shut, then the detail arrives as the bars open.
-      // Timed to the 5s cinema: bars close at 0.65s, hold 0.65-3.1s, retract 3.1-5s.
+      // Timed to the 3.0s cinema: bars close at 0.48s, hold 0.48-1.5s, retract 1.5-3.0s.
       setVisibleState('')
       timers.current.push(
-        window.setTimeout(() => loader.update(0.7), 1500),
-        window.setTimeout(() => setDataState(next), 2500),
+        window.setTimeout(() => loader.update(0.7), 600),
+        window.setTimeout(() => setDataState(next), 1200),
         window.setTimeout(() => {
           setVisibleState(next)
           loader.update(1)
           loader.hide()
-        }, 3100),
+        }, 1500),
       )
     } else {
       setDataState(next)
@@ -150,13 +166,13 @@ export function RouterProvider({ children }: { children: ReactNode }) {
         setVisibleState(next)
       } else {
         // Three-beat warp jump, staggered so the flow reads as a journey:
-        //   1. exit   — current page squeezes + fades away (0–0.65s)
+        //   1. exit   — current page squeezes + fades away (0–0.48s)
         //   2. travel — visibleState='' holds an EMPTY frame while the bars hold
-        //      shut and the starfield streaks past for ~2.45s (0.65–3.1s)
-        //   3. arrive — new section springs in as bars retract (3.1–5.0s)
-        // Timing is keyed to the 5s cinema (bars close=13%, hold=13-62%, open=62-100%).
+        //      shut and the starfield streaks past for ~1.0s (0.48–1.5s)
+        //   3. arrive — new section springs in as bars retract (1.5–3.0s)
+        // Timing is keyed to the 3.0s cinema (bars close=16%, hold=16-50%, open=50-100%).
         setVisibleState('')
-        timers.current.push(window.setTimeout(() => setVisibleState(next), next === 'home' ? 2600 : 3100))
+        timers.current.push(window.setTimeout(() => setVisibleState(next), next === 'home' ? 1400 : 1500))
       }
     }
 

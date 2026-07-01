@@ -10,7 +10,7 @@ import { useRouter } from '../../lib/router'
  *    +60ms add .show so the spring fires; titles re-animate at +600ms. The page
  *    only goes active ~1.2s into the jump, so this spring plays as the letterbox
  *    opens — the section "expands out" of the wormhole.
- *  - leave: warp-out fades + squeezes the outgoing page (~0.5s), then .hide
+ *  - leave: warp-out squeezes + fades the outgoing page (~0.65s), then .hide
  *    drops it. The empty frame that follows is the "travel" beat.
  */
 export default function Page({
@@ -29,12 +29,18 @@ export default function Page({
   const ref = useRef<HTMLDivElement>(null)
   const hideTimer = useRef<number | null>(null)
 
-  useAos(ref, active, [dataKey])
+  // During a cinema navigation the bars don't fully open until ~1.5s after
+  // the page becomes active. Delay the first AOS check until they're clear so
+  // content animations begin on a revealed page, not behind closing bars.
+  // On boot / silent restores there's no cinema, so check immediately.
+  const aosDelay = isAnimatingRef.current ? 1500 : 100
+  useAos(ref, active, [dataKey], aosDelay)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
     const timers: number[] = []
+    let onAnimEnd: ((e: AnimationEvent) => void) | null = null
 
     if (active) {
       // Cancel any pending hide, then ALWAYS strip the leave animation. warp-out
@@ -70,24 +76,47 @@ export default function Page({
         el.style.removeProperty('transition')
       }
     } else {
-      // squeeze+zoom+fade the outgoing page into the wormhole before hiding;
-      // the cinema warp-blur masks it but the animation adds tactile correctness.
-      // Only runs during real navigations (isAnimatingRef is true), never on boot.
-      el.classList.remove('show')
-      el.classList.add('warp-out')
-      hideTimer.current = window.setTimeout(() => {
-        el.classList.remove('warp-out')
-        el.classList.add('hide')
-        hideTimer.current = null
-      }, 700)
+      // Only animate pages that were actually visible; pages already in .hide
+      // (display:none) don't need warp-out — the animation can't render on them.
+      if (el.classList.contains('show')) {
+        el.classList.remove('show')
+        el.classList.add('warp-out')
+
+        // Use animationend so the page disappears exactly when the squeeze
+        // finishes rather than at an arbitrary setTimeout. The fallback timer
+        // (900ms > animation 650ms) covers prefers-reduced-motion:reduce where
+        // animation:none means the event never fires.
+        const finish = () => {
+          el.classList.remove('warp-out')
+          el.classList.add('hide')
+          if (hideTimer.current !== null) {
+            clearTimeout(hideTimer.current)
+            hideTimer.current = null
+          }
+          if (onAnimEnd) {
+            el.removeEventListener('animationend', onAnimEnd)
+            onAnimEnd = null
+          }
+        }
+        onAnimEnd = (e: AnimationEvent) => {
+          if (e.target !== el) return
+          finish()
+        }
+        el.addEventListener('animationend', onAnimEnd)
+        hideTimer.current = window.setTimeout(finish, 900)
+      } else {
+        if (!el.classList.contains('hide')) el.classList.add('hide')
+      }
     }
     return () => {
       timers.forEach(clearTimeout)
-      // cancel the pending warp-out→hide so StrictMode's double-invoke never
-      // leaves an orphaned timer that hides a page that has since become active
       if (hideTimer.current !== null) {
         clearTimeout(hideTimer.current)
         hideTimer.current = null
+      }
+      if (onAnimEnd) {
+        el.removeEventListener('animationend', onAnimEnd)
+        onAnimEnd = null
       }
     }
   }, [active, dataKey, isAnimatingRef])

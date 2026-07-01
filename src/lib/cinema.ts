@@ -18,6 +18,18 @@ export interface CinemaCue {
   label: string
   /** Pseudo target coordinate flashed during the jump (deterministic per dest). */
   coord: string
+  /** Section subtitle / description shown in the destination panel. */
+  desc: string
+  /** Item count or domain count for the destination (e.g. "06 ASSETS"). */
+  count: string
+  /** Zero-padded sector index (e.g. "01") for the destination panel. */
+  index: string
+}
+
+export interface CinemaDestInfo {
+  desc?: string
+  count?: string
+  index?: string
 }
 
 type CinemaListener = (cue: CinemaCue) => void
@@ -32,14 +44,23 @@ export const cinema = {
       if (listener === fn) listener = null
     }
   },
-  play(kind: CinemaCue['kind'], label = '') {
+  play(kind: CinemaCue['kind'], label = '', dest: CinemaDestInfo = {}) {
     id += 1
     // wider crops read as more "cinematic"; detail pages get the widest jump
     const aspect = kind === 'detail' ? '2.76 : 1' : kind === 'section' ? '2.39 : 1' : '1.85 : 1'
-    const dest = (label || kind).toUpperCase()
+    const destLabel = (label || kind).toUpperCase()
     // deterministic "jump target" so each destination has a stable coordinate
-    const seed = dest.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+    const seed = destLabel.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
     const coord = `RA ${String(seed % 24).padStart(2, '0')}ʰ${String(seed % 60).padStart(2, '0')}ᵐ · PHI ${(1.4 + (seed % 240) / 1000).toFixed(3)}`
-    listener?.({ id, kind, aspect, label: dest, coord })
+    listener?.({
+      id,
+      kind,
+      aspect,
+      label: destLabel,
+      coord,
+      desc: dest.desc ?? '',
+      count: dest.count ?? '',
+      index: dest.index ?? '01',
+    })
   },
 }

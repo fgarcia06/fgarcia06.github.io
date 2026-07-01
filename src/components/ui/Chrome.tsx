@@ -189,6 +189,7 @@ export function Cinema() {
           <span className="cinema-jump-coord">{cue.coord}</span>
         </div>
       )}
+
     </div>
   )
 }

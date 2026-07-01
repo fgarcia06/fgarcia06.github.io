@@ -108,25 +108,25 @@ a {
   pointer-events: none;
 }
 .cinema.play .cinema-warp {
-  animation: cinema-warp 5.0s linear both;
+  animation: cinema-warp 3.0s linear both;
 }
 @keyframes cinema-warp {
-  0%, 12% {
+  0%, 15% {
     /* clear through the entire squeeze phase — bars pressing in must be SEEN */
     -webkit-backdrop-filter: blur(0px) saturate(1.0) brightness(1.0);
     backdrop-filter: blur(0px) saturate(1.0) brightness(1.0);
   }
-  14% {
+  17% {
     /* bars fully shut — "jump fires" flash: brief brightness spike */
     -webkit-backdrop-filter: blur(6px) saturate(2.4) brightness(1.8);
     backdrop-filter: blur(6px) saturate(2.4) brightness(1.8);
   }
-  20% {
+  22% {
     /* clear — reveals warp-streaking starfield during space-travel phase */
     -webkit-backdrop-filter: blur(0px) saturate(1.1) brightness(1.0);
     backdrop-filter: blur(0px) saturate(1.1) brightness(1.0);
   }
-  62%,
+  50%,
   100% {
     -webkit-backdrop-filter: blur(0) saturate(1) brightness(1);
     backdrop-filter: blur(0) saturate(1) brightness(1);
@@ -157,13 +157,13 @@ a {
 }
 /* animations only run while `.play` is set (re-armed imperatively per cue) */
 .cinema.play .cinema-bar.top {
-  animation: cinema-top 5.0s linear both;
+  animation: cinema-top 3.0s linear both;
 }
 .cinema.play .cinema-bar.bottom {
-  animation: cinema-bottom 5.0s linear both;
+  animation: cinema-bottom 3.0s linear both;
 }
-/* bars slam in fast (0→13% = 0.65s), hold for space-travel (13→62% = 2.45s),
-   then retract as the arrival section springs in (62→100% = 1.9s).
+/* bars slam in fast (0→16% = 0.56s), hold for space-travel (16→50% = 1.19s),
+   then retract as the arrival section springs in (50→100% = 1.75s).
    Per-keyframe timing-function: ease-out-quint for the rush-in so bars
    rocket shut and decelerate smoothly; ease-in-out for the retract so the
    reveal feels deliberate rather than a snap. */
@@ -172,10 +172,10 @@ a {
     transform: translateY(-100%);
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  13% {
+  16% {
     transform: translateY(0);
   }
-  62% {
+  50% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
@@ -188,10 +188,10 @@ a {
     transform: translateY(100%);
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  13% {
+  16% {
     transform: translateY(0);
   }
-  62% {
+  50% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
@@ -211,7 +211,7 @@ a {
   opacity: 0;
 }
 .cinema.play .cinema-line {
-  animation: cinema-line 5.0s ease-in-out both;
+  animation: cinema-line 3.0s ease-in-out both;
 }
 .cinema-bar.top .cinema-line {
   bottom: 0;
@@ -224,8 +224,8 @@ a {
   100% {
     opacity: 0;
   }
-  13%,
-  62% {
+  16%,
+  50% {
     opacity: 1;
   }
 }
@@ -245,19 +245,19 @@ a {
   opacity: 0;
 }
 .cinema.play .cinema-aspect {
-  animation: cinema-aspect 5.0s ease-in-out both;
+  animation: cinema-aspect 3.0s ease-in-out both;
 }
 @keyframes cinema-aspect {
   0% {
     opacity: 0;
     letter-spacing: 1.4vw;
   }
-  16%,
-  56% {
+  20%,
+  47% {
     opacity: 0.9;
     letter-spacing: 0.5vw;
   }
-  68%,
+  60%,
   100% {
     opacity: 0;
     letter-spacing: 0.2vw;
@@ -364,7 +364,10 @@ a {
   z-index: 0;
   background: none;
   padding-bottom: 10vw;
-  transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  /* GPU layer for the spring transition — avoids layout thrashing during
+     the simultaneous cinema-bar animation on the same frame. */
+  will-change: transform;
 }
 .page.show {
   z-index: 100;
@@ -377,10 +380,9 @@ a {
    the animation so the bars visibly press onto the content; it only fades in the
    final 25% once the bars nearly cover it. */
 @keyframes warp-exit {
-  0%   { transform: scale(1)    scaleY(1);    filter: blur(0px);  opacity: 1;   }
-  50%  { transform: scale(1.02) scaleY(0.55); filter: blur(1px);  opacity: 0.95; }
-  80%  { transform: scale(1.04) scaleY(0.32); filter: blur(5px);  opacity: 0.7;  }
-  100% { transform: scale(1.05) scaleY(0.18); filter: blur(12px); opacity: 0;    }
+  0%   { transform: scale(1) scaleY(1);       opacity: 1;    }
+  55%  { transform: scale(1.02) scaleY(0.5);  opacity: 0.75; }
+  100% { transform: scale(1.04) scaleY(0.18); opacity: 0;    }
 }
 .page.warp-out {
   /* MUST stay above the canvas (z-index:2) so the exit animation is visible.
@@ -389,10 +391,11 @@ a {
      in immediately instead of watching the bars squeeze the outgoing content. */
   z-index: 100;
   /* ease-out: squeeze happens fast at the start (visible), slow at the end */
-  animation: warp-exit 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: warp-exit 0.65s ease-in forwards;
   /* kill the spring transition so it doesn't fight the exit animation */
   transition: none;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 .page.hide {
   display: none;
@@ -1997,8 +2000,131 @@ a {
     font-size: 3.2vw;
   }
   .skill-tag {
+    font-size: 3vw;
+    padding: 1vw 2.5vw;
+  }
+
+  /* skills section — reduce top gap so the grid isn't buried below the fold */
+  .skills .skills-block {
+    margin-top: 26vh;
+  }
+
+  /* section / info-block titles — 2vw = 7.5px on 375px, bump to readable size */
+  .section-title {
+    font-size: 3.5vw;
+    letter-spacing: 1vw;
+    margin-top: 6vh;
+    margin-bottom: 3vh;
+  }
+
+  /* home subtitle — boost to be readable under the hero name */
+  .home .page-subtitle {
+    font-size: 3vw;
+    letter-spacing: 2.6vw;
+    text-indent: 2.6vw;
+  }
+
+  /* section page subtitle (projects / skills / about) */
+  .page-subtitle {
+    font-size: 2vh;
+    letter-spacing: 0.5vh;
+    top: 16vh;
+  }
+
+  /* detail page content — 3vw = 11.25px on 375px, lift to 4vw and stack lists */
+  .content {
+    margin-left: 5vw;
+    width: 90vw;
+    font-size: 4vw;
+    line-height: 1.8;
+  }
+  .content li {
+    display: block;
+    padding: 0.5vw 0;
+    text-align: left;
+  }
+  .content ul {
+    text-align: left;
+    padding-left: 4vw;
+    list-style: disc;
+  }
+  .content .content-quote {
+    margin: 2rem 0;
+  }
+
+  /* context / stack labels on detail pages — 2.2vw = 8.25px, bump to 3.5vw */
+  .client,
+  .role {
+    font-size: 3.5vw;
+    letter-spacing: 0.6vw;
+  }
+
+  /* about page */
+  .about .bio {
+    font-size: 3.8vw;
+    line-height: 1.7;
+  }
+  .about .bio p {
+    max-width: 90vw;
+  }
+  .experience-role {
+    font-size: 4.2vw;
+    letter-spacing: 0.5vw;
+  }
+  .experience-org {
+    font-size: 3.2vw;
+    letter-spacing: 0.3vw;
+  }
+  .experience-item li {
+    font-size: 3.6vw;
+    line-height: 1.7;
+  }
+  .contact-line {
+    font-size: 3vw;
+    letter-spacing: 0.4vw;
+  }
+
+  /* related cards: 2-column grid (3-col is ~107px wide per card on 375px) */
+  .related-list {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 3vw;
+    width: 90vw;
+    margin-left: 5vw;
+  }
+  .related-list .list-item .thumb-img {
+    width: 100%;
+    height: 25vw;
+  }
+  .related-list .list-item .title {
+    font-size: 3.2vw;
+  }
+  .related-list .list-item .subtitle {
+    font-size: 2.4vw;
+  }
+
+  /* HUD telemetry readouts — decorative but should be legible on phone */
+  .hud-readout {
     font-size: 2.6vw;
-    padding: 0.6vh 2vw;
+    letter-spacing: 0.4vw;
+  }
+
+  /* bottom-nav: slightly taller for easier thumb tapping */
+  .bottom-nav {
+    height: 52px;
+  }
+  .bottom-next,
+  .bottom-back,
+  .bottom-up {
+    font-size: 3vw;
+    top: 18px;
+  }
+
+  /* home node reg-mark: sits at right: 0.7vw = 2.6px on mobile,
+     overlaps the index label which is at right: 4vw — push it down */
+  .home-node-reg {
+    top: auto;
+    bottom: 3.5vw;
+    right: 3.5vw;
   }
 }
 
@@ -2499,7 +2625,7 @@ a {
   opacity: 0;
 }
 .cinema.play .cinema-jump {
-  animation: cinema-jump 5.0s ease-out both;
+  animation: cinema-jump 3.0s ease-out both;
 }
 .cinema-jump-tag {
   font-size: 0.7vw;
@@ -2523,8 +2649,8 @@ a {
     opacity: 0;
     transform: translateX(-1.4vw);
   }
-  16%,
-  58% {
+  20%,
+  47% {
     opacity: 1;
     transform: translateX(0);
   }
@@ -2534,13 +2660,10 @@ a {
   }
 }
 
+
 @media (prefers-reduced-motion: reduce) {
   .micro-bg-spiral .golden-spiral {
     animation: none;
-  }
-  .cinema.play .cinema-jump {
-    animation: none;
-    opacity: 0;
   }
 }
 
@@ -2648,7 +2771,7 @@ a {
 }
 
 /* inner layer: the 3D tilt target (useTilt writes its transform) + art clip.
-   will-change deferred to hover/active so the page warp-exit filter/opacity
+   will-change deferred to hover/active so the page warp-exit
    can composite the cards correctly at rest. */
 .slide-card-tilt {
   position: absolute;
