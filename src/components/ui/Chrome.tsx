@@ -186,10 +186,16 @@ export function Cinema() {
         <div className="cinema-jump">
           <span className="cinema-jump-tag">⊕ HYPERSPACE JUMP</span>
           <span className="cinema-jump-target">{cue.label}</span>
+          {cue.desc && <span className="cinema-jump-desc">{cue.desc}</span>}
           <span className="cinema-jump-coord">{cue.coord}</span>
         </div>
       )}
-
+      {cue && (
+        <div className="cinema-dest">
+          <span className="cinema-dest-index">SECTOR {cue.index}</span>
+          {cue.count && <span className="cinema-dest-count">{cue.count}</span>}
+        </div>
+      )}
     </div>
   )
 }

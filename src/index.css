@@ -2639,6 +2639,12 @@ a {
   color: #fff;
   text-shadow: 0 0 22px rgba(120, 225, 255, 0.65), 0 2px 14px rgba(2, 6, 14, 0.9);
 }
+.cinema-jump-desc {
+  font-size: 0.82vw;
+  letter-spacing: 0.24vw;
+  color: rgba(210, 240, 255, 0.85);
+  text-shadow: 0 0 16px rgba(120, 225, 255, 0.45);
+}
 .cinema-jump-coord {
   font-size: 0.66vw;
   letter-spacing: 0.16vw;
@@ -2657,6 +2663,49 @@ a {
   100% {
     opacity: 0;
     transform: translateX(0.8vw);
+  }
+}
+
+/* destination panel mirrored bottom-right: sector index + asset count */
+.cinema-dest {
+  position: absolute;
+  right: 6vw;
+  bottom: 8vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45vh;
+  align-items: flex-end;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  opacity: 0;
+}
+.cinema.play .cinema-dest {
+  animation: cinema-dest 3.0s ease-out both;
+}
+.cinema-dest-index {
+  font-size: 0.9vw;
+  letter-spacing: 0.3vw;
+  color: rgba(210, 240, 255, 0.9);
+  text-shadow: 0 0 16px rgba(120, 225, 255, 0.5);
+}
+.cinema-dest-count {
+  font-size: 0.66vw;
+  letter-spacing: 0.16vw;
+  color: rgba(165, 212, 236, 0.72);
+}
+@keyframes cinema-dest {
+  0% {
+    opacity: 0;
+    transform: translateX(1.4vw);
+  }
+  20%,
+  47% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-0.8vw);
   }
 }
 
@@ -2696,7 +2745,22 @@ a {
   .cinema-jump-target {
     font-size: 6.5vw;
   }
+  .cinema-jump-desc {
+    font-size: 2.6vw;
+    letter-spacing: 0.5vw;
+  }
   .cinema-jump-coord {
+    font-size: 2.2vw;
+  }
+  .cinema-dest {
+    right: 7vw;
+    bottom: 12vh;
+  }
+  .cinema-dest-index {
+    font-size: 2.8vw;
+    letter-spacing: 0.6vw;
+  }
+  .cinema-dest-count {
     font-size: 2.2vw;
   }
 }
