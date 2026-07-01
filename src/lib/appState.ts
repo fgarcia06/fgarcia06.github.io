@@ -16,8 +16,9 @@ export const appState = {
   intensity: 1.0,
   /** Spikes to 1 on navigation, decays to 0 — drives the mark's warp/flash. */
   pulse: 0.0,
-  /** Spikes to 1 on navigation, decays slower than pulse — drives the
-   * starfield hyperspace burst (the "travelling through space/time" jump). */
+  /** Spikes to 1 on navigation, then decays slowly back to 0 (in Background) —
+   * drives the starfield hyperspace streak. A slow decay makes the travel long
+   * and motion-driven: the stars streak, then decelerate as you "arrive". */
   warp: 0.0,
   /** Pause rendering when an overlay would fully cover the canvas. */
   paused: false,

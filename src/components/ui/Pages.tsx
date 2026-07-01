@@ -7,6 +7,15 @@ import { useTilt } from '../../lib/tilt'
 import { appState, shapeFor, orbOpacityFor } from '../../lib/appState'
 import { isMobile, prefersReducedMotion } from '../../lib/device'
 import { GitHubIcon, LinkedInIcon, EmailIcon, TwitterIcon, FacebookIcon } from './icons'
+import {
+  MicroLabel,
+  RegMark,
+  CircledIndex,
+  AspectBracket,
+  MicroBadge,
+  MicroFrame,
+  microCode,
+} from './Micro'
 
 /* ------------------------------------------------------------------ */
 /* home                                                                */
@@ -57,6 +66,7 @@ function HomeNode({ node, index }: { node: (typeof homeNodes)[number]; index: nu
         >
           <span className="home-node-corner tl" />
           <span className="home-node-corner br" />
+          <RegMark className="home-node-reg" />
           <span className="home-node-coord">{node.coord}</span>
           <span className="home-node-glyph" aria-hidden>{node.glyph}</span>
           <span className="home-node-index">{String(index + 1).padStart(2, '0')}</span>
@@ -103,6 +113,11 @@ export function HomePage() {
   return (
     <Page id="home" active={visibleState === 'home'}>
       <div className="titles">
+        <div className="home-caption" data-aos="fade-in" style={{ transitionDuration: '2s' }} aria-hidden>
+          <RegMark />
+          <MicroLabel>TYPE_VECTOR · MG_990X · MINIMAL_FORM</MicroLabel>
+          <RegMark />
+        </div>
         <div className="page-title" data-aos="fade-in" style={{ transitionDuration: '2s' }}>
           {home.title}
         </div>
@@ -131,25 +146,190 @@ export function HomePage() {
 /* section list pages (projects / prototypes)                          */
 /* ------------------------------------------------------------------ */
 
-function ListEntry({ item, align, index, onOpen }: { item: ListItem; align: string; index: number; onOpen: () => void }) {
+/** One card in the horizontal slider. At rest every card is equal; the rich
+ * stuff is hover/focus-driven (and mirrored onto the scroll-centred `.is-active`
+ * card so touch users get it too): the card lifts with an accent glow, its art
+ * slow-zooms (Ken Burns), a light sheen sweeps across, HUD corner brackets snap
+ * out, and the footer expands to reveal a preview — tagline, category/stack
+ * chips, and an "open case" cue. The whole track also spotlights: peers dim and
+ * recede so the focused card pops. Reachable by pointer, keyboard, and touch. */
+function SlideCard({ item, index, active, onOpen }: { item: ListItem; index: number; active: boolean; onOpen: () => void }) {
   const tilt = useTilt<HTMLDivElement>()
   return (
     <div
-      data-aos="warp-in"
-      className={`list-item work-item ${align}`}
-      style={{ '--accent': item.project.accent, transitionDelay: `${index * 90}ms` } as CSSProperties}
+      role="button"
+      tabIndex={0}
+      aria-label={`${item.title}. ${item.project.tagline}`}
+      className={`slide-card ${active ? 'is-active' : ''}`}
+      style={{ '--accent': item.project.accent } as CSSProperties}
       onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onOpen()
+        }
+      }}
       // brush the background mark as the cursor crosses a card
       onMouseEnter={() => {
         appState.pulse = 0.45
       }}
     >
-      <div className="tilt" ref={tilt}>
-        <Thumb project={item.project} className="thumb-img" />
-        <div className="titles">
-          <div className="subtitle">{item.subtitle}</div>
-          <div className="title">{item.title}</div>
+      {/* inner layer carries the 3D tilt (useTilt sets its transform) + clips
+          the art; the outer .slide-card keeps the eased lift/glow tilt can't */}
+      <div className="slide-card-tilt" ref={tilt}>
+        <div className="slide-media">
+          <Thumb project={item.project} className="slide-thumb" />
+          <span className="slide-scrim" aria-hidden />
+          <span className="slide-sheen" aria-hidden />
         </div>
+
+        <span className="slide-corner tl" aria-hidden />
+        <span className="slide-corner tr" aria-hidden />
+        <span className="slide-corner bl" aria-hidden />
+        <span className="slide-corner br" aria-hidden />
+
+        <div className="card-micro" aria-hidden>
+          <div className="card-micro-left">
+            <MicroLabel>ASSET_ID {microCode(item.slug)}</MicroLabel>
+            <AspectBracket ratio="16:9" />
+          </div>
+          <div className="card-micro-right">
+            <MicroBadge>{item.project.category}</MicroBadge>
+            <CircledIndex value={index + 1} />
+          </div>
+        </div>
+
+        <div className="slide-foot">
+          <div className="slide-eyebrow">
+            <span className="slide-index">{String(index + 1).padStart(2, '0')}</span>
+            <span className="slide-subtitle">{item.subtitle}</span>
+          </div>
+          <div className="slide-title">{item.title}</div>
+          {/* hidden at rest; the footer expands to reveal it on hover/focus */}
+          <div className="slide-extra" aria-hidden>
+            <p className="slide-tag">{item.project.tagline}</p>
+            <div className="slide-extra-row">
+              <div className="slide-chips">
+                <span className="slide-chip">{item.project.category}</span>
+                <span className="slide-chip ghost">{item.project.label}</span>
+              </div>
+              <span className="slide-cta">
+                open case <span aria-hidden>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SliderChevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
+      <path
+        d={dir === 'left' ? 'M15 5 L8 12 L15 19' : 'M9 5 L16 12 L9 19'}
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+/** Horizontal card slider with visible prev/next controls, dot indicators,
+ * scroll-snap, and a scroll-centred card tracked so touch users get the same
+ * hover preview (via `.is-active`). Replaces the old coverflow carousel for
+ * projects + prototypes. */
+function CardSlider({ items, sectionId, onOpen }: { items: ListItem[]; sectionId: string; onOpen: (item: ListItem) => void }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+
+  // track the card nearest the viewport centre as the user scrolls/swipes
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    let raf = 0
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        const center = track.scrollLeft + track.clientWidth / 2
+        let best = 0
+        let bestDist = Infinity
+        Array.from(track.children).forEach((ch, i) => {
+          const el = ch as HTMLElement
+          const c = el.offsetLeft + el.offsetWidth / 2
+          const d = Math.abs(c - center)
+          if (d < bestDist) {
+            bestDist = d
+            best = i
+          }
+        })
+        setActive(best)
+      })
+    }
+    track.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => {
+      track.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(raf)
+    }
+  }, [items.length])
+
+  const goTo = (i: number) => {
+    const track = trackRef.current
+    if (!track) return
+    const clamped = Math.max(0, Math.min(items.length - 1, i))
+    const el = track.children[clamped] as HTMLElement | undefined
+    if (!el) return
+    track.scrollTo({
+      left: el.offsetLeft - (track.clientWidth - el.offsetWidth) / 2,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    })
+  }
+
+  return (
+    <div className="card-slider" role="group" aria-roledescription="carousel" aria-label={`${sectionId} slider`}>
+      <button
+        type="button"
+        className="slider-arrow prev"
+        aria-label="Previous project"
+        onClick={() => goTo(active - 1)}
+        disabled={active === 0}
+      >
+        <SliderChevron dir="left" />
+      </button>
+
+      <div className="slider-track" ref={trackRef}>
+        {items.map((item, i) => (
+          <SlideCard key={item.slug} item={item} index={i} active={i === active} onOpen={() => onOpen(item)} />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        className="slider-arrow next"
+        aria-label="Next project"
+        onClick={() => goTo(active + 1)}
+        disabled={active === items.length - 1}
+      >
+        <SliderChevron dir="right" />
+      </button>
+
+      <div className="slider-dots" role="tablist" aria-label="Slider position">
+        {items.map((item, i) => (
+          <button
+            key={item.slug}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            aria-label={`Show ${item.title}`}
+            className={`slider-dot ${i === active ? 'active' : ''}`}
+            onClick={() => goTo(i)}
+          />
+        ))}
       </div>
     </div>
   )
@@ -165,23 +345,27 @@ export function SectionPage({ section }: { section: Section }) {
       <div className="page-subtitle" data-aos="zoom-in">
         {section.subtitle}
       </div>
+      <div className="section-caption" data-aos="fade-in" aria-hidden>
+        <RegMark />
+        <MicroLabel>
+          [ INDEX ] {String(section.list.length).padStart(2, '0')} ASSETS · 12_COL_MODULAR
+        </MicroLabel>
+        <AspectBracket ratio="MG_990X" />
+      </div>
       <div className="page-content"></div>
-      <div className="list">
-        {section.list.map((item, i) => (
-          <ListEntry
-            key={item.slug}
-            item={item}
-            index={i}
-            align={i % 2 === 0 ? 'right' : ''}
-            onOpen={() => go(`${section.id}/${item.slug}`)}
-          />
-        ))}
-        {section.todo && (
+      {section.list.length > 0 ? (
+        <CardSlider
+          items={section.list}
+          sectionId={section.id}
+          onOpen={(item) => go(`${section.id}/${item.slug}`)}
+        />
+      ) : (
+        section.todo && (
           <div className="todo-content" data-aos="fade-in">
             {section.todo}
           </div>
-        )}
-      </div>
+        )
+      )}
     </Page>
   )
 }
@@ -205,6 +389,7 @@ function SkillCard({ group, index }: { group: (typeof skills.groups)[number]; in
         <div className="skill-card-head">
           <span className="skill-index">{String(index + 1).padStart(2, '0')}</span>
           <span className="skill-card-title">{group.title}</span>
+          <MicroLabel className="skill-asset">{microCode(group.title)}</MicroLabel>
           <span className="skill-glyph" aria-hidden>◆</span>
         </div>
         <div className="skill-scanline" />
@@ -229,6 +414,13 @@ export function SkillsPage() {
       </div>
       <div className="page-subtitle" data-aos="zoom-in">
         {skills.subtitle}
+      </div>
+      <div className="section-caption" data-aos="fade-in" aria-hidden>
+        <RegMark />
+        <MicroLabel>
+          [ STACK ] {String(skills.groups.length).padStart(2, '0')} DOMAINS · TRUE_NORTH
+        </MicroLabel>
+        <AspectBracket ratio="MG_990X" />
       </div>
 
       <div className="skills-block info-block">
@@ -259,9 +451,16 @@ export function AboutPage() {
       <div className="page-subtitle" data-aos="zoom-in">
         {about.subtitle}
       </div>
+      <div className="section-caption" data-aos="fade-in" aria-hidden>
+        <RegMark />
+        <MicroLabel>[ PROFILE ] SUBJECT_01 · CURATED_VISUAL_INFRASTRUCTURE</MicroLabel>
+        <AspectBracket ratio="MG_990X" />
+      </div>
       <div className="feature" data-aos="zoom-in">
         <div className="feature-content">
-          <img className="info-portrait" src={about.portrait} alt="Francis Garcia" />
+          <MicroFrame className="portrait-frame" caption="SUBJECT_01 · PORTRAIT">
+            <img className="info-portrait" src={about.portrait} alt="Francis Garcia" />
+          </MicroFrame>
         </div>
       </div>
 
@@ -349,6 +548,14 @@ function RelatedEntry({ item, onOpen }: { item: ListItem; onOpen: () => void }) 
       onClick={onOpen}
     >
       <Thumb project={item.project} className="thumb-img" />
+      <div className="card-micro" aria-hidden>
+        <div className="card-micro-left">
+          <MicroLabel>ASSET_ID {microCode(item.slug)}</MicroLabel>
+        </div>
+        <div className="card-micro-right">
+          <MicroBadge>{item.project.category}</MicroBadge>
+        </div>
+      </div>
       <div className="titles">
         <div className="subtitle">{item.subtitle}</div>
         <div className="title">{item.title}</div>
@@ -398,7 +605,13 @@ export function DetailPage({ section }: { section: Section }) {
             <div className="feature-content">
               {/* TODO(content): reference shows a project video/gallery here;
                   no captures exist in my sources — generated visual instead */}
-              <Thumb project={detail.item.project} className="feature-thumb sixteen-nine" />
+              <MicroFrame
+                className="feature-frame"
+                caption={`ASSET_ID ${microCode(detail.item.slug)} · ${detail.item.project.category}`}
+              >
+                <Thumb project={detail.item.project} className="feature-thumb sixteen-nine" />
+                <AspectBracket className="feature-aspect" ratio="16:9" />
+              </MicroFrame>
             </div>
           </div>
 

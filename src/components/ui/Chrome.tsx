@@ -169,6 +169,7 @@ export function Cinema() {
   if (!cue) return null
   return (
     <div ref={ref} className={`cinema cinema-${cue.kind}`} aria-hidden>
+      <div className="cinema-warp" />
       <div className="cinema-bar top">
         <span className="cinema-line" />
       </div>
@@ -176,6 +177,11 @@ export function Cinema() {
         <span className="cinema-line" />
       </div>
       <div className="cinema-aspect">{cue.aspect}</div>
+      <div className="cinema-jump">
+        <span className="cinema-jump-tag">⊕ HYPERSPACE JUMP</span>
+        <span className="cinema-jump-target">{cue.label}</span>
+        <span className="cinema-jump-coord">{cue.coord}</span>
+      </div>
     </div>
   )
 }

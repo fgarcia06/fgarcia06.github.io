@@ -36,6 +36,7 @@ uniform float orbOpacity;
 uniform float intensity;
 uniform float pulse;
 uniform float shape;   // abstract shape index: 0 gyroid, 1 ring, 2 cluster, 3 diamond
+uniform float warp;    // hyperspace-travel intensity (0..1) — radial frame stretch
 
 #define T (iTime * 0.1)
 #define TAU 6.2831853
@@ -242,7 +243,25 @@ vec3 markColor(vec3 p) {
 }
 
 void main() {
-  vec2 coord = gl_FragCoord.xy;
+  // hyperspace warp: anisotropic distortion during a jump — radial outward burst
+  // (star streaks rush past the edges) combined with a vertical pinch that
+  // compresses the viewport into a horizontal letterbox tunnel, plus a corner
+  // barrel flare. Together these read as passing through a wormhole.
+  vec2 fc = gl_FragCoord.xy;
+  if (warp > 0.0001) {
+    vec2 wc = 0.5 * iResolution.xy;
+    vec2 wd = fc - wc;
+    vec2 ndx = wd / iResolution.xy;         // −0.5..0.5 per axis
+    float wr = length(wd) / iResolution.y;
+    // radial outward burst — existing hyperspace star-streak effect
+    fc += normalize(wd + vec2(1e-5)) * warp * (wr * wr * 220.0 + 18.0);
+    // vertical pinch: top/bottom compressed toward the horizon (wormhole lens)
+    fc.y -= wd.y * warp * warp * 0.68;
+    // horizontal barrel: outward flare strongest where Y deviation is greatest
+    fc.x += wd.x * warp * 0.45 * ndx.y * ndx.y;
+  }
+
+  vec2 coord = fc;
   coord.x -= iMouse.x * 0.003;
   coord.y += iMouse.y * 0.003;
 
@@ -261,7 +280,7 @@ void main() {
   vec4 frag = vec4(col, 1.0);
 
   /* -------- Tacet Mark (cosmic 3D crystal — surface raymarch) -------- */
-  vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
+  vec2 uv = (fc - 0.5 * iResolution.xy) / iResolution.y;
 
   // section "view" 0 (home) .. ~0.7 (deep section); orbOpacity is eased in JS
   float view = clamp(1.0 - orbOpacity, 0.0, 0.7);

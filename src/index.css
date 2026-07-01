@@ -51,6 +51,11 @@ a {
 .top-bar.hide {
   height: 0vh;
   min-height: 0;
+  /* snap away instantly when leaving home — animating this 10vh→0 retraction
+     opposes the cinema letterbox closing in (it "opens" while the cinema
+     "squeezes"), which cancels the squeeze visually. The cinema bars own the
+     letterbox during a jump; these only frame the resting home view. */
+  transition: none;
 }
 .bottom-bar {
   width: 100vw;
@@ -67,6 +72,8 @@ a {
 .bottom-bar.hide {
   height: 0vh;
   min-height: 0;
+  /* snap away instantly — see .top-bar.hide; avoids fighting the cinema squeeze */
+  transition: none;
 }
 
 /* ------------------------------------------------------------------ */
@@ -77,17 +84,53 @@ a {
   inset: 0;
   z-index: 1500;
   pointer-events: none;
-  /* how far the frame crops in at the peak of the cut (overridden per kind) */
-  --crop: 20vh;
+  /* how far the frame shrinks (top+bottom bars) at the peak of the cut —
+     large values give a dramatic ultra-wide squeeze; overridden per kind */
+  --crop: 34vh;
 }
 .cinema-section {
-  --crop: 21vh;
+  --crop: 44vh;
 }
 .cinema-detail {
-  --crop: 25vh;
+  --crop: 42vh;
 }
 .cinema-home {
-  --crop: 14vh;
+  --crop: 22vh;
+}
+
+/* full-frame warp-blur smear that fires only at the exact bars-closed moment
+   (13% = 0.65s) as a brief "jump fires" flash, then clears for space-travel.
+   Kept transparent during 0–12% so the squeeze effect is fully visible as the
+   bars slam in over the outgoing page content. */
+.cinema-warp {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cinema.play .cinema-warp {
+  animation: cinema-warp 5.0s linear both;
+}
+@keyframes cinema-warp {
+  0%, 12% {
+    /* clear through the entire squeeze phase — bars pressing in must be SEEN */
+    -webkit-backdrop-filter: blur(0px) saturate(1.0) brightness(1.0);
+    backdrop-filter: blur(0px) saturate(1.0) brightness(1.0);
+  }
+  14% {
+    /* bars fully shut — "jump fires" flash: brief brightness spike */
+    -webkit-backdrop-filter: blur(6px) saturate(2.4) brightness(1.8);
+    backdrop-filter: blur(6px) saturate(2.4) brightness(1.8);
+  }
+  20% {
+    /* clear — reveals warp-streaking starfield during space-travel phase */
+    -webkit-backdrop-filter: blur(0px) saturate(1.1) brightness(1.0);
+    backdrop-filter: blur(0px) saturate(1.1) brightness(1.0);
+  }
+  62%,
+  100% {
+    -webkit-backdrop-filter: blur(0) saturate(1) brightness(1);
+    backdrop-filter: blur(0) saturate(1) brightness(1);
+  }
 }
 
 .cinema-bar {
@@ -110,19 +153,27 @@ a {
 }
 /* animations only run while `.play` is set (re-armed imperatively per cue) */
 .cinema.play .cinema-bar.top {
-  animation: cinema-top 1.15s cubic-bezier(0.7, 0, 0.2, 1) both;
+  animation: cinema-top 5.0s linear both;
 }
 .cinema.play .cinema-bar.bottom {
-  animation: cinema-bottom 1.15s cubic-bezier(0.7, 0, 0.2, 1) both;
+  animation: cinema-bottom 5.0s linear both;
 }
-/* slide in fast, hold at the crop, then open back out — the cut */
+/* bars slam in fast (0→13% = 0.65s), hold for space-travel (13→62% = 2.45s),
+   then retract as the arrival section springs in (62→100% = 1.9s).
+   Per-keyframe timing-function: ease-out-quint for the rush-in so bars
+   rocket shut and decelerate smoothly; ease-in-out for the retract so the
+   reveal feels deliberate rather than a snap. */
 @keyframes cinema-top {
   0% {
     transform: translateY(-100%);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  32%,
-  52% {
+  13% {
     transform: translateY(0);
+  }
+  62% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
   100% {
     transform: translateY(-100%);
@@ -131,10 +182,14 @@ a {
 @keyframes cinema-bottom {
   0% {
     transform: translateY(100%);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  32%,
-  52% {
+  13% {
     transform: translateY(0);
+  }
+  62% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
   100% {
     transform: translateY(100%);
@@ -152,7 +207,7 @@ a {
   opacity: 0;
 }
 .cinema.play .cinema-line {
-  animation: cinema-line 1.15s ease-in-out both;
+  animation: cinema-line 5.0s ease-in-out both;
 }
 .cinema-bar.top .cinema-line {
   bottom: 0;
@@ -165,8 +220,8 @@ a {
   100% {
     opacity: 0;
   }
-  32%,
-  52% {
+  13%,
+  62% {
     opacity: 1;
   }
 }
@@ -186,15 +241,15 @@ a {
   opacity: 0;
 }
 .cinema.play .cinema-aspect {
-  animation: cinema-aspect 1.15s ease-in-out both;
+  animation: cinema-aspect 5.0s ease-in-out both;
 }
 @keyframes cinema-aspect {
   0% {
     opacity: 0;
     letter-spacing: 1.4vw;
   }
-  34%,
-  50% {
+  16%,
+  56% {
     opacity: 0.9;
     letter-spacing: 0.5vw;
   }
@@ -208,9 +263,17 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .cinema.play .cinema-bar,
   .cinema.play .cinema-line,
-  .cinema.play .cinema-aspect {
+  .cinema.play .cinema-aspect,
+  .cinema.play .cinema-warp {
     animation: none;
     opacity: 0;
+  }
+  /* no scale-in travel either — pages just appear */
+  .page {
+    transition: none;
+  }
+  .page.warp-out {
+    animation: none;
   }
 }
 
@@ -261,11 +324,12 @@ a {
 [data-aos='fade-left'] {
   transform: translate3d(100px, 0, 0);
 }
-/* "warp-in": a waypoint rushing in from deep space — small + blurred far
-   away, snapping to full size up close. Longer, springier easing than the
-   default so it reads as travel rather than a plain fade. */
+/* "warp-in": a waypoint rushing in from deep space — tiny, vertically
+   compressed, and blurred far away, springing to full size up close. The
+   scaleY squeeze echoes the section-entry wormhole distortion so individual
+   cards feel like they arrived through the same warp. */
 [data-aos='warp-in'] {
-  transform: scale(0.2);
+  transform: scale(0.2) scaleY(0.4);
   filter: blur(6px);
   transition:
     opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1),
@@ -286,31 +350,47 @@ a {
 .page {
   width: 100vw;
   position: absolute;
-  /* resting (incoming) state: waiting in the distance, scaled down + faded.
-     Zoom is anchored near the viewport centre (35vh) — not the centre of the
-     tall page — so the swap reads as flight toward a fixed point on screen. */
-  transform: scale(0.82);
+  /* resting (incoming) state: a compressed letterbox strip waiting in the
+     distance. Zoom + vertical squeeze anchored at 35vh so the arrival reads as
+     erupting from a wormhole exit — the page springs from a flat strip to full
+     size. Spring easing gives a physical overshoot. No opacity — swap is masked
+     by the cinema warp-blur + letterbox bars. */
+  transform: scale(0.82) scaleY(0.5);
   transform-origin: 50% 35vh;
   top: 0;
   left: 0;
   z-index: 0;
   background: none;
-  opacity: 0;
   padding-bottom: 10vw;
-  transition:
-    transform 0.85s cubic-bezier(0.5, 0, 0.2, 1),
-    opacity 0.85s ease-in-out;
+  transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .page.show {
   z-index: 100;
-  opacity: 1;
-  transform: scale(1);
+  transform: scale(1) scaleY(1);
 }
-/* outgoing: rush toward and past the camera */
-.page.zoom-through {
-  z-index: 90;
-  opacity: 0;
-  transform: scale(1.35);
+
+/* outgoing page (beat 1 of the jump): content squeezes vertically into the
+   letterbox strip as the bars slam in — the squeeze starts fast (ease-out) so
+   you can see it being crushed immediately. Opacity stays high through most of
+   the animation so the bars visibly press onto the content; it only fades in the
+   final 25% once the bars nearly cover it. */
+@keyframes warp-exit {
+  0%   { transform: scale(1)    scaleY(1);    filter: blur(0px);  opacity: 1;   }
+  50%  { transform: scale(1.02) scaleY(0.55); filter: blur(1px);  opacity: 0.95; }
+  80%  { transform: scale(1.04) scaleY(0.32); filter: blur(5px);  opacity: 0.7;  }
+  100% { transform: scale(1.05) scaleY(0.18); filter: blur(12px); opacity: 0;    }
+}
+.page.warp-out {
+  /* MUST stay above the canvas (z-index:2) so the exit animation is visible.
+     When .show is removed the base .page z-index drops to 0 which puts the
+     element behind the WebGL canvas — the user would see the background jump
+     in immediately instead of watching the bars squeeze the outgoing content. */
+  z-index: 100;
+  /* ease-out: squeeze happens fast at the start (visible), slow at the end */
+  animation: warp-exit 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* kill the spring transition so it doesn't fight the exit animation */
+  transition: none;
+  pointer-events: none;
 }
 .page.hide {
   display: none;
@@ -330,6 +410,9 @@ a {
   color: rgba(255, 255, 255, 0.1);
   letter-spacing: 2vh;
   font-weight: 100;
+  /* the oversized title is meant to bleed off-screen; clip it to the viewport
+     box so the spill can't create horizontal scroll on narrow screens */
+  overflow: hidden;
 }
 .page-subtitle {
   user-select: none;
@@ -1914,5 +1997,1089 @@ a {
   .skill-tag {
     font-size: 2.6vw;
     padding: 0.6vh 2vw;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* micrographics — monochrome technical-annotation layer.              */
+/* Borrowed from the "Micrographics" design language and layered over  */
+/* the existing dark/HUD theme. Every mark here is decorative: vector   */
+/* or mono text, white/grey at low alpha, aria-hidden + non-interactive */
+/* so it reinforces the "design archive" read without touching the UI.  */
+/* ------------------------------------------------------------------ */
+:root {
+  /* the mono stack was duplicated ~6× through this file; name it once */
+  --mono: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.micro-label,
+.micro-aspect,
+.micro-badge,
+.micro-circled-text {
+  font-family: var(--mono);
+}
+
+/* shared shadow so marks stay legible over the brighter parts of the nebula */
+.micro-label,
+.micro-aspect,
+.micro-badge,
+.micro-circled-text,
+.micro-reg,
+.micro-grid {
+  text-shadow: 0 1px 10px rgba(2, 6, 14, 0.85);
+}
+
+.micro-label {
+  font-size: 0.62vw;
+  letter-spacing: 0.16vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.micro-reg {
+  width: 0.95vw;
+  height: 0.95vw;
+  color: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+  flex: none;
+}
+
+.micro-circled {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9vw;
+  height: 1.9vw;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.micro-circled svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.micro-circled-text {
+  font-size: 0.6vw;
+  letter-spacing: 0.03vw;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* aspect tag with corner brackets, e.g. ⌐16:9¬ */
+.micro-aspect {
+  position: relative;
+  display: inline-block;
+  padding: 0.32vw 0.6vw;
+  font-size: 0.58vw;
+  letter-spacing: 0.12vw;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.micro-aspect::before,
+.micro-aspect::after {
+  content: '';
+  position: absolute;
+  width: 0.42vw;
+  height: 0.42vw;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.micro-aspect::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.micro-aspect::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+.micro-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.16vw 0.52vw;
+  font-size: 0.55vw;
+  letter-spacing: 0.1vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.micro-grid {
+  color: rgba(255, 255, 255, 0.32);
+  pointer-events: none;
+}
+
+/* ---- framed asset (detail hero + about portrait) ---- */
+.micro-frame {
+  position: relative;
+  display: inline-block;
+}
+.micro-frame-corner {
+  position: absolute;
+  width: 0.9vw;
+  height: 0.9vw;
+  border-color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.micro-frame-corner.tl {
+  top: -0.5vw;
+  left: -0.5vw;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.micro-frame-corner.tr {
+  top: -0.5vw;
+  right: -0.5vw;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+.micro-frame-corner.bl {
+  bottom: -0.5vw;
+  left: -0.5vw;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+.micro-frame-corner.br {
+  bottom: -0.5vw;
+  right: -0.5vw;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+.micro-frame-reg {
+  position: absolute;
+  top: 0.6vw;
+  right: 0.6vw;
+}
+.micro-frame-caption {
+  position: absolute;
+  bottom: 0.7vw;
+  left: 0.8vw;
+  font-family: var(--mono);
+  font-size: 0.6vw;
+  letter-spacing: 0.14vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 10px rgba(2, 6, 14, 0.9);
+  pointer-events: none;
+}
+
+/* detail-page hero: frame matches the 16:9 thumb box exactly */
+.feature .micro-frame.feature-frame {
+  display: block;
+  width: 85vw;
+  margin-left: 7.5vw;
+}
+.feature .micro-frame.feature-frame .feature-thumb.sixteen-nine {
+  width: 100%;
+  margin-left: 0;
+}
+.micro-frame .feature-aspect {
+  position: absolute;
+  top: 0.6vw;
+  left: 0.8vw;
+}
+
+/* ---- home hero kicker ---- */
+.home-caption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7vw;
+  margin-bottom: 1.6vh;
+}
+.home-caption .micro-label {
+  font-size: 0.66vw;
+  letter-spacing: 0.34vw;
+  color: rgba(200, 226, 240, 0.6);
+}
+
+/* faint reg mark tucked into each home waypoint */
+.home-node-reg {
+  position: absolute;
+  top: 0.7vw;
+  right: 0.7vw;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+.home-node:hover .home-node-reg,
+.home-node:focus-visible .home-node-reg {
+  opacity: 0.85;
+}
+
+/* ---- section header caption row (projects/prototypes/skills/about) ----
+   absolute overlay in the gap between the offset subtitle and the content,
+   so it never disturbs the existing flow / spacing. */
+.section-caption {
+  position: absolute;
+  top: 34.5vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
+  pointer-events: none;
+  z-index: 2;
+}
+.section-caption .micro-label {
+  color: rgba(210, 232, 245, 0.55);
+}
+
+/* ---- card overlays (project / prototype / related cards) ----
+   a thin top bar over the thumb; bottom is left clear for the title panel. */
+.card-micro {
+  position: absolute;
+  top: 0.9vw;
+  left: 1vw;
+  right: 1vw;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 3;
+}
+.card-micro-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5vw;
+}
+.card-micro-right {
+  display: flex;
+  align-items: center;
+  gap: 0.55vw;
+}
+
+/* ---- skills card asset code (slots into the existing head row) ---- */
+.skill-asset {
+  font-family: var(--mono);
+  font-size: 0.62vw;
+  letter-spacing: 0.08vw;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
+/* micrographics — mobile scaling (mirrors the existing 801px rules)    */
+/* ------------------------------------------------------------------ */
+@media (max-width: 801px) {
+  .micro-label {
+    font-size: 2.1vw;
+    letter-spacing: 0.5vw;
+  }
+  .micro-reg {
+    width: 3.2vw;
+    height: 3.2vw;
+  }
+  .micro-circled {
+    width: 6.4vw;
+    height: 6.4vw;
+  }
+  .micro-circled-text {
+    font-size: 2vw;
+  }
+  .micro-aspect {
+    font-size: 2vw;
+    letter-spacing: 0.4vw;
+    padding: 1vw 1.8vw;
+  }
+  .micro-aspect::before,
+  .micro-aspect::after {
+    width: 1.4vw;
+    height: 1.4vw;
+  }
+  .micro-badge {
+    font-size: 1.9vw;
+    padding: 0.6vw 1.6vw;
+  }
+  .home-caption {
+    margin-bottom: 1.2vh;
+  }
+  .home-caption .micro-label {
+    font-size: 2.4vw;
+    letter-spacing: 0.9vw;
+  }
+  .card-micro {
+    top: 2.4vw;
+    left: 2.6vw;
+    right: 2.6vw;
+  }
+  .card-micro-left {
+    gap: 1.4vw;
+  }
+  .card-micro-right {
+    gap: 1.6vw;
+  }
+  .micro-frame-corner {
+    width: 3vw;
+    height: 3vw;
+  }
+  .micro-frame-caption {
+    font-size: 2vw;
+    letter-spacing: 0.4vw;
+    bottom: 1.6vw;
+    left: 2vw;
+  }
+  .micro-frame-reg {
+    top: 1.8vw;
+    right: 1.8vw;
+  }
+  /* the offset-subtitle gap collapses on mobile; drop the overlay caption to
+     avoid colliding with the title/content (cards + frames still carry it). */
+  .section-caption {
+    display: none;
+  }
+  .skill-asset {
+    font-size: 2.2vw;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* about portrait — centre the framed portrait (the MicroFrame wrapper  */
+/* is inline-block, so the image's own margin:auto no longer centres).  */
+/* ------------------------------------------------------------------ */
+.about .feature .portrait-frame {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* micrographics — ambient deep-field instrumentation layer.            */
+/* Sits above the WebGL nebula (z2) but behind page content (z100), so  */
+/* it reads as background instrumentation the sections fly through.     */
+/* ------------------------------------------------------------------ */
+.micro-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  --mx: 0;
+  --my: 0;
+}
+/* each element shifts by its own --depth against the eased mouse offset */
+.micro-bg .parallax {
+  transform: translate3d(
+    calc(var(--mx) * var(--depth, 0) * 1px),
+    calc(var(--my) * var(--depth, 0) * 1px),
+    0
+  );
+  will-change: transform;
+}
+
+/* golden spiral — a large, faint, slowly-rotating galaxy arm */
+.micro-bg-spiral {
+  position: absolute;
+  top: -26%;
+  left: 47%;
+  width: 88vh;
+  height: 88vh;
+  overflow: hidden; /* clip the svg to its own (viewport-bounded) box */
+}
+.golden-spiral {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.micro-bg-spiral .golden-spiral {
+  color: rgba(150, 200, 235, 0.1);
+  transform-origin: 50% 50%;
+  animation: spiral-spin 150s linear infinite;
+}
+@keyframes spiral-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* phi-proportion drafting guides at the 0.382 / 0.618 golden sections */
+.phi-grid {
+  position: absolute;
+  inset: 0;
+}
+.phi-line {
+  position: absolute;
+  background: rgba(150, 200, 235, 0.055);
+}
+.phi-v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.phi-h {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.phi-mark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border: 1px solid rgba(150, 200, 235, 0.16);
+  border-radius: 50%;
+}
+
+/* registration marks pinned to the golden sections */
+.micro-bg-reg {
+  position: absolute;
+  width: 1.5vw;
+  height: 1.5vw;
+  color: rgba(170, 210, 235, 0.22);
+}
+.micro-bg-reg.r1 {
+  left: 38.2%;
+  top: 61.8%;
+}
+.micro-bg-reg.r2 {
+  left: 61.8%;
+  top: 23.6%;
+}
+
+/* dotted micro-grids tucked into two edges */
+.micro-bg-dots {
+  position: absolute;
+  color: rgba(160, 205, 235, 0.16);
+}
+.micro-bg-dots.d1 {
+  left: 3.2vw;
+  bottom: 17vh;
+}
+.micro-bg-dots.d2 {
+  right: 4vw;
+  top: 19vh;
+}
+
+/* corner navigation telemetry — sits on the side gutters so it peeks past
+   the page content rather than colliding with the HUD corner readouts */
+.micro-tel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vh;
+}
+.micro-tel .micro-label {
+  color: rgba(170, 210, 235, 0.34);
+  font-size: 0.6vw;
+  letter-spacing: 0.14vw;
+}
+.tel-tl {
+  left: 2.2vw;
+  top: 40vh;
+  align-items: flex-start;
+}
+.tel-br {
+  right: 2.4vw;
+  top: 40vh;
+  align-items: flex-end;
+}
+
+/* ---- cinema "hyperspace jump" readout (during the transition cut) ---- */
+.cinema-jump {
+  position: absolute;
+  left: 6vw;
+  bottom: 8vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45vh;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  opacity: 0;
+}
+.cinema.play .cinema-jump {
+  animation: cinema-jump 5.0s ease-out both;
+}
+.cinema-jump-tag {
+  font-size: 0.7vw;
+  letter-spacing: 0.2vw;
+  color: rgba(190, 235, 255, 0.9);
+  text-shadow: 0 0 14px rgba(120, 225, 255, 0.5);
+}
+.cinema-jump-target {
+  font-size: 2.1vw;
+  letter-spacing: 0.42vw;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(120, 225, 255, 0.65), 0 2px 14px rgba(2, 6, 14, 0.9);
+}
+.cinema-jump-coord {
+  font-size: 0.66vw;
+  letter-spacing: 0.16vw;
+  color: rgba(165, 212, 236, 0.72);
+}
+@keyframes cinema-jump {
+  0% {
+    opacity: 0;
+    transform: translateX(-1.4vw);
+  }
+  16%,
+  58% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0.8vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .micro-bg-spiral .golden-spiral {
+    animation: none;
+  }
+  .cinema.play .cinema-jump {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+@media (max-width: 801px) {
+  /* trim the ambient layer on small screens to keep it uncluttered */
+  .micro-tel,
+  .micro-bg-dots {
+    display: none;
+  }
+  /* keep the spiral box fully inside the viewport (right edge ≤ 90vw) so it
+     can't push horizontal scroll on narrow screens */
+  .micro-bg-spiral {
+    top: 4%;
+    left: -30vw;
+    width: 120vw;
+    height: 120vw;
+  }
+  .micro-bg-reg {
+    width: 4.2vw;
+    height: 4.2vw;
+  }
+  .cinema-jump {
+    left: 7vw;
+    bottom: 12vh;
+  }
+  .cinema-jump-tag {
+    font-size: 2.4vw;
+    letter-spacing: 0.6vw;
+  }
+  .cinema-jump-target {
+    font-size: 6.5vw;
+  }
+  .cinema-jump-coord {
+    font-size: 2.2vw;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* section carousel (projects / prototypes) — a horizontal coverflow   */
+/* replacing the old floated grid, with hover/focus/active teasers.     */
+/* ------------------------------------------------------------------ */
+/* ============ card slider (projects / prototypes) ============ */
+.card-slider {
+  position: relative;
+  width: 100vw;
+  margin-top: 42vh;
+}
+.slider-track {
+  display: flex;
+  align-items: center;
+  gap: 2.4vw;
+  /* generous side padding so the first/last card can snap to centre */
+  padding: 4vw 32vw 5vw;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 32vw;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* depth for the per-card 3D tilt */
+  perspective: 1500px;
+}
+.slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* outer card: carries the eased lift + accent glow + scroll-snap. At rest all
+   cards read equal — the emphasis is hover/focus-driven, not a coverflow. */
+.slide-card {
+  flex: 0 0 auto;
+  position: relative;
+  width: 36vw;
+  height: 22vw;
+  scroll-snap-align: center;
+  cursor: pointer;
+  border-radius: 3px;
+  transition:
+    opacity 0.45s ease,
+    filter 0.45s ease,
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s ease;
+}
+/* spotlight: hovering one card dims + shrinks the rest so the focus pops */
+@media (hover: hover) {
+  .slider-track:hover .slide-card:not(:hover) {
+    opacity: 0.4;
+    filter: saturate(0.55) brightness(0.6);
+    transform: scale(0.93);
+  }
+  .slide-card:hover {
+    z-index: 5;
+    transform: translateY(-1vw) scale(1.04);
+    box-shadow:
+      0 1.4vw 3vw rgba(2, 6, 12, 0.6),
+      0 0 2.2vw -0.3vw var(--accent, #38e1ff);
+  }
+}
+.slide-card.is-active {
+  box-shadow:
+    0 1vw 2.4vw rgba(2, 6, 12, 0.55),
+    0 0 1.4vw -0.4vw var(--accent, #38e1ff);
+}
+.slide-card:focus-visible {
+  outline: 2px solid var(--accent, #38e1ff);
+  outline-offset: 5px;
+}
+
+/* inner layer: the 3D tilt target (useTilt writes its transform) + art clip.
+   will-change deferred to hover/active so the page warp-exit filter/opacity
+   can composite the cards correctly at rest. */
+.slide-card-tilt {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: #05080d;
+  border: 1px solid rgba(120, 180, 215, 0.18);
+  transition: border-color 0.4s ease;
+}
+.slide-card:hover .slide-card-tilt,
+.slide-card:focus-within .slide-card-tilt,
+.slide-card.is-active .slide-card-tilt {
+  border-color: var(--accent, #38e1ff);
+  will-change: transform;
+}
+
+/* art + slow Ken-Burns push on reveal */
+.slide-media {
+  position: absolute;
+  inset: 0;
+}
+.slide-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.82;
+  transform: scale(1.02);
+  transition: transform 4s cubic-bezier(0.2, 0.5, 0.2, 1), opacity 0.5s ease, filter 0.5s ease;
+}
+.slide-card:hover .slide-thumb,
+.slide-card:focus-within .slide-thumb,
+.slide-card.is-active .slide-thumb {
+  opacity: 1;
+  transform: scale(1.13);
+  filter: saturate(1.08) brightness(1.05);
+}
+
+/* readable scrim under the foot/preview; deepens on reveal */
+.slide-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.45s ease;
+  background: linear-gradient(
+    to top,
+    rgba(3, 6, 10, 0.97) 0%,
+    rgba(3, 6, 10, 0.85) 30%,
+    rgba(3, 6, 10, 0.34) 58%,
+    rgba(3, 6, 10, 0) 80%
+  );
+}
+.slide-card:hover .slide-scrim,
+.slide-card:focus-within .slide-scrim,
+.slide-card.is-active .slide-scrim {
+  opacity: 1;
+}
+
+/* one-shot light sheen that sweeps across on reveal */
+.slide-sheen {
+  position: absolute;
+  inset: -25% -45%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-120%) rotate(2deg);
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(190, 235, 255, 0.16) 47%,
+    rgba(255, 255, 255, 0.34) 52%,
+    transparent 60%
+  );
+}
+.slide-card:hover .slide-sheen,
+.slide-card.is-active .slide-sheen {
+  opacity: 1;
+  transform: translateX(120%) rotate(2deg);
+  transition: transform 0.95s cubic-bezier(0.3, 0.6, 0.2, 1), opacity 0.3s ease;
+}
+
+/* HUD corner brackets that snap outward on reveal */
+.slide-corner {
+  position: absolute;
+  z-index: 4;
+  width: 1.3vw;
+  height: 1.3vw;
+  pointer-events: none;
+  border-color: var(--accent, #38e1ff);
+  opacity: 0;
+  transition: opacity 0.4s ease, width 0.4s ease, height 0.4s ease;
+}
+.slide-corner.tl { top: 0.7vw; left: 0.7vw; border-top: 2px solid; border-left: 2px solid; }
+.slide-corner.tr { top: 0.7vw; right: 0.7vw; border-top: 2px solid; border-right: 2px solid; }
+.slide-corner.bl { bottom: 0.7vw; left: 0.7vw; border-bottom: 2px solid; border-left: 2px solid; }
+.slide-corner.br { bottom: 0.7vw; right: 0.7vw; border-bottom: 2px solid; border-right: 2px solid; }
+.slide-card:hover .slide-corner,
+.slide-card:focus-within .slide-corner,
+.slide-card.is-active .slide-corner {
+  opacity: 0.9;
+  width: 1.9vw;
+  height: 1.9vw;
+}
+
+/* bottom info block: title pinned, expands upward to reveal the preview */
+.slide-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5vw 1.7vw 1.4vw;
+}
+.slide-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7vw;
+  margin-bottom: 0.5vw;
+}
+.slide-eyebrow::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 1.8vw;
+  height: 2px;
+  background: var(--accent, #9fc3d6);
+  box-shadow: 0 0 8px var(--accent, #9fc3d6);
+  transition: width 0.4s ease;
+}
+.slide-card:hover .slide-eyebrow::before,
+.slide-card:focus-within .slide-eyebrow::before,
+.slide-card.is-active .slide-eyebrow::before {
+  width: 3.6vw;
+}
+.slide-index {
+  font-family: var(--mono);
+  font-size: 0.74vw;
+  letter-spacing: 0.06vw;
+  color: var(--accent, #38e1ff);
+  opacity: 0.9;
+}
+.slide-subtitle {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  font-size: 0.7vw;
+  letter-spacing: 0.14vw;
+  color: rgba(190, 225, 240, 0.7);
+}
+.slide-title {
+  text-transform: uppercase;
+  font-size: 1.5vw;
+  letter-spacing: 0.05vw;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: letter-spacing 0.4s ease;
+}
+.slide-card:hover .slide-title {
+  letter-spacing: 0.14vw;
+}
+.slide-extra {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(0.8vw);
+  pointer-events: none;
+  transition:
+    max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-card:hover .slide-extra,
+.slide-card:focus-within .slide-extra,
+.slide-card.is-active .slide-extra {
+  max-height: 9vw;
+  opacity: 1;
+  transform: translateY(0);
+}
+.slide-tag {
+  margin: 0.8vw 0 0;
+  font-size: 0.92vw;
+  line-height: 1.4;
+  color: rgba(236, 246, 252, 0.95);
+  text-shadow: 0 2px 14px rgba(2, 6, 14, 0.95);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.slide-extra-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9vw;
+  margin-top: 0.9vw;
+}
+.slide-chips {
+  display: flex;
+  gap: 0.5vw;
+  min-width: 0;
+}
+.slide-chip {
+  font-family: var(--mono);
+  font-size: 0.6vw;
+  letter-spacing: 0.1vw;
+  text-transform: uppercase;
+  padding: 0.3vw 0.6vw;
+  border: 1px solid rgba(150, 210, 235, 0.3);
+  border-radius: 2px;
+  background: rgba(8, 16, 24, 0.5);
+  color: var(--accent, #9fd9ff);
+  white-space: nowrap;
+  max-width: 13vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.slide-chip.ghost {
+  color: rgba(190, 220, 235, 0.6);
+  border-color: rgba(120, 160, 185, 0.22);
+}
+.slide-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4vw;
+  font-family: var(--mono);
+  font-size: 0.68vw;
+  letter-spacing: 0.16vw;
+  text-transform: uppercase;
+  color: var(--accent, #9fd9ff);
+  white-space: nowrap;
+}
+.slide-cta span {
+  transition: transform 0.3s ease;
+}
+.slide-card:hover .slide-cta span {
+  transform: translateX(0.4vw);
+}
+/* detail-page related cards still use the old title stacking */
+.list-item .titles {
+  z-index: 2;
+}
+
+/* prev / next controls */
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.4vw;
+  height: 3.4vw;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  color: rgba(210, 235, 250, 0.85);
+  background: rgba(8, 14, 22, 0.82);
+  border: 1px solid rgba(120, 200, 230, 0.28);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease,
+    opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slider-arrow.prev {
+  left: 2vw;
+}
+.slider-arrow.next {
+  right: 2vw;
+}
+.slider-arrow:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(120, 225, 255, 0.7);
+  box-shadow: 0 0 18px rgba(40, 180, 230, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+.slider-arrow:focus-visible {
+  outline: 2px solid #38e1ff;
+  outline-offset: 3px;
+}
+.slider-arrow:disabled {
+  opacity: 0.22;
+  cursor: default;
+}
+
+/* dot indicators (24px hit area, 8px visible dot) */
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5vw;
+  margin-top: 1.4vw;
+}
+.slider-dot {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.slider-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(150, 200, 230, 0.5);
+  transition: 0.25s ease;
+}
+.slider-dot:hover::before {
+  border-color: rgba(150, 225, 255, 0.9);
+}
+.slider-dot.active::before {
+  width: 10px;
+  height: 10px;
+  background: #38e1ff;
+  border-color: #38e1ff;
+  box-shadow: 0 0 10px rgba(56, 225, 255, 0.6);
+}
+.slider-dot:focus-visible {
+  outline: 2px solid #38e1ff;
+  outline-offset: 0;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider-track {
+    scroll-behavior: auto;
+  }
+  .slide-card {
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+    transform: none;
+  }
+  .slider-track:hover .slide-card:not(:hover),
+  .slide-card:hover {
+    transform: none;
+    filter: none;
+  }
+  .slide-sheen {
+    display: none;
+  }
+  .slide-thumb,
+  .slide-card:hover .slide-thumb,
+  .slide-card:focus-within .slide-thumb,
+  .slide-card.is-active .slide-thumb {
+    transform: none;
+    transition: opacity 0.2s ease;
+  }
+  .slide-extra {
+    transition: max-height 0.2s ease, opacity 0.2s ease;
+    transform: none;
+  }
+}
+
+@media (max-width: 801px) {
+  .card-slider {
+    margin-top: 24vh;
+  }
+  .slider-track {
+    gap: 5vw;
+    padding: 5vw 10vw 6vw;
+    scroll-padding: 0 10vw;
+    perspective: none;
+  }
+  .slide-card {
+    width: 80vw;
+    height: 48vw;
+  }
+  .slide-index {
+    font-size: 3vw;
+  }
+  .slide-subtitle {
+    font-size: 2.6vw;
+  }
+  .slide-title {
+    font-size: 5vw;
+  }
+  .slide-eyebrow::before {
+    width: 6vw;
+  }
+  .slide-card.is-active .slide-eyebrow::before {
+    width: 9vw;
+  }
+  /* the centred card reveals on touch; give the larger type room */
+  .slide-card.is-active .slide-extra {
+    max-height: 26vw;
+  }
+  .slide-tag {
+    font-size: 3.2vw;
+    margin-top: 2.4vw;
+  }
+  .slide-extra-row {
+    margin-top: 2.4vw;
+    gap: 2vw;
+  }
+  .slide-chip {
+    font-size: 2.2vw;
+    padding: 1vw 1.6vw;
+    max-width: 34vw;
+  }
+  .slide-cta {
+    font-size: 2.4vw;
+  }
+  .slide-corner {
+    width: 4vw;
+    height: 4vw;
+  }
+  .slide-card.is-active .slide-corner {
+    width: 5.5vw;
+    height: 5.5vw;
+  }
+  .slider-arrow {
+    width: 44px;
+    height: 44px;
+  }
+  .slider-arrow.prev {
+    left: 1vw;
+  }
+  .slider-arrow.next {
+    right: 1vw;
+  }
+  .slider-dots {
+    margin-top: 4vw;
+    gap: 1.5vw;
   }
 }

@@ -38,6 +38,7 @@ function ShaderPlane() {
       intensity: { value: 1.0 },
       pulse: { value: 0.0 },
       shape: { value: 0.0 },
+      warp: { value: 0.0 },
     }),
     [],
   )
@@ -64,8 +65,14 @@ function ShaderPlane() {
     // decay the navigation burst toward 0 (~1s tail) and feed it to the shader
     appState.pulse = THREE.MathUtils.damp(appState.pulse, 0, 3.2, delta)
     u.pulse.value = appState.pulse
-    // decay the hyperspace warp on a slightly longer tail (read by Starfield)
-    appState.warp = THREE.MathUtils.damp(appState.warp, 0, 2.4, delta)
+    // decay the hyperspace warp on a long tail (read by Starfield). A low
+    // damping rate (1.1 vs the old 2.4) ~doubles the travel: the streak lingers
+    // and decelerates over ~2s instead of snapping back — motion-driven, not a
+    // flash.
+    appState.warp = THREE.MathUtils.damp(appState.warp, 0, 0.35, delta)
+    // feed the warp to the shader's radial stretch (skip for reduced-motion so
+    // the frame never distorts/disorients for those users)
+    u.warp.value = prefersReducedMotion ? 0 : appState.warp
     u.iResolution.value.set(size.width, size.height)
     u.adj.value = 0.2 - size.height / size.width
   })
@@ -199,9 +206,19 @@ function Starfield() {
 }
 
 function CameraRig() {
-  useFrame(({ camera }) => {
-    camera.position.x += (-appState.mouse.x * 0.01 - camera.position.x) * 0.05
-    camera.position.y += (appState.mouse.y * 0.01 - camera.position.y) * 0.05
+  useFrame(({ camera, clock }) => {
+    if (prefersReducedMotion) return
+    // gentle multi-frequency wander so the scene keeps drifting through space
+    // even when the mouse is still — a slow, never-repeating exploratory float.
+    const t = clock.elapsedTime
+    const driftX = Math.sin(t * 0.07) * 1.1 + Math.sin(t * 0.023) * 0.6
+    const driftY = Math.cos(t * 0.05) * 0.8 + Math.sin(t * 0.017) * 0.45
+    const targetX = -appState.mouse.x * 0.01 + driftX
+    const targetY = appState.mouse.y * 0.01 + driftY
+    camera.position.x += (targetX - camera.position.x) * 0.05
+    camera.position.y += (targetY - camera.position.y) * 0.05
+    // bank slightly toward the drift so it reads as banking, not sliding
+    camera.rotation.z += (driftX * 0.004 - camera.rotation.z) * 0.04
   })
   return null
 }
