@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { menu } from '../../data/site'
 import { useRouter } from '../../lib/router'
 import { loader } from '../../lib/loader'
@@ -153,12 +153,13 @@ export function Cinema() {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => cinema.subscribe(setCue), [])
 
-  // Restart the CSS keyframes imperatively on each cue: drop the `.play`
-  // class, force a reflow, re-add it. Doing it this way (instead of a React
-  // `key` remount) means unrelated re-renders during the ~1s transition can't
-  // restart the animation — the className prop is stable so React never
-  // rewrites it, and our imperatively-added `.play` survives.
-  useEffect(() => {
+  // useLayoutEffect (not useEffect) so the animation restart runs synchronously
+  // before the browser paints. useEffect fires after paint, meaning the first
+  // painted frame after a cue change has no .play class — on PCs where the
+  // compositor is already mid-frame this can lose the animation entirely.
+  // Sequence: remove .play → force reflow (commits removal) → add .play →
+  // browser schedules the keyframe from 0% in the very same paint pass.
+  useLayoutEffect(() => {
     const el = ref.current
     if (!cue || !el) return
     el.classList.remove('play')
@@ -166,9 +167,13 @@ export function Cinema() {
     el.classList.add('play')
   }, [cue])
 
-  if (!cue) return null
+  // Always render the div so the DOM element and its GPU layer exist from
+  // the start. Conditional null-return meant the element was mounted for the
+  // first time ON the first cue, racing with the layout effect — on slower
+  // PC render pipelines that mount happened after the first paint, losing
+  // the animation on every fresh page load.
   return (
-    <div ref={ref} className={`cinema cinema-${cue.kind}`} aria-hidden>
+    <div ref={ref} className={`cinema${cue ? ` cinema-${cue.kind}` : ''}`} aria-hidden>
       <div className="cinema-warp" />
       <div className="cinema-bar top">
         <span className="cinema-line" />
@@ -176,12 +181,14 @@ export function Cinema() {
       <div className="cinema-bar bottom">
         <span className="cinema-line" />
       </div>
-      <div className="cinema-aspect">{cue.aspect}</div>
-      <div className="cinema-jump">
-        <span className="cinema-jump-tag">⊕ HYPERSPACE JUMP</span>
-        <span className="cinema-jump-target">{cue.label}</span>
-        <span className="cinema-jump-coord">{cue.coord}</span>
-      </div>
+      {cue && <div className="cinema-aspect">{cue.aspect}</div>}
+      {cue && (
+        <div className="cinema-jump">
+          <span className="cinema-jump-tag">⊕ HYPERSPACE JUMP</span>
+          <span className="cinema-jump-target">{cue.label}</span>
+          <span className="cinema-jump-coord">{cue.coord}</span>
+        </div>
+      )}
     </div>
   )
 }

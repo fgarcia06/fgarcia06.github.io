@@ -142,6 +142,10 @@ a {
      interpolate reliably across engines). */
   height: var(--crop);
   background: #000;
+  /* promote to its own GPU compositor layer so the transform animation is
+     always composited — prevents falling back to software rendering on PCs
+     where hardware acceleration is limited. */
+  will-change: transform;
 }
 .cinema-bar.top {
   top: 0;
@@ -261,14 +265,12 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cinema.play .cinema-bar,
-  .cinema.play .cinema-line,
-  .cinema.play .cinema-aspect,
-  .cinema.play .cinema-warp {
-    animation: none;
-    opacity: 0;
-  }
-  /* no scale-in travel either — pages just appear */
+  /* Cinema bars are the primary navigation signal — keep them running even
+     under reduced-motion so the transition still "works" on PCs where Windows
+     has animation effects disabled (the most common cause of the bars not
+     appearing on desktop while they work fine on mobile). Only the page
+     spring/squeeze is suppressed here, as those are the genuinely disorienting
+     motions for vestibular-sensitive users. */
   .page {
     transition: none;
   }
