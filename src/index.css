@@ -313,8 +313,8 @@ a {
 [data-aos] {
   opacity: 0;
   transition:
-    opacity 1s ease-in-out,
-    transform 1s ease-in-out;
+    opacity 0.7s ease-in-out,
+    transform 0.7s ease-in-out;
   will-change: opacity, transform;
 }
 [data-aos='fade-up'] {
@@ -334,9 +334,9 @@ a {
   transform: scale(0.2) scaleY(0.4);
   filter: blur(6px);
   transition:
-    opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1.1s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 1.1s ease-out;
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.85s ease-out;
 }
 [data-aos='warp-in'].aos-animate {
   filter: blur(0);
@@ -364,7 +364,7 @@ a {
   z-index: 0;
   background: none;
   padding-bottom: 10vw;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
   /* GPU layer for the spring transition — avoids layout thrashing during
      the simultaneous cinema-bar animation on the same frame. */
   will-change: transform;
@@ -418,6 +418,32 @@ a {
   /* the oversized title is meant to bleed off-screen; clip it to the viewport
      box so the spill can't create horizontal scroll on narrow screens */
   overflow: hidden;
+  /* aurora shimmer drifting through the ghost glyphs — pages that set a solid
+     color (home / sectors) paint over it, so only watermarks pick it up */
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.09) 42%,
+    rgba(150, 220, 255, 0.2) 50%,
+    rgba(200, 150, 255, 0.14) 55%,
+    rgba(255, 255, 255, 0.09) 62%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: title-shimmer 10s linear infinite;
+}
+@keyframes title-shimmer {
+  to {
+    background-position: -240% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-title {
+    animation: none;
+    background: none;
+    color: rgba(255, 255, 255, 0.1);
+  }
 }
 .page-subtitle {
   user-select: none;
@@ -725,9 +751,9 @@ a {
   text-transform: uppercase;
   text-align: center;
   pointer-events: none;
-  font-size: 1vw;
-  letter-spacing: 1.55vw;
-  text-indent: 1.8vw;
+  font-size: 0.68vw;
+  letter-spacing: 0.42vw;
+  text-indent: 0.42vw;
   position: relative;
   top: 0;
   left: auto;
@@ -737,14 +763,38 @@ a {
   text-shadow: 0 2px 10px rgba(2, 6, 14, 0.95), 0 0 26px rgba(2, 6, 14, 0.85);
 }
 
-/* small prompt under the home subtitle */
+/* full-viewport invisible entry button — the entire home screen opens the
+   portfolio. Sits under the (pointer-events: none) titles, above the canvas. */
+.home-open {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 10;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.home-open:focus-visible {
+  outline: none;
+  /* a full-screen outline would be jarring — glow the frame edge instead */
+  box-shadow: inset 0 0 0 2px rgba(120, 225, 255, 0.45), inset 0 0 42px rgba(40, 180, 230, 0.12);
+}
+
+/* pulsing prompt under the home subtitle */
 .home-hint {
-  margin-top: 2.2vh;
+  margin-top: 3.4vh;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
   text-transform: uppercase;
   letter-spacing: 0.55vw;
   text-indent: 0.55vw;
   font-size: 0.72vw;
-  color: rgba(160, 210, 235, 0.55);
+  color: rgba(160, 210, 235, 0.6);
   animation: home-hint-pulse 3.4s ease-in-out infinite;
 }
 @keyframes home-hint-pulse {
@@ -753,8 +803,66 @@ a {
     opacity: 0.35;
   }
   50% {
-    opacity: 0.8;
+    opacity: 0.85;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hint {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* sectors — the navigation chart page holding the waypoint nodes      */
+/* ------------------------------------------------------------------ */
+.sectors {
+  overflow: hidden;
+  height: 100%;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+.sectors .titles {
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+/* compact centre title — the mark stays the hero; nodes carry the content */
+.sectors .page-title {
+  position: relative;
+  top: 0;
+  left: auto;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  pointer-events: none;
+  text-align: center;
+  font-size: 2.6vw;
+  letter-spacing: 1.7vw;
+  text-indent: 1.7vw;
+  font-weight: 200;
+  color: hsla(200, 40%, 96%, 1);
+  filter: drop-shadow(0 2px 10px rgba(2, 6, 14, 0.85))
+    drop-shadow(0 0 34px rgba(4, 10, 22, 0.9));
+}
+.sectors .page-subtitle {
+  position: relative;
+  top: 0;
+  left: auto;
+  padding: 0;
+  margin: 0.6vh 0 0;
+  text-align: center;
+  font-size: 0.8vw;
+  letter-spacing: 0.9vw;
+  text-indent: 0.9vw;
+  color: rgba(232, 244, 252, 0.8);
+  text-shadow: 0 2px 10px rgba(2, 6, 14, 0.95), 0 0 26px rgba(2, 6, 14, 0.85);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1284,43 +1392,6 @@ a {
   border: 1px #222 solid;
 }
 
-.next-button {
-  position: absolute;
-  right: 0vw;
-  top: 80vh;
-  width: 6vw;
-  height: 6vw;
-  cursor: pointer;
-  opacity: 0.5 !important;
-  z-index: 10;
-}
-.next-button:not(.aos-animate) {
-  opacity: 0 !important;
-}
-.next-button:hover {
-  opacity: 0.9 !important;
-}
-.next-button-circle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  transition: 0.3s all ease-in-out;
-}
-.next-button-arrow {
-  position: absolute;
-  left: -65%;
-  top: 22%;
-  width: 100%;
-  transition: 0.3s all ease-in-out;
-}
-.next-button:hover .next-button-arrow {
-  transform: translate(2vw, 0);
-}
-.next-button:hover .next-button-circle {
-  transform: translate(-2vw, 0);
-}
-
 .client,
 .role {
   pointer-events: none;
@@ -1571,86 +1642,60 @@ a {
   margin-top: 38vh;
 }
 
-/* ---- interactive "resonance stack": Tacet/HUD panels with a restrained
-   Wuthering-Waves + Edgerunners edge (clipped corners, neon accents) ---- */
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.6vw;
-  width: 82vw;
+/* ---- "resonance channels": no card boxes — open clusters, each hanging off
+   a thin accent rail with a pulsing node; skills read as bare signal lines ---- */
+.skills-field {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4.5vh 3.8vw;
+  width: 86vw;
   margin: 0 auto;
 }
-.skill-card {
-  perspective: 1000px;
-}
-.skill-card-tilt {
+.skill-cluster {
   position: relative;
-  padding: 2.2vh 1.6vw;
-  background: linear-gradient(160deg, rgba(12, 20, 30, 0.72), rgba(6, 10, 16, 0.58));
-  border: 1px solid rgba(120, 200, 230, 0.18);
-  /* angular clipped corners, like a Tacet Field / HUD readout */
-  clip-path: polygon(
-    0 0,
-    calc(100% - 16px) 0,
-    100% 16px,
-    100% 100%,
-    16px 100%,
-    0 calc(100% - 16px)
-  );
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-  overflow: hidden;
-  transform-style: preserve-3d;
+  flex: 0 1 auto;
+  width: 18.5vw;
+  padding-left: 1.1vw;
 }
-/* cyan power-line that runs along the top edge and extends on hover */
-.skill-card-tilt::before {
+/* the rail: a thin gradient line standing in for the old card edge */
+.skill-cluster::before {
   content: '';
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 0;
-  height: 2px;
-  width: 38%;
-  background: linear-gradient(90deg, #38e1ff, transparent);
-  opacity: 0.5;
-  transition: 0.35s ease;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(120, 225, 255, 0.75), rgba(120, 200, 230, 0.04));
 }
-.skill-card:hover .skill-card-tilt {
-  border-color: rgba(120, 225, 255, 0.6);
-  box-shadow: 0 0 24px rgba(40, 180, 230, 0.22), inset 0 0 18px rgba(40, 160, 210, 0.08);
-  background: linear-gradient(160deg, rgba(16, 28, 40, 0.82), rgba(8, 12, 20, 0.66));
-}
-.skill-card:hover .skill-card-tilt::before {
-  width: 88%;
-  opacity: 1;
-}
-/* edgerunner-yellow corner brackets, lit on hover */
-.skill-corner {
+/* pulsing node capping the rail */
+.cluster-node {
   position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-  border-color: rgba(255, 210, 70, 0);
-  transition: 0.3s ease;
+  top: -2px;
+  left: -3px;
+  width: 7px;
+  height: 7px;
+  background: #38e1ff;
+  transform: rotate(45deg);
+  animation: node-pulse 2.6s ease-in-out infinite;
+  animation-delay: var(--eq-delay, 0s);
 }
-.skill-corner.tl {
-  top: 6px;
-  left: 6px;
-  border-top: 2px solid;
-  border-left: 2px solid;
+@keyframes node-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(56, 225, 255, 0.5);
+    opacity: 0.7;
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(56, 225, 255, 1);
+    opacity: 1;
+  }
 }
-.skill-corner.br {
-  bottom: 6px;
-  right: 6px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
-}
-.skill-card:hover .skill-corner {
-  border-color: rgba(255, 210, 70, 0.85);
-}
-.skill-card-head {
+.cluster-head {
   display: flex;
   align-items: center;
   gap: 0.6vw;
-  margin-bottom: 1.4vh;
+  margin-bottom: 1.1vh;
 }
 .skill-index {
   font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
@@ -1659,53 +1704,134 @@ a {
   opacity: 0.85;
   letter-spacing: 0.08vw;
 }
-.skill-card-title {
+.cluster-title {
   flex: 1;
   text-transform: uppercase;
   letter-spacing: 0.15vw;
-  font-size: 1.05vw;
+  font-size: 0.95vw;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
 }
-.skill-glyph {
-  color: #9fd9ff;
-  font-size: 0.95vw;
-  opacity: 0.5;
-  transition: transform 0.4s ease, opacity 0.3s, color 0.3s;
+@keyframes scan-sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(490%);
+  }
 }
-.skill-card:hover .skill-glyph {
-  opacity: 1;
-  color: #ffd24a;
-  transform: rotate(90deg) scale(1.15);
-}
-.skill-scanline {
+/* decorative resonance baseline under the whole field */
+.skills-baseline {
+  position: relative;
+  width: 70vw;
   height: 1px;
-  width: 100%;
-  margin-bottom: 1.6vh;
-  background: linear-gradient(90deg, transparent, rgba(120, 200, 230, 0.4), transparent);
+  margin: 4.5vh auto 0;
+  background: linear-gradient(90deg, transparent, rgba(120, 200, 230, 0.28), transparent);
+  overflow: hidden;
 }
-.skill-tags {
+.baseline-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 18%;
+  background: linear-gradient(90deg, transparent, rgba(120, 225, 255, 0.9), transparent);
+  animation: scan-sweep 5s linear infinite;
+}
+
+/* tiny live equalizer in the console header — echoes the Tacet waveform */
+.skill-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.9vw;
+  margin-right: 0.5vw;
+}
+.skill-eq i {
+  width: 2px;
+  height: 100%;
+  background: rgba(120, 225, 255, 0.75);
+  transform-origin: bottom;
+  animation: eq-bounce 1.1s ease-in-out infinite;
+  animation-delay: calc(var(--eq-delay, 0s) - var(--i, 0) * 0.14s);
+}
+.skill-eq i:nth-child(1) { --i: 0; }
+.skill-eq i:nth-child(2) { --i: 1; }
+.skill-eq i:nth-child(3) { --i: 2; }
+.skill-eq i:nth-child(4) { --i: 3; }
+.skill-eq i:nth-child(5) { --i: 4; }
+@keyframes eq-bounce {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.cluster-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5vw;
+  gap: 0.5vh 1.1vw;
 }
+/* bare signal line: no chip box — a tick, the name, and a linked-build count.
+   Hover/trace lights the text itself instead of filling a container. */
 .skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4vw;
+  padding: 0.2vh 0;
   font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.8vw;
-  letter-spacing: 0.02vw;
-  padding: 0.5vh 0.7vw;
+  letter-spacing: 0.03vw;
   color: rgba(190, 225, 240, 0.78);
-  background: rgba(120, 200, 230, 0.06);
-  border: 1px solid rgba(120, 200, 230, 0.16);
-  border-radius: 2px;
-  transition: 0.2s ease;
-  cursor: default;
+  background: none;
+  border: 0;
+  transition: color 0.18s ease, opacity 0.18s ease, text-shadow 0.18s ease;
+  cursor: pointer;
 }
-.skill-tag:hover {
-  color: #06121a;
-  background: #7fe3ff;
-  border-color: #7fe3ff;
-  box-shadow: 0 0 12px rgba(120, 225, 255, 0.6);
+.chip-tick {
+  width: 3px;
+  height: 0.7em;
+  background: rgba(120, 200, 230, 0.5);
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.chip-count {
+  font-size: 0.85em;
+  color: rgba(120, 225, 255, 0.85);
+}
+.skill-tag:hover,
+.skill-tag:focus-visible,
+.skill-tag.on {
+  outline: none;
+  color: #bdf1ff;
+  text-shadow: 0 0 14px rgba(120, 225, 255, 0.75);
+  animation: chip-glitch 0.2s steps(2) 1;
+}
+.skill-tag:hover .chip-tick,
+.skill-tag.on .chip-tick {
+  background: #38e1ff;
+  box-shadow: 0 0 8px rgba(56, 225, 255, 0.9);
+}
+/* while tracing, the other lines step back so the live one pops */
+.skills-field.tracing .skill-tag.dim {
+  opacity: 0.4;
+}
+@keyframes chip-glitch {
+  0% {
+    clip-path: inset(0 0 62% 0);
+    transform: translateX(-2px);
+  }
+  50% {
+    clip-path: inset(48% 0 0 0);
+    transform: translateX(2px);
+  }
+  100% {
+    clip-path: none;
+    transform: none;
+  }
 }
 
 .skills-list {
@@ -1791,6 +1917,21 @@ a {
   /* home nav: corners don't fit a phone — lay the nodes out as a 2x2 grid
      pinned near the bottom, still drifting but without parallax/anchoring */
   .home-hint {
+    margin-top: 3vh;
+    font-size: 2.6vw;
+    letter-spacing: 1.2vw;
+    text-indent: 1.2vw;
+  }
+  /* the centre title clears the bottom node grid (same layout home used) */
+  .sectors .titles {
+    transform: translate(-50%, -78%);
+  }
+  .sectors .page-title {
+    font-size: 6.4vw;
+    letter-spacing: 3vw;
+    text-indent: 3vw;
+  }
+  .sectors .page-subtitle {
     font-size: 2.4vw;
     letter-spacing: 1.4vw;
     text-indent: 1.4vw;
@@ -1854,10 +1995,14 @@ a {
   .page-title {
     font-size: 10vh;
   }
+  /* let the pipe-separated subtitle wrap on phones instead of clipping */
   .page-subtitle {
     top: 18vh;
-    font-size: 1.6vh;
-    letter-spacing: 0.5vh;
+    font-size: 3.4vw;
+    letter-spacing: 0.6vw;
+    line-height: 1.5;
+    white-space: normal;
+    padding: 0 6vw;
   }
 
   .list {
@@ -1888,14 +2033,16 @@ a {
     font-size: 2.4vw;
   }
 
+  /* fit "FRANCIS GARCIA" inside the phone viewport: ~14 glyphs need a pitch
+     under 100/14 ≈ 7vw, so 5.6vw glyphs + 1.2vw tracking ≈ 95vw total */
   .home .page-title {
-    font-size: 8vw;
+    font-size: 5.6vw;
+    letter-spacing: 1.2vw;
+    text-indent: 1.2vw;
     font-weight: 300;
     color: hsla(200, 40%, 96%, 1);
   }
-  .home .page-subtitle {
-    font-size: 2.2vw;
-  }
+  /* (sizing continues in the later mobile block below) */
 
   .section-title {
     margin-top: 5vh;
@@ -1923,11 +2070,6 @@ a {
   }
   .feature {
     margin-top: 20vh;
-  }
-  .next-button {
-    top: 32vh;
-    width: 12vw;
-    height: 12vw;
   }
   .client,
   .role {
@@ -1982,26 +2124,36 @@ a {
   }
 
   /* skills cards stack into one column and scale their text up */
-  .skills-grid {
-    grid-template-columns: 1fr;
-    gap: 4vw;
+  .skills-field {
+    flex-direction: column;
+    gap: 7vw;
     width: 86vw;
   }
-  .skill-card-tilt {
-    padding: 3vw 4vw;
+  .skill-cluster {
+    width: 100%;
+    padding-left: 4vw;
+  }
+  .cluster-head {
+    gap: 2vw;
+    margin-bottom: 2vw;
   }
   .skill-index {
     font-size: 2.6vw;
   }
-  .skill-card-title {
+  .cluster-title {
     font-size: 3.6vw;
   }
-  .skill-glyph {
-    font-size: 3.2vw;
+  .cluster-tags {
+    gap: 1.4vw 4vw;
   }
   .skill-tag {
-    font-size: 3vw;
-    padding: 1vw 2.5vw;
+    font-size: 3.2vw;
+    padding: 1vw 0;
+    gap: 1.4vw;
+  }
+  .skills-baseline {
+    width: 86vw;
+    margin-top: 6vw;
   }
 
   /* skills section — reduce top gap so the grid isn't buried below the fold */
@@ -2017,17 +2169,21 @@ a {
     margin-bottom: 3vh;
   }
 
-  /* home subtitle — boost to be readable under the hero name */
+  /* home subtitle — readable under the hero name yet inside the viewport:
+     "ROBOTICS | FULL-STACK | APPLIED ML" ≈ 35 glyphs needs pitch ≤ 2.7vw */
   .home .page-subtitle {
-    font-size: 3vw;
-    letter-spacing: 2.6vw;
-    text-indent: 2.6vw;
+    font-size: 2.6vw;
+    letter-spacing: 0.9vw;
+    text-indent: 0.9vw;
   }
 
-  /* section page subtitle (projects / skills / about) */
+  /* section page subtitle (projects / skills / about) — wraps on phones */
   .page-subtitle {
-    font-size: 2vh;
-    letter-spacing: 0.5vh;
+    font-size: 3.4vw;
+    letter-spacing: 0.6vw;
+    line-height: 1.5;
+    white-space: normal;
+    padding: 0 6vw;
     top: 16vh;
   }
 
@@ -2769,59 +2925,99 @@ a {
 /* section carousel (projects / prototypes) — a horizontal coverflow   */
 /* replacing the old floated grid, with hover/focus/active teasers.     */
 /* ------------------------------------------------------------------ */
-/* ============ card slider (projects / prototypes) ============ */
-.card-slider {
+/* ============ card deck (projects / prototypes) ============
+   A depth stack: the front card is live, the next few peek behind it offset
+   up-right and scaled down; scroll/swipe peels the front card away (it flies
+   down-forward like a dealt card) and the deck steps up. */
+.card-deck {
   position: relative;
   width: 100vw;
   margin-top: 42vh;
+  outline: none;
+  /* deal-step vectors, inherited by the stage (centering) and cards (pose) */
+  --deal-x: 3.8vw;
+  --deal-y: -2.2vh;
 }
-.slider-track {
-  display: flex;
-  align-items: center;
-  gap: 2.4vw;
-  /* generous side padding so the first/last card can snap to centre */
-  padding: 4vw 32vw 5vw;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding: 0 32vw;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  /* depth for the per-card 3D tilt */
-  perspective: 1500px;
+.card-deck:focus-visible .deck-stage {
+  filter: drop-shadow(0 0 14px rgba(56, 225, 255, 0.35));
 }
-.slider-track::-webkit-scrollbar {
-  display: none;
+/* the stage is one card-slot; every card sits absolutely inside it.
+   Centred on the front card — peeks fan up-right from behind it. */
+.deck-stage {
+  position: relative;
+  width: min(36vw, 62vh);
+  aspect-ratio: 36 / 22;
+  margin: 0 auto;
+}
+/* soft light pooling beneath the deck — grounds the stack in the scene */
+.deck-stage::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: -14%;
+  bottom: -4.5vh;
+  height: 6vh;
+  z-index: 0;
+  background: radial-gradient(ellipse at 55% 50%, rgba(90, 170, 235, 0.22), transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+.deck-pos {
+  position: absolute;
+  inset: 0;
+  /* stacked-behind pose: up-right steps + shrink + a slight fan, driven by
+     --offset (0..4). The x-step must clearly out-run the scale shrink
+     (~1.1vw/side at 0.05/step) or the peek disappears behind the front card. */
+  transform: translate3d(
+      calc(var(--offset, 0) * var(--deal-x, 3.8vw)),
+      calc(var(--offset, 0) * var(--deal-y, -3.2vh)),
+      0
+    )
+    scale(calc(1 - var(--offset, 0) * 0.05))
+    rotate(calc(var(--offset, 0) * 1.3deg));
+  opacity: calc(1 - var(--offset, 0) * 0.2);
+  filter: brightness(calc(1 - var(--offset, 0) * 0.12)) saturate(calc(1 - var(--offset, 0) * 0.06));
+  transition:
+    transform 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.36s ease,
+    filter 0.36s ease;
+  will-change: transform, opacity;
+}
+/* dealt away: fly down-forward and fade, like a discarded card */
+.deck-pos.passed {
+  transform: translate3d(-6vw, 18vh, 0) scale(1.08) rotate(-4deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.deck-pos.deep {
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* outer card: carries the eased lift + accent glow + scroll-snap. At rest all
-   cards read equal — the emphasis is hover/focus-driven, not a coverflow. */
+/* outer card: fills its deck slot; the emphasis is hover/focus-driven */
 .slide-card {
-  flex: 0 0 auto;
   position: relative;
-  width: 36vw;
-  height: 22vw;
-  scroll-snap-align: center;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   border-radius: 3px;
   transition:
-    opacity 0.45s ease,
-    filter 0.45s ease,
-    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.45s ease;
+    opacity 0.35s ease,
+    filter 0.35s ease,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease;
 }
-/* spotlight: hovering one card dims + shrinks the rest so the focus pops */
 @media (hover: hover) {
-  .slider-track:hover .slide-card:not(:hover) {
-    opacity: 0.4;
-    filter: saturate(0.55) brightness(0.6);
-    transform: scale(0.93);
-  }
-  .slide-card:hover {
+  /* only the front card lifts; a peeking card just brightens (click deals to it) */
+  .deck-pos.front .slide-card:hover {
     z-index: 5;
     transform: translateY(-1vw) scale(1.04);
     box-shadow:
       0 1.4vw 3vw rgba(2, 6, 12, 0.6),
       0 0 2.2vw -0.3vw var(--accent, #38e1ff);
+  }
+  .deck-pos.behind:hover {
+    filter: brightness(0.95) saturate(1);
   }
 }
 .slide-card.is-active {
@@ -3084,46 +3280,19 @@ a {
   z-index: 2;
 }
 
-/* prev / next controls */
-.slider-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3.4vw;
-  height: 3.4vw;
-  min-width: 44px;
-  min-height: 44px;
+/* dots + counter row under the deck */
+.deck-nav {
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 6;
-  color: rgba(210, 235, 250, 0.85);
-  background: rgba(8, 14, 22, 0.82);
-  border: 1px solid rgba(120, 200, 230, 0.28);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease,
-    opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  align-items: center;
+  gap: 1.1vw;
+  margin-top: 1.4vw;
 }
-.slider-arrow.prev {
-  left: 2vw;
-}
-.slider-arrow.next {
-  right: 2vw;
-}
-.slider-arrow:hover:not(:disabled) {
-  color: #fff;
-  border-color: rgba(120, 225, 255, 0.7);
-  box-shadow: 0 0 18px rgba(40, 180, 230, 0.3);
-  transform: translateY(-50%) scale(1.1);
-}
-.slider-arrow:focus-visible {
-  outline: 2px solid #38e1ff;
-  outline-offset: 3px;
-}
-.slider-arrow:disabled {
-  opacity: 0.22;
-  cursor: default;
+.deck-counter {
+  font-family: var(--mono);
+  font-size: 0.72vw;
+  letter-spacing: 0.14vw;
+  color: rgba(150, 205, 232, 0.75);
 }
 
 /* dot indicators (24px hit area, 8px visible dot) */
@@ -3132,7 +3301,6 @@ a {
   justify-content: center;
   align-items: center;
   gap: 0.5vw;
-  margin-top: 1.4vw;
 }
 .slider-dot {
   position: relative;
@@ -3172,15 +3340,23 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slider-track {
-    scroll-behavior: auto;
+  /* no dealing motion: the deck becomes a simple crossfade of the front card */
+  .deck-pos,
+  .deck-pos.passed {
+    transform: none;
+    transition: opacity 0.3s ease;
+  }
+  .deck-pos.behind,
+  .deck-pos.deep,
+  .deck-pos.passed {
+    opacity: 0;
+    pointer-events: none;
   }
   .slide-card {
     transition: opacity 0.2s ease, box-shadow 0.2s ease;
     transform: none;
   }
-  .slider-track:hover .slide-card:not(:hover),
-  .slide-card:hover {
+  .deck-pos.front .slide-card:hover {
     transform: none;
     filter: none;
   }
@@ -3201,18 +3377,17 @@ a {
 }
 
 @media (max-width: 801px) {
-  .card-slider {
+  .card-deck {
     margin-top: 24vh;
   }
-  .slider-track {
-    gap: 5vw;
-    padding: 5vw 10vw 6vw;
-    scroll-padding: 0 10vw;
-    perspective: none;
-  }
-  .slide-card {
+  .deck-stage {
     width: 80vw;
-    height: 48vw;
+    aspect-ratio: 80 / 48;
+  }
+  /* deal steps tuned for a small screen */
+  .card-deck {
+    --deal-x: 6vw;
+    --deal-y: -2.2vh;
   }
   .slide-index {
     font-size: 3vw;
@@ -3257,18 +3432,270 @@ a {
     width: 5.5vw;
     height: 5.5vw;
   }
-  .slider-arrow {
-    width: 44px;
-    height: 44px;
-  }
-  .slider-arrow.prev {
-    left: 1vw;
-  }
-  .slider-arrow.next {
-    right: 1vw;
+  .deck-nav {
+    margin-top: 4vw;
+    gap: 2.5vw;
   }
   .slider-dots {
-    margin-top: 4vw;
     gap: 1.5vw;
+  }
+  .deck-counter {
+    font-size: 2.6vw;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* viewport-locked section pages — projects / prototypes / skills fit  */
+/* one screen with no scroll. Placed last so these overrides win.      */
+/* ------------------------------------------------------------------ */
+
+/* the slider pages are compact enough to lock at every size */
+.projects,
+.prototypes {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+@media (min-width: 802px) {
+  /* skills fits a desktop viewport; on phones it keeps scrolling */
+  .skills {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  /* compressed header band: ghost title + subtitle + caption stack in the
+     top ~30vh, leaving a clean content band below */
+  .projects .page-title,
+  .prototypes .page-title,
+  .skills .page-title {
+    top: 7vh;
+    font-size: 22vh;
+  }
+  /* the subtitle is gone — the caption moves up into its slot, clearing the
+     deck's stacked peeks below */
+  .projects .section-caption,
+  .prototypes .section-caption,
+  .skills .section-caption {
+    top: 24vh;
+  }
+
+  /* deck band: the stage is sized against BOTH axes so short/wide viewports
+     never push the dots below the fold; leave headroom for the stacked peeks */
+  .card-deck {
+    margin-top: 33vh;
+  }
+  .deck-nav {
+    margin-top: 2.5vh;
+  }
+
+  /* skills band: vertical scroll-snap roulette drum — clusters scroll through
+     a 44vh window; mask fades top/bottom for depth; mouse wheel drives scroll */
+  .skills .skills-block {
+    margin-top: 29vh;
+  }
+  .skills .section-title {
+    margin-top: 0;
+    margin-bottom: 2vh;
+  }
+  .skills-field {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    height: 44vh;
+    width: 68vw;
+    margin: 0 auto;
+    gap: 3vh;
+    padding: 1vh 0 2vh;
+    box-sizing: border-box;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+  }
+  .skills-field::-webkit-scrollbar {
+    display: none;
+  }
+  .skill-cluster {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 36vh;
+    scroll-snap-align: start;
+    scroll-margin-top: 1vh;
+    padding-top: 1vh;
+  }
+  .skills-baseline {
+    margin-top: 3vh;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* skill → build trace strip: fixed telemetry bar along the bottom      */
+/* showing where the hovered skill was actually used                    */
+/* ------------------------------------------------------------------ */
+.skill-trace {
+  position: fixed;
+  left: 50%;
+  bottom: 2.6vh;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  max-width: 72vw;
+  padding: 0.9vh 1.6vw;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  background: linear-gradient(160deg, rgba(10, 18, 28, 0.88), rgba(5, 9, 15, 0.8));
+  border: 1px solid rgba(120, 200, 230, 0.22);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+  backdrop-filter: blur(4px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.skill-trace.live {
+  border-color: rgba(120, 225, 255, 0.5);
+  box-shadow: 0 0 22px rgba(40, 180, 230, 0.2);
+}
+.trace-hint {
+  font-size: 0.7vw;
+  letter-spacing: 0.2vw;
+  color: rgba(160, 210, 235, 0.55);
+  animation: home-hint-pulse 3.4s ease-in-out infinite;
+}
+.trace-tag {
+  flex: 0 0 auto;
+  font-size: 0.78vw;
+  letter-spacing: 0.14vw;
+  color: #7fe3ff;
+  text-shadow: 0 0 12px rgba(120, 225, 255, 0.5);
+}
+.trace-sep {
+  color: rgba(160, 210, 235, 0.6);
+  font-size: 0.7vw;
+}
+.trace-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5vw;
+  min-width: 0;
+}
+.trace-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4vw;
+  padding: 0.35vh 0.7vw;
+  font-family: inherit;
+  font-size: 0.7vw;
+  letter-spacing: 0.06vw;
+  text-transform: uppercase;
+  color: rgba(230, 244, 252, 0.92);
+  background: rgba(120, 200, 230, 0.07);
+  border: 1px solid rgba(120, 200, 230, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+.trace-link:hover,
+.trace-link:focus-visible {
+  outline: none;
+  border-color: var(--accent, #38e1ff);
+  box-shadow: 0 0 12px -2px var(--accent, #38e1ff);
+  color: #fff;
+}
+.trace-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #38e1ff);
+  box-shadow: 0 0 8px var(--accent, #38e1ff);
+}
+.trace-kind {
+  font-size: 0.85em;
+  color: rgba(150, 205, 232, 0.6);
+}
+.trace-none {
+  font-size: 0.7vw;
+  letter-spacing: 0.12vw;
+  color: rgba(190, 225, 240, 0.65);
+}
+
+@media (max-width: 801px) {
+  /* the skills page scrolls on phones, and .page's transform makes fixed
+     positioning resolve against the page box — sticky tracks the viewport
+     correctly instead */
+  .skill-trace {
+    position: sticky;
+    left: auto;
+    transform: none;
+    margin: 6vw auto 0;
+    width: fit-content;
+    bottom: 2vh;
+    max-width: 94vw;
+    gap: 2vw;
+    padding: 1.6vw 3.5vw;
+  }
+  .trace-hint,
+  .trace-sep,
+  .trace-none {
+    font-size: 2.6vw;
+  }
+  .trace-tag {
+    font-size: 2.8vw;
+    letter-spacing: 0.4vw;
+  }
+  .trace-link {
+    font-size: 2.5vw;
+    padding: 1.2vw 2.4vw;
+    gap: 1.2vw;
+  }
+  .trace-links {
+    gap: 1.6vw;
+  }
+  /* the skills page scrolls on phones — clear the fixed strip */
+  .skills {
+    padding-bottom: 34vw;
+  }
+  .skill-eq {
+    height: 3vw;
+    margin-right: 1.5vw;
+  }
+  .chip-tick {
+    width: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-eq i,
+  .baseline-pulse,
+  .cluster-node {
+    animation: none;
+  }
+  .skill-eq i {
+    transform: scaleY(0.6);
+  }
+  .skill-tag:hover,
+  .skill-tag:focus-visible,
+  .skill-tag.on {
+    animation: none;
+  }
+  .trace-hint {
+    animation: none;
+    opacity: 0.8;
   }
 }

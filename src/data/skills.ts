@@ -26,6 +26,10 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     title: 'AI & ML',
-    tags: ['YOLO', 'TensorFlow / ONNX', 'Kalman Filtering', 'MPC', 'SINDy', 'RL', 'LLM APIs (OpenAI, Claude)'],
+    tags: ['YOLO', 'TensorFlow / ONNX', 'Kalman Filtering', 'MPC', 'SINDy', 'RL'],
+  },
+  {
+    title: 'AI Engineering',
+    tags: ['Claude Code', 'LLMs', 'Prompt Engineering', 'RAG Pipelines', 'AI Workflows & Integration'],
   },
 ]

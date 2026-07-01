@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import Page from './Page'
 import Thumb from './Thumb'
-import { home, about, skills, sections, social, shareUrls, detailFor, relatedFor, type Section, type ListItem } from '../../data/site'
+import { home, about, skills, sections, social, detailFor, relatedFor, buildsForSkill, type Section, type ListItem, type SkillTrace } from '../../data/site'
 import { useRouter } from '../../lib/router'
 import { useTilt } from '../../lib/tilt'
 import { appState, shapeFor, orbOpacityFor } from '../../lib/appState'
 import { isMobile, prefersReducedMotion } from '../../lib/device'
-import { GitHubIcon, LinkedInIcon, EmailIcon, TwitterIcon, FacebookIcon } from './icons'
+import { GitHubIcon, LinkedInIcon, EmailIcon } from './icons'
 import {
   MicroLabel,
   RegMark,
@@ -21,7 +21,8 @@ import {
 /* home                                                                */
 /* ------------------------------------------------------------------ */
 
-/** The interactive entry nodes that replace the old bottom footer menu.
+/** The interactive entry nodes, now living on their own /sectors page (the
+ * "sector chart") reached from the home CTA via the warp transition.
  * Rather than a flat row, they're scattered around the central mark like
  * waypoints floating in space: each sits at a screen corner, drifts on its
  * own loop, and parallaxes by its `depth` as the camera (mouse) moves —
@@ -29,14 +30,14 @@ import {
  * morphs/pulses the background mark toward that section's shape, so the
  * canvas previews where the click will take you. */
 const homeNodes = [
-  { link: 'projects', label: 'Projects', desc: 'Systems & applications', glyph: '▦', meta: `${sections[0].list.length} builds`, pos: 'tl', depth: 30, coord: 'SECTOR 01' },
-  { link: 'prototypes', label: 'Prototypes', desc: 'Hardware & experiments', glyph: '⬡', meta: `${sections[1].list.length} rigs`, pos: 'tr', depth: 18, coord: 'SECTOR 02' },
-  { link: 'skills', label: 'Skills', desc: 'The resonance stack', glyph: '❖', meta: `${skills.groups.length} domains`, pos: 'bl', depth: 22, coord: 'SECTOR 03' },
-  { link: 'about', label: 'About', desc: 'Profile & contact', glyph: '◎', meta: 'Bio · CV', pos: 'br', depth: 36, coord: 'SECTOR 04' },
+  { link: 'projects', label: 'Projects', desc: 'Software that shipped', glyph: '▦', meta: `${sections[0].list.length} builds`, pos: 'tl', depth: 30, coord: 'SECTOR 01' },
+  { link: 'prototypes', label: 'Prototypes', desc: 'Circuits & contraptions', glyph: '⬡', meta: `${sections[1].list.length} rigs`, pos: 'tr', depth: 18, coord: 'SECTOR 02' },
+  { link: 'skills', label: 'Skills', desc: 'Every tool, traced to a build', glyph: '❖', meta: `${skills.groups.length} domains`, pos: 'bl', depth: 22, coord: 'SECTOR 03' },
+  { link: 'about', label: 'About', desc: 'Say hello', glyph: '◎', meta: 'Bio · CV', pos: 'br', depth: 36, coord: 'SECTOR 04' },
 ] as const
 
 function HomeNode({ node, index }: { node: (typeof homeNodes)[number]; index: number }) {
-  const { go } = useRouter()
+  const { go, state } = useRouter()
   return (
     // pos layer: corner anchor + warp-in entrance (AOS transform)
     <div className={`home-node-pos ${node.pos}`} data-aos="warp-in" style={{ transitionDelay: `${500 + index * 140}ms` }}>
@@ -59,9 +60,13 @@ function HomeNode({ node, index }: { node: (typeof homeNodes)[number]; index: nu
             appState.orbTarget = orbOpacityFor(node.link)
             appState.pulse = 0.6
           }}
+          // Revert to the CURRENT route's shape, not a hard-coded 'sectors':
+          // after a click the route is already the destination, and this
+          // leave event re-fires when the page hides (element → display:none),
+          // which used to wipe the destination's unique shape mid-travel.
           onMouseLeave={() => {
-            appState.shapeTarget = shapeFor('home')
-            appState.orbTarget = orbOpacityFor('home')
+            appState.shapeTarget = shapeFor(state)
+            appState.orbTarget = orbOpacityFor(state)
           }}
         >
           <span className="home-node-corner tl" />
@@ -83,6 +88,42 @@ function HomeNode({ node, index }: { node: (typeof homeNodes)[number]; index: nu
 }
 
 export function HomePage() {
+  const { visibleState, go } = useRouter()
+
+  return (
+    <Page id="home" active={visibleState === 'home'}>
+      {/* the whole screen is the way in — one transparent button under the
+          titles keeps it keyboard-reachable (Tab + Enter) */}
+      <button
+        type="button"
+        className="home-open"
+        aria-label="Open portfolio"
+        onClick={() => go('sectors')}
+      />
+      <div className="titles">
+        <div className="page-title" data-aos="fade-in" style={{ transitionDuration: '2s' }}>
+          {home.title}
+        </div>
+        <div
+          className="page-subtitle"
+          data-aos="fade-in"
+          style={{ transitionDuration: '2s', transitionDelay: '.4s' }}
+        >
+          {home.subtitle}
+        </div>
+        <div className="home-hint" data-aos="fade-in" style={{ transitionDelay: '1.4s' }} aria-hidden>
+          {home.hint}
+        </div>
+      </div>
+    </Page>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* sectors — the navigation chart holding the four waypoint nodes      */
+/* ------------------------------------------------------------------ */
+
+export function SectorsPage() {
   const { visibleState } = useRouter()
   const navRef = useRef<HTMLElement>(null)
 
@@ -111,25 +152,22 @@ export function HomePage() {
   }, [])
 
   return (
-    <Page id="home" active={visibleState === 'home'}>
+    <Page id="sectors" active={visibleState === 'sectors'}>
       <div className="titles">
-        <div className="home-caption" data-aos="fade-in" style={{ transitionDuration: '2s' }} aria-hidden>
+        <div className="home-caption" data-aos="fade-in" aria-hidden>
           <RegMark />
-          <MicroLabel>TYPE_VECTOR · MG_990X · MINIMAL_FORM</MicroLabel>
+          <MicroLabel>FOUR SECTORS · ONE BUILDER · PICK A DOOR</MicroLabel>
           <RegMark />
         </div>
-        <div className="page-title" data-aos="fade-in" style={{ transitionDuration: '2s' }}>
-          {home.title}
+        <div className="page-title" data-aos="fade-in" style={{ transitionDuration: '1.4s' }}>
+          sectors
         </div>
         <div
           className="page-subtitle"
           data-aos="fade-in"
-          style={{ transitionDuration: '2s', transitionDelay: '.4s' }}
+          style={{ transitionDuration: '1.4s', transitionDelay: '.3s' }}
         >
-          {home.subtitle}
-        </div>
-        <div className="home-hint" data-aos="fade-in" style={{ transitionDelay: '1.4s' }}>
-          choose a sector to engage
+          choose a destination
         </div>
       </div>
 
@@ -158,7 +196,7 @@ function SlideCard({ item, index, active, onOpen }: { item: ListItem; index: num
   return (
     <div
       role="button"
-      tabIndex={0}
+      tabIndex={active ? 0 : -1}
       aria-label={`${item.title}. ${item.project.tagline}`}
       className={`slide-card ${active ? 'is-active' : ''}`}
       style={{ '--accent': item.project.accent } as CSSProperties}
@@ -224,112 +262,147 @@ function SlideCard({ item, index, active, onOpen }: { item: ListItem; index: num
   )
 }
 
-function SliderChevron({ dir }: { dir: 'left' | 'right' }) {
-  return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
-      <path
-        d={dir === 'left' ? 'M15 5 L8 12 L15 19' : 'M9 5 L16 12 L9 19'}
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-/** Horizontal card slider with visible prev/next controls, dot indicators,
- * scroll-snap, and a scroll-centred card tracked so touch users get the same
- * hover preview (via `.is-active`). Replaces the old coverflow carousel for
- * projects + prototypes. */
-function CardSlider({ items, sectionId, onOpen }: { items: ListItem[]; sectionId: string; onOpen: (item: ListItem) => void }) {
-  const trackRef = useRef<HTMLDivElement>(null)
+/** Depth-deck card stack (replaces the arrow slider): cards pile up behind
+ * the front one like a held hand of holo-cards. A wheel flick, a vertical
+ * swipe, or an arrow key peels the front card away (it flies down-forward)
+ * and the deck steps up. The pages are viewport-locked, so scroll input is
+ * free to drive the deck. Dots remain for direct navigation and a mono
+ * `02 / 06` counter keeps orientation. */
+function CardDeck({
+  items,
+  sectionId,
+  pageActive,
+  onOpen,
+}: {
+  items: ListItem[]
+  sectionId: string
+  /** True while the owning page is the visible route — gates input listeners. */
+  pageActive: boolean
+  onOpen: (item: ListItem) => void
+}) {
   const [active, setActive] = useState(0)
+  const activeRef = useRef(0)
+  const cooldownRef = useRef(0)
+  const wheelAccum = useRef(0)
 
-  // track the card nearest the viewport centre as the user scrolls/swipes
+  const goTo = useCallback(
+    (i: number) => {
+      const next = Math.max(0, Math.min(items.length - 1, i))
+      if (next === activeRef.current) return
+      activeRef.current = next
+      setActive(next)
+      // brush the background rift as a card is dealt
+      appState.pulse = Math.max(appState.pulse, 0.3)
+    },
+    [items.length],
+  )
+
+  /** One flick = one card: a step is ignored while the previous is settling. */
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      const now = performance.now()
+      if (now - cooldownRef.current < 500) return
+      cooldownRef.current = now
+      goTo(activeRef.current + dir)
+    },
+    [goTo],
+  )
+
+  // wheel drives the deck while this page is on screen (page can't scroll)
   useEffect(() => {
-    const track = trackRef.current
-    if (!track) return
-    let raf = 0
-    const onScroll = () => {
-      if (raf) return
-      raf = requestAnimationFrame(() => {
-        raf = 0
-        const center = track.scrollLeft + track.clientWidth / 2
-        let best = 0
-        let bestDist = Infinity
-        Array.from(track.children).forEach((ch, i) => {
-          const el = ch as HTMLElement
-          const c = el.offsetLeft + el.offsetWidth / 2
-          const d = Math.abs(c - center)
-          if (d < bestDist) {
-            bestDist = d
-            best = i
-          }
-        })
-        setActive(best)
-      })
+    if (!pageActive) return
+    wheelAccum.current = 0
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      wheelAccum.current += e.deltaY
+      if (Math.abs(wheelAccum.current) >= 50) {
+        step(wheelAccum.current > 0 ? 1 : -1)
+        wheelAccum.current = 0
+      }
     }
-    track.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => {
-      track.removeEventListener('scroll', onScroll)
-      cancelAnimationFrame(raf)
-    }
-  }, [items.length])
+    window.addEventListener('wheel', onWheel, { passive: false })
+    return () => window.removeEventListener('wheel', onWheel)
+  }, [pageActive, step])
 
-  const goTo = (i: number) => {
-    const track = trackRef.current
-    if (!track) return
-    const clamped = Math.max(0, Math.min(items.length - 1, i))
-    const el = track.children[clamped] as HTMLElement | undefined
-    if (!el) return
-    track.scrollTo({
-      left: el.offsetLeft - (track.clientWidth - el.offsetWidth) / 2,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    })
+  // vertical swipe on touch — no page scroll to conflict with
+  useEffect(() => {
+    if (!pageActive) return
+    let startY = 0
+    const onStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY
+    }
+    const onEnd = (e: TouchEvent) => {
+      const dy = startY - e.changedTouches[0].clientY
+      if (Math.abs(dy) >= 50) step(dy > 0 ? 1 : -1)
+    }
+    window.addEventListener('touchstart', onStart, { passive: true })
+    window.addEventListener('touchend', onEnd, { passive: true })
+    return () => {
+      window.removeEventListener('touchstart', onStart)
+      window.removeEventListener('touchend', onEnd)
+    }
+  }, [pageActive, step])
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') {
+      e.preventDefault()
+      step(1)
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault()
+      step(-1)
+    }
   }
 
   return (
-    <div className="card-slider" role="group" aria-roledescription="carousel" aria-label={`${sectionId} slider`}>
-      <button
-        type="button"
-        className="slider-arrow prev"
-        aria-label="Previous project"
-        onClick={() => goTo(active - 1)}
-        disabled={active === 0}
-      >
-        <SliderChevron dir="left" />
-      </button>
-
-      <div className="slider-track" ref={trackRef}>
-        {items.map((item, i) => (
-          <SlideCard key={item.slug} item={item} index={i} active={i === active} onOpen={() => onOpen(item)} />
-        ))}
+    <div
+      className="card-deck"
+      role="group"
+      aria-roledescription="card deck"
+      aria-label={`${sectionId} deck — scroll, swipe or arrow keys to browse`}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+    >
+      <div className="deck-stage">
+        {items.map((item, i) => {
+          const offset = i - active
+          const state =
+            offset === 0 ? 'front' : offset < 0 ? 'passed' : offset <= 3 ? 'behind' : 'deep'
+          return (
+            <div
+              key={item.slug}
+              className={`deck-pos ${state}`}
+              style={{ '--offset': Math.min(Math.max(offset, 0), 4), zIndex: items.length - Math.abs(offset) } as CSSProperties}
+              aria-hidden={offset !== 0}
+            >
+              <SlideCard
+                item={item}
+                index={i}
+                active={offset === 0}
+                // front card opens the case; a peeking card deals the deck to it
+                onOpen={() => (offset === 0 ? onOpen(item) : goTo(i))}
+              />
+            </div>
+          )
+        })}
       </div>
 
-      <button
-        type="button"
-        className="slider-arrow next"
-        aria-label="Next project"
-        onClick={() => goTo(active + 1)}
-        disabled={active === items.length - 1}
-      >
-        <SliderChevron dir="right" />
-      </button>
-
-      <div className="slider-dots" role="tablist" aria-label="Slider position">
-        {items.map((item, i) => (
-          <button
-            key={item.slug}
-            type="button"
-            role="tab"
-            aria-selected={i === active}
-            aria-label={`Show ${item.title}`}
-            className={`slider-dot ${i === active ? 'active' : ''}`}
-            onClick={() => goTo(i)}
-          />
-        ))}
+      <div className="deck-nav">
+        <div className="slider-dots" role="tablist" aria-label="Deck position">
+          {items.map((item, i) => (
+            <button
+              key={item.slug}
+              type="button"
+              role="tab"
+              aria-selected={i === active}
+              aria-label={`Show ${item.title}`}
+              className={`slider-dot ${i === active ? 'active' : ''}`}
+              onClick={() => goTo(i)}
+            />
+          ))}
+        </div>
+        <span className="deck-counter" aria-hidden>
+          {String(active + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
+        </span>
       </div>
     </div>
   )
@@ -342,21 +415,19 @@ export function SectionPage({ section }: { section: Section }) {
       <div className="page-title" data-aos="zoom-in">
         {section.title}
       </div>
-      <div className="page-subtitle" data-aos="zoom-in">
-        {section.subtitle}
-      </div>
       <div className="section-caption" data-aos="fade-in" aria-hidden>
         <RegMark />
         <MicroLabel>
-          [ INDEX ] {String(section.list.length).padStart(2, '0')} ASSETS · 12_COL_MODULAR
+          [ INDEX ] {String(section.list.length).padStart(2, '0')} BUILDS · SCROLL TO FLIP THE DECK
         </MicroLabel>
         <AspectBracket ratio="MG_990X" />
       </div>
       <div className="page-content"></div>
       {section.list.length > 0 ? (
-        <CardSlider
+        <CardDeck
           items={section.list}
           sectionId={section.id}
+          pageActive={visibleState === section.id}
           onOpen={(item) => go(`${section.id}/${item.slug}`)}
         />
       ) : (
@@ -374,64 +445,146 @@ export function SectionPage({ section }: { section: Section }) {
 /* skills                                                              */
 /* ------------------------------------------------------------------ */
 
-function SkillCard({ group, index }: { group: (typeof skills.groups)[number]; index: number }) {
-  const tilt = useTilt<HTMLDivElement>()
+/** One open "resonance channel": no card box — an accent rail with a pulsing
+ * node, the domain title with its own live EQ, and the skills as bare signal
+ * lines. Hover/focus/tap on a skill traces it to real builds (strip below). */
+function SkillCluster({
+  group,
+  index,
+  traceTag,
+  traces,
+  onTrace,
+}: {
+  group: (typeof skills.groups)[number]
+  index: number
+  /** The currently traced skill tag (site-wide), for chip on/dim states. */
+  traceTag: string | null
+  /** tag → linked builds, precomputed once for the whole page. */
+  traces: Map<string, SkillTrace[]>
+  onTrace: (tag: string) => void
+}) {
   return (
     <div
-      className="skill-card"
+      className="skill-cluster"
       data-aos="warp-in"
-      style={{ transitionDelay: `${index * 80}ms` }}
+      style={{ transitionDelay: `${index * 70}ms`, '--eq-delay': `${index * -0.6}s` } as CSSProperties}
     >
-      <div className="skill-card-tilt" ref={tilt}>
-        {/* angular Tacet-style corner brackets */}
-        <span className="skill-corner tl" />
-        <span className="skill-corner br" />
-        <div className="skill-card-head">
-          <span className="skill-index">{String(index + 1).padStart(2, '0')}</span>
-          <span className="skill-card-title">{group.title}</span>
-          <MicroLabel className="skill-asset">{microCode(group.title)}</MicroLabel>
-          <span className="skill-glyph" aria-hidden>◆</span>
-        </div>
-        <div className="skill-scanline" />
-        <div className="skill-tags">
-          {group.tags.map((t) => (
-            <span className="skill-tag" key={t}>
+      <span className="cluster-node" aria-hidden />
+      <div className="cluster-head">
+        <span className="skill-index">{String(index + 1).padStart(2, '0')}</span>
+        <span className="cluster-title">{group.title}</span>
+        {/* tiny live equalizer — each channel runs its own rhythm */}
+        <span className="skill-eq" aria-hidden>
+          <i /><i /><i /><i /><i />
+        </span>
+      </div>
+      <div className="cluster-tags">
+        {group.tags.map((t) => {
+          const n = traces.get(t)?.length ?? 0
+          return (
+            <button
+              type="button"
+              className={`skill-tag ${traceTag === t ? 'on' : ''} ${traceTag && traceTag !== t ? 'dim' : ''}`}
+              key={t}
+              aria-pressed={traceTag === t}
+              aria-describedby="skill-trace"
+              onMouseEnter={() => onTrace(t)}
+              onFocus={() => onTrace(t)}
+              onClick={() => onTrace(t)}
+            >
+              <span className="chip-tick" aria-hidden />
               {t}
-            </span>
-          ))}
-        </div>
+              {n > 0 && <span className="chip-count">×{n}</span>}
+            </button>
+          )
+        })}
       </div>
     </div>
   )
 }
 
 export function SkillsPage() {
-  const { visibleState } = useRouter()
+  const { visibleState, go } = useRouter()
+  const [traceTag, setTraceTag] = useState<string | null>(null)
+
+  // tag → linked builds, computed once (site data is static)
+  const traces = useMemo(() => {
+    const m = new Map<string, SkillTrace[]>()
+    for (const g of skills.groups) for (const t of g.tags) m.set(t, buildsForSkill(t))
+    return m
+  }, [])
+
+  // clear the trace when leaving the page so it re-opens fresh
+  useEffect(() => {
+    if (visibleState !== 'skills') setTraceTag(null)
+  }, [visibleState])
+
+  const traced = traceTag ? traces.get(traceTag) ?? [] : []
+
   return (
     <Page id="skills" active={visibleState === 'skills'}>
       <div className="page-title" data-aos="zoom-in">
         {skills.title}
       </div>
-      <div className="page-subtitle" data-aos="zoom-in">
-        {skills.subtitle}
-      </div>
       <div className="section-caption" data-aos="fade-in" aria-hidden>
         <RegMark />
         <MicroLabel>
-          [ STACK ] {String(skills.groups.length).padStart(2, '0')} DOMAINS · TRUE_NORTH
+          [ STACK ] {String(skills.groups.length).padStart(2, '0')} DOMAINS · EVERY SKILL EARNED ON A REAL BUILD
         </MicroLabel>
         <AspectBracket ratio="MG_990X" />
       </div>
 
       <div className="skills-block info-block">
         <div className="section-title" data-aos="fade-in">
-          [ resonance stack ]
+          [ the toolkit ]
         </div>
-        <div className="skills-grid">
+        <div className={`skills-field ${traceTag ? 'tracing' : ''}`}>
           {skills.groups.map((g, i) => (
-            <SkillCard key={g.title} group={g} index={i} />
+            <SkillCluster
+              key={g.title}
+              group={g}
+              index={i}
+              traceTag={traceTag}
+              traces={traces}
+              onTrace={setTraceTag}
+            />
           ))}
         </div>
+        {/* decorative resonance baseline under the field */}
+        <div className="skills-baseline" data-aos="fade-in" aria-hidden>
+          <span className="baseline-pulse" />
+        </div>
+      </div>
+
+      {/* trace telemetry strip: where the hovered skill was actually used */}
+      <div id="skill-trace" className={`skill-trace ${traceTag ? 'live' : ''}`} aria-live="polite">
+        {traceTag ? (
+          <>
+            <span className="trace-tag">{traceTag}</span>
+            {traced.length > 0 && (
+              <>
+                <span className="trace-sep" aria-hidden>▸</span>
+                <span className="trace-links">
+                  {traced.map(({ item, sectionId }) => (
+                    <button
+                      type="button"
+                      key={item.slug}
+                      className="trace-link"
+                      style={{ '--accent': item.project.accent } as CSSProperties}
+                      onClick={() => go(`${sectionId}/${item.slug}`)}
+                    >
+                      <span className="trace-dot" aria-hidden />
+                      {item.title}
+                      <span className="trace-kind">{sectionId === 'projects' ? 'PRJ' : 'PRT'}</span>
+                    </button>
+                  ))}
+                </span>
+              </>
+            )}
+          </>
+        ) : (
+          <span className="trace-hint">hover a skill to trace it to a build</span>
+        )}
       </div>
     </Page>
   )
@@ -448,12 +601,9 @@ export function AboutPage() {
       <div className="page-title" data-aos="zoom-in">
         {about.title}
       </div>
-      <div className="page-subtitle" data-aos="zoom-in">
-        {about.subtitle}
-      </div>
       <div className="section-caption" data-aos="fade-in" aria-hidden>
         <RegMark />
-        <MicroLabel>[ PROFILE ] SUBJECT_01 · CURATED_VISUAL_INFRASTRUCTURE</MicroLabel>
+        <MicroLabel>[ PROFILE ] EDMONTON, AB · COMPUTER ENGINEERING</MicroLabel>
         <AspectBracket ratio="MG_990X" />
       </div>
       <div className="feature" data-aos="zoom-in">
@@ -579,16 +729,6 @@ export function DetailPage({ section }: { section: Section }) {
   const detail = slug ? detailFor(section, slug) : undefined
   const active = visibleState.startsWith(prefix)
 
-  const share = (kind: 'twitter' | 'facebook') => {
-    if (!detail) return
-    const urls = shareUrls(detail.item.title)
-    window.open(
-      urls[kind],
-      `${kind} share`,
-      `width=600,height=400,top=${window.innerHeight / 2 - 200},left=${window.innerWidth / 2 - 300}`,
-    )
-  }
-
   const related = detail ? relatedFor(section, detail.item) : []
 
   return (
@@ -615,15 +755,6 @@ export function DetailPage({ section }: { section: Section }) {
             </div>
           </div>
 
-          <div className="next-button" data-aos="fade-left" onClick={() => go(`${prefix}${detail.next.slug}`)}>
-            <svg className="next-button-circle" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="47" fill="none" stroke="#fff" strokeWidth="2" />
-            </svg>
-            <svg className="next-button-arrow" viewBox="0 0 100 40">
-              <path d="M2 20 H92 M76 6 L94 20 L76 34" fill="none" stroke="#fff" strokeWidth="3" />
-            </svg>
-          </div>
-
           <div className="client" data-aos="fade-in">
             <b>Context: </b>
             {detail.item.project.context}
@@ -644,18 +775,6 @@ export function DetailPage({ section }: { section: Section }) {
               ))}
             </ul>
             <div className="content-quote">{detail.item.project.takeaway}</div>
-          </div>
-
-          <div className="social-block info-block" data-aos="fade-in">
-            <div className="social-title section-title">[ share ]</div>
-            <div className="social-list">
-              <span className="social-link list-item" onClick={() => share('twitter')}>
-                <TwitterIcon />
-              </span>
-              <span className="social-link list-item" onClick={() => share('facebook')}>
-                <FacebookIcon />
-              </span>
-            </div>
           </div>
 
           {related.length > 0 && (

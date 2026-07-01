@@ -36,9 +36,9 @@ export const siteTitle = 'Francis Garcia | Portfolio'
 export const home = {
   title: 'Francis Garcia',
   pageTitle: siteTitle,
-  // profile.title, formatted like the reference's pipe-separated subtitle
-  // (trimmed to fit the home page's wide letter-spacing).
-  subtitle: 'Robotics | Full-Stack | Applied ML',
+  subtitle: 'Software Dev | Full-Stack | AI Engineering',
+  /** Pulsing prompt under the hero — the whole screen is the button. */
+  hint: 'click anywhere to open portfolio',
 }
 
 export const menu = [
@@ -62,7 +62,7 @@ export const sections: Section[] = [
     id: 'projects',
     title: 'projects',
     pageTitle: 'Francis Garcia | Projects',
-    subtitle: 'Projects | Systems | Applications',
+    subtitle: 'Systems that survived contact with real users',
     list: [
       'ai-fitness',
       'object-tracking',
@@ -76,7 +76,7 @@ export const sections: Section[] = [
     id: 'prototypes',
     title: 'prototypes',
     pageTitle: 'Francis Garcia | Prototypes',
-    subtitle: 'Embedded | Hardware | Experiments',
+    subtitle: 'Hardware experiments — wired, printed, field-tested',
     list: [
       'voice-fan',
       'fuzzy-asteroid',
@@ -110,6 +110,51 @@ export function relatedFor(section: Section, item: ListItem, max = 6): ListItem[
 }
 
 /* ------------------------------------------------------------------ */
+/* skill → build tracing: which portfolio pieces actually use a tool   */
+/* ------------------------------------------------------------------ */
+
+/** Skill-chip tokens whose spelling differs from the project tags. */
+const skillAliases: Record<string, string[]> = {
+  sql: ['postgresql'],
+  yolo: ['yolov5'],
+  tensorflow: ['tensorflow lite micro'],
+  'raspberry pi': ['rp2040', 'pico sdk'],
+  'kalman filtering': ['kalman filter'],
+  'jwt auth': ['jwt'],
+  openai: ['openai api'],
+  llms: ['openai api'],
+}
+
+/** Normalize a tag into comparable tokens: parentheses become alternatives,
+ * then split on / and , — "React Native (Expo)" → ['react native','expo'];
+ * "TensorFlow / ONNX" → ['tensorflow','onnx']. */
+function tagTokens(tag: string): string[] {
+  return tag
+    .replace(/\(([^)]*)\)/g, '/$1')
+    .split(/[/,]/)
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean)
+}
+
+export interface SkillTrace {
+  item: ListItem
+  sectionId: SectionId
+}
+
+/** Every build (project or prototype) whose tags match the given skill tag. */
+export function buildsForSkill(tag: string): SkillTrace[] {
+  const tokens = tagTokens(tag).flatMap((t) => [t, ...(skillAliases[t] ?? [])])
+  const out: SkillTrace[] = []
+  for (const s of sections) {
+    for (const item of s.list) {
+      const projTokens = new Set(item.project.tags.flatMap(tagTokens))
+      if (tokens.some((t) => projTokens.has(t))) out.push({ item, sectionId: s.id })
+    }
+  }
+  return out
+}
+
+/* ------------------------------------------------------------------ */
 /* about page — all content from resume.md                             */
 /* ------------------------------------------------------------------ */
 
@@ -120,14 +165,14 @@ export function relatedFor(section: Section, item: ListItem, max = 6): ListItem[
 export const skills = {
   title: 'skills',
   pageTitle: 'Francis Garcia | Skills',
-  subtitle: 'Languages | Frameworks | Hardware | AI/ML',
+  subtitle: 'The toolkit — hover any skill to trace it to a build',
   groups: skillGroups,
 }
 
 export const about = {
   title: 'about',
   pageTitle: 'Francis Garcia | About',
-  subtitle: 'About | Experience | Contact',
+  subtitle: 'The person behind the machines',
   portrait: profile.portrait,
   // Assembled strictly from resume.md facts (education, roles, skills).
   bio: [

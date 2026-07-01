@@ -30,6 +30,9 @@ export function orbOpacityFor(state: string): number {
   switch (section) {
     case 'home':
       return 1.0
+    case 'sectors':
+      // the sector chart floats over the mark — keep it tacet, just dimmed
+      return 0.9
     case 'prototypes':
       return 0.5
     case 'skills':

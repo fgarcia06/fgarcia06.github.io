@@ -41,6 +41,7 @@ const RouterContext = createContext<RouterValue | null>(null)
 function titleFor(state: string): string {
   const [section, page] = state.split('/')
   if (section === 'home' || !section) return home.pageTitle
+  if (section === 'sectors') return 'Francis Garcia | Sectors'
   if (section === 'about') return 'Francis Garcia | About'
   if (section === 'skills') return 'Francis Garcia | Skills'
   const s = sectionById(section)
@@ -54,7 +55,7 @@ function titleFor(state: string): string {
 
 function isValid(state: string): boolean {
   const [section, page] = state.split('/')
-  if (section === 'home' || section === 'about' || section === 'skills') return !page
+  if (section === 'home' || section === 'sectors' || section === 'about' || section === 'skills') return !page
   const s = sectionById(section)
   if (!s) return false
   if (!page) return true
@@ -126,10 +127,12 @@ export function RouterProvider({ children }: { children: ReactNode }) {
           ?? (sector === 'skills' ? skills.subtitle
           : sector === 'about' ? about.subtitle
           : sector === 'home' ? home.subtitle
+          : sector === 'sectors' ? 'Four doors — pick one'
           : ''),
         count: sec
           ? `${String(sec.list.length).padStart(2, '0')} ASSETS`
           : sector === 'skills' ? `${skills.groups.length} DOMAINS`
+          : sector === 'sectors' ? '04 SECTORS'
           : '',
         index: sectorIdx >= 0 ? String(sectorIdx + 1).padStart(2, '0') : '00',
       })

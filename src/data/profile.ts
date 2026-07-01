@@ -6,7 +6,7 @@ export const profile = {
   /** Short supporting line — less text, more impact. */
   tagline: 'Robotics engineer and builder turning hardware, code, and AI into systems that ship.',
   location: 'Edmonton, Alberta',
-  email: 'fgarcia@ualberta.ca',
+  email: 'gfrancisfrancis1@gmail.com',
   phone: '403-550-7058',
   links: {
     github: 'https://github.com/fgarcia06',

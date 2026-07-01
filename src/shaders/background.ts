@@ -105,18 +105,26 @@ float spiral(vec2 p, float scl) {
 #define BAR_COUNT 10.0   // bars per side (~21 crystals total)
 #define BAR_GAP   0.135  // x spacing between crystals
 
-/* per-bar half-height: a smooth wave of energy travelling out from centre */
+/* whole-sigil breathing — a slow heartbeat that swells the ridge and its
+   glow together, so the rift reads as a living tear in space */
+float breath() {
+  return 0.5 + 0.5 * sin(iTime * 0.55);
+}
+
+/* per-bar half-height: a FIXED silhouette (envelope × per-bar hash) carrying
+   one subtle travelling ripple. The wave sweeps outward across the bars at a
+   constant speed and only modulates ±5.5%, so the mark's proportions never
+   change — the outline just undulates, fluid and consistent. The heartbeat
+   lives in the halo glow only (see hbGlow), not in the geometry. */
 float barHeight(float id) {
   float adist = abs(id) / BAR_COUNT;
   float env = pow(max(0.0, 1.0 - adist), 1.2);
   env *= 0.55 + 0.45 * hash11(id + 3.0);
   if (abs(id) < 0.5) env = 1.18;                 // tall master spike
-  // a travelling pulse + a slow swell → smooth, flowing motion
-  float wave = 0.5 + 0.5 * sin(iTime * 0.9 - abs(id) * 0.7);
-  float swell = 0.6 + 0.4 * sin(iTime * 0.37 + id * 0.25);
+  float ripple = 1.0 + 0.055 * sin(iTime * 1.3 - id * 0.6);
   // floor the height: the outer bars have env→0, which would make s.y→0 and
   // divide-by-zero in sdOcta (NaN normals → white blowout)
-  return max(env * mix(0.45, 1.0, wave * swell) * 0.62, 0.05);
+  return max(env * 0.62 * ripple, 0.05);
 }
 
 /* smooth minimum — blends crystals so the outline reads as one soft ridge */
@@ -285,11 +293,11 @@ void main() {
   // section "view" 0 (home) .. ~0.7 (deep section); orbOpacity is eased in JS
   float view = clamp(1.0 - orbOpacity, 0.0, 0.7);
   // each section frames the crystal from a different angle; a slow idle turn
-  // plus a kick from the navigation pulse keep it alive (idle kept small so
-  // the landing view stays near front-on and the waveform reads clearly)
-  float yaw   = view * 1.0 + sin(iTime * 0.08) * 0.05
-              + iMouse.x * 0.00010 + pulse * 0.4;
-  float pitch = view * 0.38 + sin(iTime * 0.05) * 0.04 - iMouse.y * 0.00010;
+  // plus a kick from the navigation/hover pulse keep it alive. Deliberately
+  // NO mouse term: the rift is fixed in space and only reacts to card hover
+  // (pulse) and section changes (view/shape).
+  float yaw   = view * 1.0 + sin(iTime * 0.08) * 0.05 + pulse * 0.4;
+  float pitch = view * 0.38 + sin(iTime * 0.05) * 0.04;
 
   vec3 ro = vec3(0.0, 0.0, 4.5);   // pushed back so the sigil sits contained
   vec3 rd = normalize(vec3(uv, -1.7));
@@ -328,19 +336,31 @@ void main() {
     vec3 n = length(g) > 1e-5 ? g / length(g) : -rd;
     vec3 L = normalize(vec3(0.15, 0.55, 0.82));          // mostly frontal light
     float diff = 0.45 + 0.55 * max(dot(n, L), 0.0);
-    float fres = pow(1.0 - max(dot(n, -rd), 0.0), 4.0);  // thin rim only
+    // chromatic-aberration rim: per-channel fresnel powers split the edge
+    // light into a spectral fringe (red spreads widest, blue hugs the
+    // silhouette) — a lens-CA look that melts the outline into the nebula
+    float f1 = 1.0 - max(dot(n, -rd), 0.0);
+    vec3 fres = vec3(pow(f1, 2.6), pow(f1, 4.0), pow(f1, 5.8));
     vec3 skin = markColor(hp);                           // purple→red gradient
-    vec3 markCol = skin * diff + fres * vec3(0.85, 0.28, 0.55) * 0.5; // magenta rim
+    vec3 markCol = skin * diff + fres * vec3(0.72, 0.30, 0.80) * 0.55;
     markCol += pow(max(dot(reflect(-L, n), -rd), 0.0), 28.0) * vec3(1.0, 0.7, 0.7) * 0.3;
+    // drink in the local nebula colour so the rift's interior reads as space
+    // showing through the tear rather than a solid pasted on top of it
+    markCol = mix(markCol, col * 1.6, 0.34);
     markCol = min(markCol, vec3(1.0));                   // never blow out to white
-    markCol *= 0.78 * (1.0 + pulse * 1.4);               // dim, flares on nav
-    frag.rgb = mix(frag.rgb, markCol, vis * 0.85);
+    markCol *= 0.78 * (1.0 + pulse * 1.4);               // dim, flares on hover/nav
+    // the surface itself breathes faintly with the waveform
+    markCol *= 0.9 + 0.2 * breath();
+    frag.rgb = mix(frag.rgb, markCol, vis * 0.62);
   }
 
-  // soft purple→red halo hugging the shape — a slightly wider, gentler falloff
-  // than before so the outline reads smooth, but still title-friendly
-  float rim = exp(-dmin * 13.0);
-  frag.rgb += vec3(0.52, 0.10, 0.46) * rim * vis * 0.16 * (1.0 + pulse * 1.2);
+  // spectral halo hugging the shape: each channel decays at its own rate so
+  // the glow fringes warm/magenta on the outside and cool cyan-blue close in —
+  // screen-space chromatic aberration that feathers the rift's seam into the
+  // nebula. It swells and dims with the heartbeat, like energy leaking out.
+  vec3 rim = vec3(exp(-dmin * 7.5), exp(-dmin * 11.0), exp(-dmin * 15.5));
+  float hbGlow = 0.7 + 0.6 * breath();
+  frag.rgb += vec3(0.50, 0.12, 0.52) * rim * vis * 0.17 * hbGlow * (1.0 + pulse * 1.2);
 
   // sanitize: any NaN/Inf survivor falls back to the background (x != x is NaN)
   if (!(frag.r == frag.r) || !(frag.g == frag.g) || !(frag.b == frag.b)) {
