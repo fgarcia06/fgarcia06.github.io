@@ -4,7 +4,7 @@ import { sections } from './data/site'
 import { bindMouse } from './lib/appState'
 import { isMobile } from './lib/device'
 import { Header, LoaderBar, Bars, Hud, Cinema } from './components/ui/Chrome'
-import { HomePage, SectorsPage, SectionPage, SkillsPage, AboutPage, DetailPage } from './components/ui/Pages'
+import { HomePage, SectorsPage, SectionPage, SkillsPage, AboutPage, DetailPage } from './components/ui/pages'
 import MicroBackground from './components/ui/MicroBackground'
 
 // The WebGL layer is the heaviest chunk — load it lazily; the static

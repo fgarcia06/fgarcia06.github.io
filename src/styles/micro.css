@@ -1,0 +1,332 @@
+/* ------------------------------------------------------------------ */
+/* micrographics — monochrome technical-annotation layer.              */
+/* Borrowed from the "Micrographics" design language and layered over  */
+/* the existing dark/HUD theme. Every mark here is decorative: vector   */
+/* or mono text, white/grey at low alpha, aria-hidden + non-interactive */
+/* so it reinforces the "design archive" read without touching the UI.  */
+/* ------------------------------------------------------------------ */
+:root {
+  /* the mono stack was duplicated ~6× through this file; name it once */
+  --mono: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.micro-label,
+.micro-aspect,
+.micro-badge,
+.micro-circled-text {
+  font-family: var(--mono);
+}
+
+/* shared shadow so marks stay legible over the brighter parts of the nebula */
+.micro-label,
+.micro-aspect,
+.micro-badge,
+.micro-circled-text,
+.micro-reg,
+.micro-grid {
+  text-shadow: 0 1px 10px rgba(2, 6, 14, 0.85);
+}
+
+.micro-label {
+  font-size: 0.62vw;
+  letter-spacing: 0.16vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.micro-reg {
+  width: 0.95vw;
+  height: 0.95vw;
+  color: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+  flex: none;
+}
+
+.micro-circled {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9vw;
+  height: 1.9vw;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.micro-circled svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.micro-circled-text {
+  font-size: 0.6vw;
+  letter-spacing: 0.03vw;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* aspect tag with corner brackets, e.g. ⌐16:9¬ */
+.micro-aspect {
+  position: relative;
+  display: inline-block;
+  padding: 0.32vw 0.6vw;
+  font-size: 0.58vw;
+  letter-spacing: 0.12vw;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.micro-aspect::before,
+.micro-aspect::after {
+  content: '';
+  position: absolute;
+  width: 0.42vw;
+  height: 0.42vw;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.micro-aspect::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.micro-aspect::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+.micro-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.16vw 0.52vw;
+  font-size: 0.55vw;
+  letter-spacing: 0.1vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.micro-grid {
+  color: rgba(255, 255, 255, 0.32);
+  pointer-events: none;
+}
+
+/* ---- framed asset (detail hero + about portrait) ---- */
+.micro-frame {
+  position: relative;
+  display: inline-block;
+}
+.micro-frame-corner {
+  position: absolute;
+  width: 0.9vw;
+  height: 0.9vw;
+  border-color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.micro-frame-corner.tl {
+  top: -0.5vw;
+  left: -0.5vw;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.micro-frame-corner.tr {
+  top: -0.5vw;
+  right: -0.5vw;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+.micro-frame-corner.bl {
+  bottom: -0.5vw;
+  left: -0.5vw;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+.micro-frame-corner.br {
+  bottom: -0.5vw;
+  right: -0.5vw;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+.micro-frame-reg {
+  position: absolute;
+  top: 0.6vw;
+  right: 0.6vw;
+}
+.micro-frame-caption {
+  position: absolute;
+  bottom: 0.7vw;
+  left: 0.8vw;
+  font-family: var(--mono);
+  font-size: 0.6vw;
+  letter-spacing: 0.14vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 10px rgba(2, 6, 14, 0.9);
+  pointer-events: none;
+}
+
+/* detail-page hero: frame matches the 16:9 thumb box exactly */
+.feature .micro-frame.feature-frame {
+  display: block;
+  width: 85vw;
+  margin-left: 7.5vw;
+}
+.feature .micro-frame.feature-frame .feature-thumb.sixteen-nine {
+  width: 100%;
+  margin-left: 0;
+}
+.micro-frame .feature-aspect {
+  position: absolute;
+  top: 0.6vw;
+  left: 0.8vw;
+}
+
+/* ---- home hero kicker ---- */
+.home-caption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7vw;
+  margin-bottom: 1.6vh;
+}
+.home-caption .micro-label {
+  font-size: 0.66vw;
+  letter-spacing: 0.34vw;
+  color: rgba(200, 226, 240, 0.6);
+}
+
+/* faint reg mark tucked into each home waypoint */
+.home-node-reg {
+  position: absolute;
+  top: 0.7vw;
+  right: 0.7vw;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+.home-node:hover .home-node-reg,
+.home-node:focus-visible .home-node-reg {
+  opacity: 0.85;
+}
+
+/* ---- section header caption row (projects/prototypes/skills/about) ----
+   absolute overlay in the gap between the offset subtitle and the content,
+   so it never disturbs the existing flow / spacing. */
+.section-caption {
+  position: absolute;
+  top: 34.5vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
+  pointer-events: none;
+  z-index: 2;
+}
+.section-caption .micro-label {
+  color: rgba(210, 232, 245, 0.55);
+}
+
+/* ---- card overlays (project / prototype / related cards) ----
+   a thin top bar over the thumb; bottom is left clear for the title panel. */
+.card-micro {
+  position: absolute;
+  top: 0.9vw;
+  left: 1vw;
+  right: 1vw;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 3;
+}
+.card-micro-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5vw;
+}
+.card-micro-right {
+  display: flex;
+  align-items: center;
+  gap: 0.55vw;
+}
+
+/* ------------------------------------------------------------------ */
+/* micrographics — mobile scaling (mirrors the existing 801px rules)    */
+/* ------------------------------------------------------------------ */
+@media (max-width: 801px) {
+  .micro-label {
+    font-size: 2.1vw;
+    letter-spacing: 0.5vw;
+  }
+  .micro-reg {
+    width: 3.2vw;
+    height: 3.2vw;
+  }
+  .micro-circled {
+    width: 6.4vw;
+    height: 6.4vw;
+  }
+  .micro-circled-text {
+    font-size: 2vw;
+  }
+  .micro-aspect {
+    font-size: 2vw;
+    letter-spacing: 0.4vw;
+    padding: 1vw 1.8vw;
+  }
+  .micro-aspect::before,
+  .micro-aspect::after {
+    width: 1.4vw;
+    height: 1.4vw;
+  }
+  .micro-badge {
+    font-size: 1.9vw;
+    padding: 0.6vw 1.6vw;
+  }
+  .home-caption {
+    margin-bottom: 1.2vh;
+  }
+  .home-caption .micro-label {
+    font-size: 2.4vw;
+    letter-spacing: 0.9vw;
+  }
+  .card-micro {
+    top: 2.4vw;
+    left: 2.6vw;
+    right: 2.6vw;
+  }
+  .card-micro-left {
+    gap: 1.4vw;
+  }
+  .card-micro-right {
+    gap: 1.6vw;
+  }
+  .micro-frame-corner {
+    width: 3vw;
+    height: 3vw;
+  }
+  .micro-frame-caption {
+    font-size: 2vw;
+    letter-spacing: 0.4vw;
+    bottom: 1.6vw;
+    left: 2vw;
+  }
+  .micro-frame-reg {
+    top: 1.8vw;
+    right: 1.8vw;
+  }
+  /* the offset-subtitle gap collapses on mobile; drop the overlay caption to
+     avoid colliding with the title/content (cards + frames still carry it). */
+  .section-caption {
+    display: none;
+  }
+}
+

@@ -1,0 +1,66 @@
+html,
+body {
+  background-color: black;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  font-size: 12px;
+  font-family: 'Jost', 'futura-pt', sans-serif;
+  color: #fff;
+  height: 100%;
+}
+body {
+  overflow-x: hidden;
+}
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+a {
+  font-family: 'Jost', 'futura-pt', sans-serif;
+  color: #fff;
+}
+
+/* letterbox bars that frame the home page */
+.top-bar {
+  width: 100vw;
+  height: 50vh;
+  background: black;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  transition: 0.3s ease-in-out;
+}
+.top-bar.bar {
+  height: 10vh;
+}
+.top-bar.hide {
+  height: 0vh;
+  min-height: 0;
+  /* snap away instantly when leaving home — animating this 10vh→0 retraction
+     opposes the cinema letterbox closing in (it "opens" while the cinema
+     "squeezes"), which cancels the squeeze visually. The cinema bars own the
+     letterbox during a jump; these only frame the resting home view. */
+  transition: none;
+}
+.bottom-bar {
+  width: 100vw;
+  height: 50vh;
+  background: black;
+  position: fixed;
+  z-index: 1000;
+  bottom: 0;
+  transition: 0.3s ease-in-out;
+}
+.bottom-bar.bar {
+  height: 10vh;
+}
+.bottom-bar.hide {
+  height: 0vh;
+  min-height: 0;
+  /* snap away instantly — see .top-bar.hide; avoids fighting the cinema squeeze */
+  transition: none;
+}
+

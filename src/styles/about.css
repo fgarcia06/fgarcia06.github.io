@@ -1,0 +1,65 @@
+/* ------------------------------------------------------------------ */
+/* about                                                               */
+/* ------------------------------------------------------------------ */
+.about .feature {
+  margin-top: 30vw;
+}
+.about .info-portrait {
+  display: block;
+  width: 38vw;
+  max-width: 420px;
+  margin: 0 auto;
+  object-fit: cover;
+  object-position: center;
+  filter: grayscale(30%);
+  border: 1px solid #222;
+}
+.about .bio {
+  margin-left: 5vw;
+  width: 90vw;
+  font-size: 1.7vw;
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(4, 10, 20, 0.75);
+}
+.about .bio p {
+  opacity: 0.96;
+  max-width: 60vw;
+  margin: 0 auto 1.2vh;
+  line-height: 1.6;
+}
+
+.experience-list,
+.education {
+  margin-left: 10vw;
+  width: 80vw;
+}
+.experience-item {
+  margin-bottom: 6vh;
+  padding-left: 1.4vw;
+  border-left: 2px solid rgba(120, 200, 230, 0.35);
+}
+.experience-role {
+  text-transform: uppercase;
+  letter-spacing: 0.3vw;
+  font-size: 1.45vw;
+  color: rgba(255, 255, 255, 1);
+}
+.experience-org {
+  text-transform: uppercase;
+  letter-spacing: 0.15vw;
+  font-size: 1.05vw;
+  color: rgba(150, 210, 235, 0.85);
+  margin-top: 0.6vh;
+}
+.experience-item ul {
+  margin-top: 2vh;
+  padding-left: 1.2vw;
+}
+.experience-item li {
+  font-size: 1.3vw;
+  line-height: 1.75;
+  opacity: 0.92;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 1vh;
+}
+

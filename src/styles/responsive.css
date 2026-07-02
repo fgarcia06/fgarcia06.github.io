@@ -1,0 +1,419 @@
+/* ------------------------------------------------------------------ */
+/* responsive (mirrors the reference's 1080px / 801px breakpoints)     */
+/* ------------------------------------------------------------------ */
+@media only screen and (max-width: 1080px) {
+  .section-title {
+    letter-spacing: 0.5vw;
+    font-size: 1.2vw;
+  }
+  .page-subtitle {
+    font-size: 1.2vw;
+  }
+  .client,
+  .role {
+    font-size: 1.2vw;
+  }
+}
+
+@media only screen and (max-width: 801px) {
+  .header-menu {
+    display: none;
+  }
+  .menu-button {
+    display: block;
+    opacity: 0.5;
+  }
+  .top-bar.bar,
+  .bottom-bar.bar {
+    height: 0;
+    min-height: 0;
+  }
+
+  /* home nav: corners don't fit a phone — lay the nodes out as a 2x2 grid
+     pinned near the bottom, still drifting but without parallax/anchoring */
+  .home-hint {
+    margin-top: 3vh;
+    font-size: 2.6vw;
+    letter-spacing: 1.2vw;
+    text-indent: 1.2vw;
+  }
+  /* the centre title clears the bottom node grid (same layout home used) */
+  .sectors .titles {
+    transform: translate(-50%, -78%);
+  }
+  .sectors .page-title {
+    font-size: 6.4vw;
+    letter-spacing: 3vw;
+    text-indent: 3vw;
+  }
+  .sectors .page-subtitle {
+    font-size: 2.4vw;
+    letter-spacing: 1.4vw;
+    text-indent: 1.4vw;
+  }
+  .home-nav {
+    inset: auto 0 6vh 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3vw;
+    width: 86vw;
+    margin: 0 auto;
+  }
+  .home-node-pos,
+  .home-node-pos.tl,
+  .home-node-pos.tr,
+  .home-node-pos.bl,
+  .home-node-pos.br {
+    position: static;
+    width: auto;
+    inset: auto;
+  }
+  .home-node {
+    min-height: 26vw;
+    padding: 4vw 4vw 3.5vw;
+    /* parallax vars are unset on touch, but pin the transform anyway */
+    transform: none;
+  }
+  .home-node-coord {
+    top: 4vw;
+    left: 4vw;
+    font-size: 2vw;
+  }
+  .home-node-glyph {
+    margin-top: 4vw;
+    font-size: 6vw;
+  }
+  .home-node-index {
+    top: 4vw;
+    right: 4vw;
+    font-size: 2.6vw;
+  }
+  .home-node-label {
+    margin-top: 3vw;
+    font-size: 4.4vw;
+  }
+  .home-node-desc {
+    font-size: 2.6vw;
+    margin-top: 1.2vw;
+  }
+  .home-node-meta {
+    margin-top: 3vw;
+    font-size: 2.6vw;
+  }
+
+  .cinema-aspect {
+    font-size: 3.4vw;
+    letter-spacing: 1.6vw;
+    text-indent: 1.6vw;
+  }
+
+  .page-title {
+    font-size: 10vh;
+  }
+  /* let the pipe-separated subtitle wrap on phones instead of clipping */
+  .page-subtitle {
+    top: 18vh;
+    font-size: 3.4vw;
+    letter-spacing: 0.6vw;
+    line-height: 1.5;
+    white-space: normal;
+    padding: 0 6vw;
+  }
+
+  .list {
+    margin-top: 25vh;
+    margin-left: 5vw;
+  }
+  .list-item,
+  .list-item .thumb-img {
+    width: 85vw;
+    height: 44vw;
+  }
+  .list-item .titles {
+    width: auto;
+    padding: 8vw 4vw 2.5vw;
+    height: auto;
+  }
+  .list-item .titles::before {
+    width: 7vw;
+    margin-bottom: 1.5vw;
+  }
+  .list-item:hover .titles::before {
+    width: 12vw;
+  }
+  .list-item .title {
+    font-size: 3.8vw;
+  }
+  .list-item .subtitle {
+    font-size: 2.4vw;
+  }
+
+  /* fit "FRANCIS GARCIA" inside the phone viewport: ~14 glyphs need a pitch
+     under 100/14 ≈ 7vw, so 5.6vw glyphs + 1.2vw tracking ≈ 95vw total */
+  .home .page-title {
+    font-size: 5.6vw;
+    letter-spacing: 1.2vw;
+    text-indent: 1.2vw;
+    font-weight: 300;
+    color: hsla(200, 40%, 96%, 1);
+  }
+  /* (sizing continues in the later mobile block below) */
+
+  .section-title {
+    margin-top: 5vh;
+    margin-bottom: 3vh;
+    font-size: 2vw;
+  }
+
+  .todo-content {
+    max-width: 80vw;
+    font-size: 2.6vw;
+  }
+
+  .projects-detail .page-title,
+  .prototypes-detail .page-title {
+    top: 16vh;
+    color: white;
+    font-size: 4.5vw;
+    font-weight: 400;
+    letter-spacing: 1vw;
+    white-space: normal;
+  }
+  .projects-detail .page-subtitle,
+  .prototypes-detail .page-subtitle {
+    top: 13vh;
+  }
+  .feature {
+    margin-top: 20vh;
+  }
+  .client,
+  .role {
+    font-size: 2.2vw;
+  }
+  .client {
+    margin-top: 3vh;
+  }
+  .content {
+    margin-top: 0;
+    font-size: 3vw;
+    line-height: 1.8;
+  }
+
+  .related-list .list-item .title {
+    font-size: 2.2vw;
+  }
+  .related-list .list-item .thumb-img {
+    height: 18vw;
+  }
+
+  .about .feature {
+    margin-top: 25vh;
+  }
+  .about .info-portrait {
+    width: 70vw;
+  }
+  .about .section-title {
+    margin-top: 7vh;
+  }
+  .about .bio {
+    font-size: 2vh;
+  }
+  .experience-role {
+    font-size: 3.2vw;
+  }
+  .experience-org {
+    font-size: 2.4vw;
+  }
+  .experience-item li {
+    font-size: 2.8vw;
+  }
+  .experience-item li {
+    font-size: 3vw;
+  }
+  .contact-line {
+    font-size: 2.4vw;
+  }
+
+  /* skills console panels stack into one column and scale their text up
+     (the page scrolls on phones — 46 signals can't lock a 375px screen) */
+  .skills-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 4vw;
+    width: 88vw;
+  }
+  .skill-panel {
+    padding: 3.5vw 4vw 4vw;
+  }
+  .panel-head {
+    gap: 2vw;
+    margin-bottom: 2.5vw;
+  }
+  .skill-index {
+    font-size: 2.6vw;
+  }
+  .panel-title {
+    font-size: 3.6vw;
+  }
+  .panel-count {
+    font-size: 2.2vw;
+  }
+  .panel-tags {
+    gap: 1.4vw 4vw;
+  }
+  .skill-tag {
+    font-size: 3.2vw;
+    padding: 1vw 0;
+    gap: 1.4vw;
+  }
+  .chip-tick {
+    width: 2px;
+  }
+  .panel-trace-body {
+    gap: 2.5vw;
+  }
+  .trace-hint,
+  .trace-none {
+    font-size: 2.6vw;
+  }
+  .trace-tag {
+    font-size: 2.8vw;
+    letter-spacing: 0.4vw;
+  }
+  .trace-links {
+    gap: 1.6vw;
+  }
+  .trace-link {
+    font-size: 2.5vw;
+    padding: 1.2vw 2.4vw;
+    gap: 1.2vw;
+  }
+
+  /* skills section — reduce top gap so the console isn't buried below the fold */
+  .skills .skills-block {
+    margin-top: 26vh;
+  }
+
+  /* section / info-block titles — 2vw = 7.5px on 375px, bump to readable size */
+  .section-title {
+    font-size: 3.5vw;
+    letter-spacing: 1vw;
+    margin-top: 6vh;
+    margin-bottom: 3vh;
+  }
+
+  /* home subtitle — readable under the hero name yet inside the viewport:
+     "ROBOTICS | FULL-STACK | APPLIED ML" ≈ 35 glyphs needs pitch ≤ 2.7vw */
+  .home .page-subtitle {
+    font-size: 2.6vw;
+    letter-spacing: 0.9vw;
+    text-indent: 0.9vw;
+  }
+
+  /* section page subtitle (projects / skills / about) — wraps on phones */
+  .page-subtitle {
+    font-size: 3.4vw;
+    letter-spacing: 0.6vw;
+    line-height: 1.5;
+    white-space: normal;
+    padding: 0 6vw;
+    top: 16vh;
+  }
+
+  /* detail page content — 3vw = 11.25px on 375px, lift to 4vw and stack lists */
+  .content {
+    margin-left: 5vw;
+    width: 90vw;
+    font-size: 4vw;
+    line-height: 1.8;
+  }
+  .content li {
+    display: block;
+    padding: 0.5vw 0;
+    text-align: left;
+  }
+  .content ul {
+    text-align: left;
+    padding-left: 4vw;
+    list-style: disc;
+  }
+  .content .content-quote {
+    margin: 2rem 0;
+  }
+
+  /* context / stack labels on detail pages — 2.2vw = 8.25px, bump to 3.5vw */
+  .client,
+  .role {
+    font-size: 3.5vw;
+    letter-spacing: 0.6vw;
+  }
+
+  /* about page */
+  .about .bio {
+    font-size: 3.8vw;
+    line-height: 1.7;
+  }
+  .about .bio p {
+    max-width: 90vw;
+  }
+  .experience-role {
+    font-size: 4.2vw;
+    letter-spacing: 0.5vw;
+  }
+  .experience-org {
+    font-size: 3.2vw;
+    letter-spacing: 0.3vw;
+  }
+  .experience-item li {
+    font-size: 3.6vw;
+    line-height: 1.7;
+  }
+  .contact-line {
+    font-size: 3vw;
+    letter-spacing: 0.4vw;
+  }
+
+  /* related cards: 2-column grid (3-col is ~107px wide per card on 375px) */
+  .related-list {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 3vw;
+    width: 90vw;
+    margin-left: 5vw;
+  }
+  .related-list .list-item .thumb-img {
+    width: 100%;
+    height: 25vw;
+  }
+  .related-list .list-item .title {
+    font-size: 3.2vw;
+  }
+  .related-list .list-item .subtitle {
+    font-size: 2.4vw;
+  }
+
+  /* HUD telemetry readouts — decorative but should be legible on phone */
+  .hud-readout {
+    font-size: 2.6vw;
+    letter-spacing: 0.4vw;
+  }
+
+  /* bottom-nav: slightly taller for easier thumb tapping */
+  .bottom-nav {
+    height: 52px;
+  }
+  .bottom-next,
+  .bottom-back,
+  .bottom-up {
+    font-size: 3vw;
+    top: 18px;
+  }
+
+  /* home node reg-mark: sits at right: 0.7vw = 2.6px on mobile,
+     overlaps the index label which is at right: 4vw — push it down */
+  .home-node-reg {
+    top: auto;
+    bottom: 3.5vw;
+    right: 3.5vw;
+  }
+}
+

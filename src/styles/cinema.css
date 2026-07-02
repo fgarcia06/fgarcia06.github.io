@@ -1,0 +1,203 @@
+/* ------------------------------------------------------------------ */
+/* cinematic transition — anamorphic letterbox "scene cut"             */
+/* ------------------------------------------------------------------ */
+.cinema {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  pointer-events: none;
+  /* how far the frame shrinks (top+bottom bars) at the peak of the cut —
+     large values give a dramatic ultra-wide squeeze; overridden per kind */
+  --crop: 34vh;
+}
+.cinema-section {
+  --crop: 44vh;
+}
+.cinema-detail {
+  --crop: 42vh;
+}
+.cinema-home {
+  --crop: 22vh;
+}
+
+/* full-frame warp-blur smear that fires only at the exact bars-closed moment
+   (13% = 0.65s) as a brief "jump fires" flash, then clears for space-travel.
+   Kept transparent during 0–12% so the squeeze effect is fully visible as the
+   bars slam in over the outgoing page content. */
+.cinema-warp {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cinema.play .cinema-warp {
+  animation: cinema-warp 3.0s linear both;
+}
+@keyframes cinema-warp {
+  0%, 15% {
+    /* clear through the entire squeeze phase — bars pressing in must be SEEN */
+    -webkit-backdrop-filter: blur(0px) saturate(1.0) brightness(1.0);
+    backdrop-filter: blur(0px) saturate(1.0) brightness(1.0);
+  }
+  17% {
+    /* bars fully shut — "jump fires" flash: brief brightness spike */
+    -webkit-backdrop-filter: blur(6px) saturate(2.4) brightness(1.8);
+    backdrop-filter: blur(6px) saturate(2.4) brightness(1.8);
+  }
+  22% {
+    /* clear — reveals warp-streaking starfield during space-travel phase */
+    -webkit-backdrop-filter: blur(0px) saturate(1.1) brightness(1.0);
+    backdrop-filter: blur(0px) saturate(1.1) brightness(1.0);
+  }
+  50%,
+  100% {
+    -webkit-backdrop-filter: blur(0) saturate(1) brightness(1);
+    backdrop-filter: blur(0) saturate(1) brightness(1);
+  }
+}
+
+.cinema-bar {
+  position: absolute;
+  left: 0;
+  width: 100vw;
+  /* fixed height = the crop depth; we slide it in/out with translateY so the
+     animation runs on transform (height-in-@keyframes via var() doesn't
+     interpolate reliably across engines). */
+  height: var(--crop);
+  background: #000;
+  /* promote to its own GPU compositor layer so the transform animation is
+     always composited — prevents falling back to software rendering on PCs
+     where hardware acceleration is limited. */
+  will-change: transform;
+}
+.cinema-bar.top {
+  top: 0;
+  transform: translateY(-100%); /* resting: hidden above the frame */
+}
+.cinema-bar.bottom {
+  bottom: 0;
+  transform: translateY(100%); /* resting: hidden below the frame */
+}
+/* animations only run while `.play` is set (re-armed imperatively per cue) */
+.cinema.play .cinema-bar.top {
+  animation: cinema-top 3.0s linear both;
+}
+.cinema.play .cinema-bar.bottom {
+  animation: cinema-bottom 3.0s linear both;
+}
+/* bars slam in fast (0→16% = 0.56s), hold for space-travel (16→50% = 1.19s),
+   then retract as the arrival section springs in (50→100% = 1.75s).
+   Per-keyframe timing-function: ease-out-quint for the rush-in so bars
+   rocket shut and decelerate smoothly; ease-in-out for the retract so the
+   reveal feels deliberate rather than a snap. */
+@keyframes cinema-top {
+  0% {
+    transform: translateY(-100%);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  16% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+@keyframes cinema-bottom {
+  0% {
+    transform: translateY(100%);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  16% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* glowing cyan frame-line riding the inner edge of each bar */
+.cinema-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120, 225, 255, 0.85), transparent);
+  box-shadow: 0 0 12px rgba(120, 225, 255, 0.6);
+  opacity: 0;
+}
+.cinema.play .cinema-line {
+  animation: cinema-line 3.0s ease-in-out both;
+}
+.cinema-bar.top .cinema-line {
+  bottom: 0;
+}
+.cinema-bar.bottom .cinema-line {
+  top: 0;
+}
+@keyframes cinema-line {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  16%,
+  50% {
+    opacity: 1;
+  }
+}
+
+/* aspect-ratio tag flashed at the centre during the crop */
+.cinema-aspect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.95vw;
+  letter-spacing: 0.5vw;
+  text-indent: 0.5vw;
+  color: rgba(190, 235, 255, 0.9);
+  text-shadow: 0 0 14px rgba(120, 225, 255, 0.5);
+  opacity: 0;
+}
+.cinema.play .cinema-aspect {
+  animation: cinema-aspect 3.0s ease-in-out both;
+}
+@keyframes cinema-aspect {
+  0% {
+    opacity: 0;
+    letter-spacing: 1.4vw;
+  }
+  20%,
+  47% {
+    opacity: 0.9;
+    letter-spacing: 0.5vw;
+  }
+  60%,
+  100% {
+    opacity: 0;
+    letter-spacing: 0.2vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Cinema bars are the primary navigation signal — keep them running even
+     under reduced-motion so the transition still "works" on PCs where Windows
+     has animation effects disabled (the most common cause of the bars not
+     appearing on desktop while they work fine on mobile). Only the page
+     spring/squeeze is suppressed here, as those are the genuinely disorienting
+     motions for vestibular-sensitive users. */
+  .page {
+    transition: none;
+  }
+  .page.warp-out {
+    animation: none;
+  }
+}
+

@@ -1,0 +1,523 @@
+/* ------------------------------------------------------------------ */
+/* section carousel (projects / prototypes) — a horizontal coverflow   */
+/* replacing the old floated grid, with hover/focus/active teasers.     */
+/* ------------------------------------------------------------------ */
+/* ============ card deck (projects / prototypes) ============
+   A depth stack: the front card is live, the next few peek behind it offset
+   up-right and scaled down; scroll/swipe peels the front card away (it flies
+   down-forward like a dealt card) and the deck steps up. */
+.card-deck {
+  position: relative;
+  width: 100vw;
+  margin-top: 42vh;
+  outline: none;
+  /* deal-step vectors, inherited by the stage (centering) and cards (pose) */
+  --deal-x: 3.8vw;
+  --deal-y: -2.2vh;
+}
+.card-deck:focus-visible .deck-stage {
+  filter: drop-shadow(0 0 14px rgba(56, 225, 255, 0.35));
+}
+/* the stage is one card-slot; every card sits absolutely inside it.
+   Centred on the front card — peeks fan up-right from behind it. */
+.deck-stage {
+  position: relative;
+  width: min(36vw, 62vh);
+  aspect-ratio: 36 / 22;
+  margin: 0 auto;
+}
+/* soft light pooling beneath the deck — grounds the stack in the scene */
+.deck-stage::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: -14%;
+  bottom: -4.5vh;
+  height: 6vh;
+  z-index: 0;
+  background: radial-gradient(ellipse at 55% 50%, rgba(90, 170, 235, 0.22), transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+.deck-pos {
+  position: absolute;
+  inset: 0;
+  /* stacked-behind pose: up-right steps + shrink + a slight fan, driven by
+     --offset (0..4). The x-step must clearly out-run the scale shrink
+     (~1.1vw/side at 0.05/step) or the peek disappears behind the front card. */
+  transform: translate3d(
+      calc(var(--offset, 0) * var(--deal-x, 3.8vw)),
+      calc(var(--offset, 0) * var(--deal-y, -3.2vh)),
+      0
+    )
+    scale(calc(1 - var(--offset, 0) * 0.05))
+    rotate(calc(var(--offset, 0) * 1.3deg));
+  opacity: calc(1 - var(--offset, 0) * 0.2);
+  filter: brightness(calc(1 - var(--offset, 0) * 0.12)) saturate(calc(1 - var(--offset, 0) * 0.06));
+  transition:
+    transform 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.36s ease,
+    filter 0.36s ease;
+  will-change: transform, opacity;
+}
+/* dealt away: fly down-forward and fade, like a discarded card */
+.deck-pos.passed {
+  transform: translate3d(-6vw, 18vh, 0) scale(1.08) rotate(-4deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.deck-pos.deep {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* outer card: fills its deck slot; the emphasis is hover/focus-driven */
+.slide-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border-radius: 3px;
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease;
+}
+@media (hover: hover) {
+  /* only the front card lifts; a peeking card just brightens (click deals to it) */
+  .deck-pos.front .slide-card:hover {
+    z-index: 5;
+    transform: translateY(-1vw) scale(1.04);
+    box-shadow:
+      0 1.4vw 3vw rgba(2, 6, 12, 0.6),
+      0 0 2.2vw -0.3vw var(--accent, #38e1ff);
+  }
+  .deck-pos.behind:hover {
+    filter: brightness(0.95) saturate(1);
+  }
+}
+.slide-card.is-active {
+  box-shadow:
+    0 1vw 2.4vw rgba(2, 6, 12, 0.55),
+    0 0 1.4vw -0.4vw var(--accent, #38e1ff);
+}
+.slide-card:focus-visible {
+  outline: 2px solid var(--accent, #38e1ff);
+  outline-offset: 5px;
+}
+
+/* inner layer: the 3D tilt target (useTilt writes its transform) + art clip.
+   will-change deferred to hover/active so the page warp-exit
+   can composite the cards correctly at rest. */
+.slide-card-tilt {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: #05080d;
+  border: 1px solid rgba(120, 180, 215, 0.18);
+  transition: border-color 0.4s ease;
+}
+.slide-card:hover .slide-card-tilt,
+.slide-card:focus-within .slide-card-tilt,
+.slide-card.is-active .slide-card-tilt {
+  border-color: var(--accent, #38e1ff);
+  will-change: transform;
+}
+
+/* art + slow Ken-Burns push on reveal */
+.slide-media {
+  position: absolute;
+  inset: 0;
+}
+.slide-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.82;
+  transform: scale(1.02);
+  transition: transform 4s cubic-bezier(0.2, 0.5, 0.2, 1), opacity 0.5s ease, filter 0.5s ease;
+}
+.slide-card:hover .slide-thumb,
+.slide-card:focus-within .slide-thumb,
+.slide-card.is-active .slide-thumb {
+  opacity: 1;
+  transform: scale(1.13);
+  filter: saturate(1.08) brightness(1.05);
+}
+
+/* readable scrim under the foot/preview; deepens on reveal */
+.slide-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.45s ease;
+  background: linear-gradient(
+    to top,
+    rgba(3, 6, 10, 0.97) 0%,
+    rgba(3, 6, 10, 0.85) 30%,
+    rgba(3, 6, 10, 0.34) 58%,
+    rgba(3, 6, 10, 0) 80%
+  );
+}
+.slide-card:hover .slide-scrim,
+.slide-card:focus-within .slide-scrim,
+.slide-card.is-active .slide-scrim {
+  opacity: 1;
+}
+
+/* one-shot light sheen that sweeps across on reveal */
+.slide-sheen {
+  position: absolute;
+  inset: -25% -45%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-120%) rotate(2deg);
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(190, 235, 255, 0.16) 47%,
+    rgba(255, 255, 255, 0.34) 52%,
+    transparent 60%
+  );
+}
+.slide-card:hover .slide-sheen,
+.slide-card.is-active .slide-sheen {
+  opacity: 1;
+  transform: translateX(120%) rotate(2deg);
+  transition: transform 0.95s cubic-bezier(0.3, 0.6, 0.2, 1), opacity 0.3s ease;
+}
+
+/* HUD corner brackets that snap outward on reveal */
+.slide-corner {
+  position: absolute;
+  z-index: 4;
+  width: 1.3vw;
+  height: 1.3vw;
+  pointer-events: none;
+  border-color: var(--accent, #38e1ff);
+  opacity: 0;
+  transition: opacity 0.4s ease, width 0.4s ease, height 0.4s ease;
+}
+.slide-corner.tl { top: 0.7vw; left: 0.7vw; border-top: 2px solid; border-left: 2px solid; }
+.slide-corner.tr { top: 0.7vw; right: 0.7vw; border-top: 2px solid; border-right: 2px solid; }
+.slide-corner.bl { bottom: 0.7vw; left: 0.7vw; border-bottom: 2px solid; border-left: 2px solid; }
+.slide-corner.br { bottom: 0.7vw; right: 0.7vw; border-bottom: 2px solid; border-right: 2px solid; }
+.slide-card:hover .slide-corner,
+.slide-card:focus-within .slide-corner,
+.slide-card.is-active .slide-corner {
+  opacity: 0.9;
+  width: 1.9vw;
+  height: 1.9vw;
+}
+
+/* bottom info block: title pinned, expands upward to reveal the preview */
+.slide-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5vw 1.7vw 1.4vw;
+}
+.slide-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7vw;
+  margin-bottom: 0.5vw;
+}
+.slide-eyebrow::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 1.8vw;
+  height: 2px;
+  background: var(--accent, #9fc3d6);
+  box-shadow: 0 0 8px var(--accent, #9fc3d6);
+  transition: width 0.4s ease;
+}
+.slide-card:hover .slide-eyebrow::before,
+.slide-card:focus-within .slide-eyebrow::before,
+.slide-card.is-active .slide-eyebrow::before {
+  width: 3.6vw;
+}
+.slide-index {
+  font-family: var(--mono);
+  font-size: 0.74vw;
+  letter-spacing: 0.06vw;
+  color: var(--accent, #38e1ff);
+  opacity: 0.9;
+}
+.slide-subtitle {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  font-size: 0.7vw;
+  letter-spacing: 0.14vw;
+  color: rgba(190, 225, 240, 0.7);
+}
+.slide-title {
+  text-transform: uppercase;
+  font-size: 1.5vw;
+  letter-spacing: 0.05vw;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: letter-spacing 0.4s ease;
+}
+.slide-card:hover .slide-title {
+  letter-spacing: 0.14vw;
+}
+.slide-extra {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(0.8vw);
+  pointer-events: none;
+  transition:
+    max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-card:hover .slide-extra,
+.slide-card:focus-within .slide-extra,
+.slide-card.is-active .slide-extra {
+  max-height: 9vw;
+  opacity: 1;
+  transform: translateY(0);
+}
+.slide-tag {
+  margin: 0.8vw 0 0;
+  font-size: 0.92vw;
+  line-height: 1.4;
+  color: rgba(236, 246, 252, 0.95);
+  text-shadow: 0 2px 14px rgba(2, 6, 14, 0.95);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.slide-extra-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9vw;
+  margin-top: 0.9vw;
+}
+.slide-chips {
+  display: flex;
+  gap: 0.5vw;
+  min-width: 0;
+}
+.slide-chip {
+  font-family: var(--mono);
+  font-size: 0.6vw;
+  letter-spacing: 0.1vw;
+  text-transform: uppercase;
+  padding: 0.3vw 0.6vw;
+  border: 1px solid rgba(150, 210, 235, 0.3);
+  border-radius: 2px;
+  background: rgba(8, 16, 24, 0.5);
+  color: var(--accent, #9fd9ff);
+  white-space: nowrap;
+  max-width: 13vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.slide-chip.ghost {
+  color: rgba(190, 220, 235, 0.6);
+  border-color: rgba(120, 160, 185, 0.22);
+}
+.slide-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4vw;
+  font-family: var(--mono);
+  font-size: 0.68vw;
+  letter-spacing: 0.16vw;
+  text-transform: uppercase;
+  color: var(--accent, #9fd9ff);
+  white-space: nowrap;
+}
+.slide-cta span {
+  transition: transform 0.3s ease;
+}
+.slide-card:hover .slide-cta span {
+  transform: translateX(0.4vw);
+}
+/* detail-page related cards still use the old title stacking */
+.list-item .titles {
+  z-index: 2;
+}
+
+/* dots + counter row under the deck */
+.deck-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.1vw;
+  margin-top: 1.4vw;
+}
+.deck-counter {
+  font-family: var(--mono);
+  font-size: 0.72vw;
+  letter-spacing: 0.14vw;
+  color: rgba(150, 205, 232, 0.75);
+}
+
+/* dot indicators (24px hit area, 8px visible dot) */
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5vw;
+}
+.slider-dot {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.slider-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(150, 200, 230, 0.5);
+  transition: 0.25s ease;
+}
+.slider-dot:hover::before {
+  border-color: rgba(150, 225, 255, 0.9);
+}
+.slider-dot.active::before {
+  width: 10px;
+  height: 10px;
+  background: #38e1ff;
+  border-color: #38e1ff;
+  box-shadow: 0 0 10px rgba(56, 225, 255, 0.6);
+}
+.slider-dot:focus-visible {
+  outline: 2px solid #38e1ff;
+  outline-offset: 0;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no dealing motion: the deck becomes a simple crossfade of the front card */
+  .deck-pos,
+  .deck-pos.passed {
+    transform: none;
+    transition: opacity 0.3s ease;
+  }
+  .deck-pos.behind,
+  .deck-pos.deep,
+  .deck-pos.passed {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .slide-card {
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+    transform: none;
+  }
+  .deck-pos.front .slide-card:hover {
+    transform: none;
+    filter: none;
+  }
+  .slide-sheen {
+    display: none;
+  }
+  .slide-thumb,
+  .slide-card:hover .slide-thumb,
+  .slide-card:focus-within .slide-thumb,
+  .slide-card.is-active .slide-thumb {
+    transform: none;
+    transition: opacity 0.2s ease;
+  }
+  .slide-extra {
+    transition: max-height 0.2s ease, opacity 0.2s ease;
+    transform: none;
+  }
+}
+
+@media (max-width: 801px) {
+  .card-deck {
+    margin-top: 24vh;
+  }
+  .deck-stage {
+    width: 80vw;
+    aspect-ratio: 80 / 48;
+  }
+  /* deal steps tuned for a small screen */
+  .card-deck {
+    --deal-x: 6vw;
+    --deal-y: -2.2vh;
+  }
+  .slide-index {
+    font-size: 3vw;
+  }
+  .slide-subtitle {
+    font-size: 2.6vw;
+  }
+  .slide-title {
+    font-size: 5vw;
+  }
+  .slide-eyebrow::before {
+    width: 6vw;
+  }
+  .slide-card.is-active .slide-eyebrow::before {
+    width: 9vw;
+  }
+  /* the centred card reveals on touch; give the larger type room */
+  .slide-card.is-active .slide-extra {
+    max-height: 26vw;
+  }
+  .slide-tag {
+    font-size: 3.2vw;
+    margin-top: 2.4vw;
+  }
+  .slide-extra-row {
+    margin-top: 2.4vw;
+    gap: 2vw;
+  }
+  .slide-chip {
+    font-size: 2.2vw;
+    padding: 1vw 1.6vw;
+    max-width: 34vw;
+  }
+  .slide-cta {
+    font-size: 2.4vw;
+  }
+  .slide-corner {
+    width: 4vw;
+    height: 4vw;
+  }
+  .slide-card.is-active .slide-corner {
+    width: 5.5vw;
+    height: 5.5vw;
+  }
+  .deck-nav {
+    margin-top: 4vw;
+    gap: 2.5vw;
+  }
+  .slider-dots {
+    gap: 1.5vw;
+  }
+  .deck-counter {
+    font-size: 2.6vw;
+  }
+}
+

@@ -1,0 +1,294 @@
+/* ------------------------------------------------------------------ */
+/* about portrait — centre the framed portrait (the MicroFrame wrapper  */
+/* is inline-block, so the image's own margin:auto no longer centres).  */
+/* ------------------------------------------------------------------ */
+.about .feature .portrait-frame {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* micrographics — ambient deep-field instrumentation layer.            */
+/* Sits above the WebGL nebula (z2) but behind page content (z100), so  */
+/* it reads as background instrumentation the sections fly through.     */
+/* ------------------------------------------------------------------ */
+.micro-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  --mx: 0;
+  --my: 0;
+}
+/* each element shifts by its own --depth against the eased mouse offset */
+.micro-bg .parallax {
+  transform: translate3d(
+    calc(var(--mx) * var(--depth, 0) * 1px),
+    calc(var(--my) * var(--depth, 0) * 1px),
+    0
+  );
+  will-change: transform;
+}
+
+/* golden spiral — a large, faint, slowly-rotating galaxy arm */
+.micro-bg-spiral {
+  position: absolute;
+  top: -26%;
+  left: 47%;
+  width: 88vh;
+  height: 88vh;
+  overflow: hidden; /* clip the svg to its own (viewport-bounded) box */
+}
+.golden-spiral {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.micro-bg-spiral .golden-spiral {
+  color: rgba(150, 200, 235, 0.1);
+  transform-origin: 50% 50%;
+  animation: spiral-spin 150s linear infinite;
+}
+@keyframes spiral-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* phi-proportion drafting guides at the 0.382 / 0.618 golden sections */
+.phi-grid {
+  position: absolute;
+  inset: 0;
+}
+.phi-line {
+  position: absolute;
+  background: rgba(150, 200, 235, 0.055);
+}
+.phi-v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.phi-h {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.phi-mark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border: 1px solid rgba(150, 200, 235, 0.16);
+  border-radius: 50%;
+}
+
+/* registration marks pinned to the golden sections */
+.micro-bg-reg {
+  position: absolute;
+  width: 1.5vw;
+  height: 1.5vw;
+  color: rgba(170, 210, 235, 0.22);
+}
+.micro-bg-reg.r1 {
+  left: 38.2%;
+  top: 61.8%;
+}
+.micro-bg-reg.r2 {
+  left: 61.8%;
+  top: 23.6%;
+}
+
+/* dotted micro-grids tucked into two edges */
+.micro-bg-dots {
+  position: absolute;
+  color: rgba(160, 205, 235, 0.16);
+}
+.micro-bg-dots.d1 {
+  left: 3.2vw;
+  bottom: 17vh;
+}
+.micro-bg-dots.d2 {
+  right: 4vw;
+  top: 19vh;
+}
+
+/* corner navigation telemetry — sits on the side gutters so it peeks past
+   the page content rather than colliding with the HUD corner readouts */
+.micro-tel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vh;
+}
+.micro-tel .micro-label {
+  color: rgba(170, 210, 235, 0.34);
+  font-size: 0.6vw;
+  letter-spacing: 0.14vw;
+}
+.tel-tl {
+  left: 2.2vw;
+  top: 40vh;
+  align-items: flex-start;
+}
+.tel-br {
+  right: 2.4vw;
+  top: 40vh;
+  align-items: flex-end;
+}
+
+/* ---- cinema "hyperspace jump" readout (during the transition cut) ---- */
+.cinema-jump {
+  position: absolute;
+  left: 6vw;
+  bottom: 8vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45vh;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  opacity: 0;
+}
+.cinema.play .cinema-jump {
+  animation: cinema-jump 3.0s ease-out both;
+}
+.cinema-jump-tag {
+  font-size: 0.7vw;
+  letter-spacing: 0.2vw;
+  color: rgba(190, 235, 255, 0.9);
+  text-shadow: 0 0 14px rgba(120, 225, 255, 0.5);
+}
+.cinema-jump-target {
+  font-size: 2.1vw;
+  letter-spacing: 0.42vw;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(120, 225, 255, 0.65), 0 2px 14px rgba(2, 6, 14, 0.9);
+}
+.cinema-jump-desc {
+  font-size: 0.82vw;
+  letter-spacing: 0.24vw;
+  color: rgba(210, 240, 255, 0.85);
+  text-shadow: 0 0 16px rgba(120, 225, 255, 0.45);
+}
+.cinema-jump-coord {
+  font-size: 0.66vw;
+  letter-spacing: 0.16vw;
+  color: rgba(165, 212, 236, 0.72);
+}
+@keyframes cinema-jump {
+  0% {
+    opacity: 0;
+    transform: translateX(-1.4vw);
+  }
+  20%,
+  47% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0.8vw);
+  }
+}
+
+/* destination panel mirrored bottom-right: sector index + asset count */
+.cinema-dest {
+  position: absolute;
+  right: 6vw;
+  bottom: 8vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45vh;
+  align-items: flex-end;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  opacity: 0;
+}
+.cinema.play .cinema-dest {
+  animation: cinema-dest 3.0s ease-out both;
+}
+.cinema-dest-index {
+  font-size: 0.9vw;
+  letter-spacing: 0.3vw;
+  color: rgba(210, 240, 255, 0.9);
+  text-shadow: 0 0 16px rgba(120, 225, 255, 0.5);
+}
+.cinema-dest-count {
+  font-size: 0.66vw;
+  letter-spacing: 0.16vw;
+  color: rgba(165, 212, 236, 0.72);
+}
+@keyframes cinema-dest {
+  0% {
+    opacity: 0;
+    transform: translateX(1.4vw);
+  }
+  20%,
+  47% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-0.8vw);
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .micro-bg-spiral .golden-spiral {
+    animation: none;
+  }
+}
+
+@media (max-width: 801px) {
+  /* trim the ambient layer on small screens to keep it uncluttered */
+  .micro-tel,
+  .micro-bg-dots {
+    display: none;
+  }
+  /* keep the spiral box fully inside the viewport (right edge ≤ 90vw) so it
+     can't push horizontal scroll on narrow screens */
+  .micro-bg-spiral {
+    top: 4%;
+    left: -30vw;
+    width: 120vw;
+    height: 120vw;
+  }
+  .micro-bg-reg {
+    width: 4.2vw;
+    height: 4.2vw;
+  }
+  .cinema-jump {
+    left: 7vw;
+    bottom: 12vh;
+  }
+  .cinema-jump-tag {
+    font-size: 2.4vw;
+    letter-spacing: 0.6vw;
+  }
+  .cinema-jump-target {
+    font-size: 6.5vw;
+  }
+  .cinema-jump-desc {
+    font-size: 2.6vw;
+    letter-spacing: 0.5vw;
+  }
+  .cinema-jump-coord {
+    font-size: 2.2vw;
+  }
+  .cinema-dest {
+    right: 7vw;
+    bottom: 12vh;
+  }
+  .cinema-dest-index {
+    font-size: 2.8vw;
+    letter-spacing: 0.6vw;
+  }
+  .cinema-dest-count {
+    font-size: 2.2vw;
+  }
+}
+

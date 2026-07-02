@@ -1,0 +1,77 @@
+/* ------------------------------------------------------------------ */
+/* viewport-locked section pages — projects / prototypes / skills fit  */
+/* one screen with no scroll. Placed last so these overrides win.      */
+/* ------------------------------------------------------------------ */
+
+/* the slider pages are compact enough to lock at every size */
+.projects,
+.prototypes {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+@media (min-width: 802px) {
+  /* skills fits a desktop viewport; on phones it keeps scrolling */
+  .skills {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  /* compressed header band: ghost title + subtitle + caption stack in the
+     top ~30vh, leaving a clean content band below */
+  .projects .page-title,
+  .prototypes .page-title,
+  .skills .page-title {
+    top: 7vh;
+    font-size: 22vh;
+  }
+  /* the subtitle is gone — the caption moves up into its slot, clearing the
+     deck's stacked peeks below */
+  .projects .section-caption,
+  .prototypes .section-caption,
+  .skills .section-caption {
+    top: 24vh;
+  }
+
+  /* deck band: the stage is sized against BOTH axes so short/wide viewports
+     never push the dots below the fold; leave headroom for the stacked peeks */
+  .card-deck {
+    margin-top: 33vh;
+  }
+  .deck-nav {
+    margin-top: 2.5vh;
+  }
+
+  /* skills console: the full 4×2 panel grid fits between the compressed
+     header band and the fold — nothing scrolls, the cursor does the work */
+  .skills .skills-block {
+    margin-top: 28vh;
+  }
+}
+
+@media (max-width: 801px) {
+  /* the skills page scrolls on phones — breathing room under the console */
+  .skills {
+    padding-bottom: 14vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-tag:hover,
+  .skill-tag:focus-visible,
+  .skill-tag.on {
+    animation: none;
+  }
+  .skill-panel:hover .panel-scan,
+  .skill-panel:hover .panel-title::before,
+  .skill-panel:hover .panel-title::after {
+    animation: none;
+  }
+  .panel-spot {
+    transition: none;
+  }
+}

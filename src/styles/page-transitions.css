@@ -1,0 +1,428 @@
+/* webgl canvas fade-in over the static gradient */
+.webgl-canvas {
+  opacity: 0;
+  transition: 1s opacity ease-in;
+}
+.webgl-canvas.show {
+  opacity: 1;
+}
+
+.background {
+  width: 100vw;
+  height: 100vh;
+  transition: 1s all ease-in-out;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at 3% 5%, #253239 0%, #0b0c0d 50%);
+}
+
+.sixteen-nine {
+  width: 85vw;
+  height: 48vw;
+  margin-left: 7.5vw;
+}
+
+/* ------------------------------------------------------------------ */
+/* aos clone                                                           */
+/* ------------------------------------------------------------------ */
+[data-aos] {
+  opacity: 0;
+  transition:
+    opacity 0.7s ease-in-out,
+    transform 0.7s ease-in-out;
+  will-change: opacity, transform;
+}
+[data-aos='fade-up'] {
+  transform: translate3d(0, 100px, 0);
+}
+[data-aos='zoom-in'] {
+  transform: scale(0.6);
+}
+[data-aos='fade-left'] {
+  transform: translate3d(100px, 0, 0);
+}
+/* "warp-in": a waypoint rushing in from deep space — tiny, vertically
+   compressed, and blurred far away, springing to full size up close. The
+   scaleY squeeze echoes the section-entry wormhole distortion so individual
+   cards feel like they arrived through the same warp. */
+[data-aos='warp-in'] {
+  transform: scale(0.2) scaleY(0.4);
+  filter: blur(6px);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.85s ease-out;
+}
+[data-aos='warp-in'].aos-animate {
+  filter: blur(0);
+}
+[data-aos].aos-animate {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* ------------------------------------------------------------------ */
+/* page common                                                         */
+/* ------------------------------------------------------------------ */
+.page {
+  width: 100vw;
+  position: absolute;
+  /* resting (incoming) state: a compressed letterbox strip waiting in the
+     distance. Zoom + vertical squeeze anchored at 35vh so the arrival reads as
+     erupting from a wormhole exit — the page springs from a flat strip to full
+     size. Spring easing gives a physical overshoot. No opacity — swap is masked
+     by the cinema warp-blur + letterbox bars. */
+  transform: scale(0.82) scaleY(0.5);
+  transform-origin: 50% 35vh;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  background: none;
+  padding-bottom: 10vw;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  /* GPU layer for the spring transition — avoids layout thrashing during
+     the simultaneous cinema-bar animation on the same frame. */
+  will-change: transform;
+}
+.page.show {
+  z-index: 100;
+  transform: scale(1) scaleY(1);
+}
+
+/* outgoing page (beat 1 of the jump): content squeezes vertically into the
+   letterbox strip as the bars slam in — the squeeze starts fast (ease-out) so
+   you can see it being crushed immediately. Opacity stays high through most of
+   the animation so the bars visibly press onto the content; it only fades in the
+   final 25% once the bars nearly cover it. */
+@keyframes warp-exit {
+  0%   { transform: scale(1) scaleY(1);       opacity: 1;    }
+  55%  { transform: scale(1.02) scaleY(0.5);  opacity: 0.75; }
+  100% { transform: scale(1.04) scaleY(0.18); opacity: 0;    }
+}
+.page.warp-out {
+  /* MUST stay above the canvas (z-index:2) so the exit animation is visible.
+     When .show is removed the base .page z-index drops to 0 which puts the
+     element behind the WebGL canvas — the user would see the background jump
+     in immediately instead of watching the bars squeeze the outgoing content. */
+  z-index: 100;
+  /* ease-out: squeeze happens fast at the start (visible), slow at the end */
+  animation: warp-exit 0.65s ease-in forwards;
+  /* kill the spring transition so it doesn't fight the exit animation */
+  transition: none;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.page.hide {
+  display: none;
+}
+
+.page-title {
+  user-select: none;
+  white-space: nowrap;
+  position: absolute;
+  top: 12vh;
+  font-size: 28vh;
+  text-transform: uppercase;
+  margin: 0 auto;
+  pointer-events: none;
+  width: 100vw;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.1);
+  letter-spacing: 2vh;
+  font-weight: 100;
+  /* the oversized title is meant to bleed off-screen; clip it to the viewport
+     box so the spill can't create horizontal scroll on narrow screens */
+  overflow: hidden;
+  /* aurora shimmer drifting through the ghost glyphs — pages that set a solid
+     color (home / sectors) paint over it, so only watermarks pick it up */
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.09) 42%,
+    rgba(150, 220, 255, 0.2) 50%,
+    rgba(200, 150, 255, 0.14) 55%,
+    rgba(255, 255, 255, 0.09) 62%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: title-shimmer 10s linear infinite;
+}
+@keyframes title-shimmer {
+  to {
+    background-position: -240% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-title {
+    animation: none;
+    background: none;
+    color: rgba(255, 255, 255, 0.1);
+  }
+}
+.page-subtitle {
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+  pointer-events: none;
+  top: 29vh;
+  margin: 0 auto;
+  color: rgba(210, 232, 245, 0.72);
+  text-transform: uppercase;
+  letter-spacing: 0.8vw;
+  font-size: 1.2vw;
+  text-align: center;
+  text-shadow: 0 1px 14px rgba(4, 10, 20, 0.85);
+}
+.page-content {
+  display: none;
+}
+
+.section-title {
+  text-align: center;
+  pointer-events: none;
+  margin-top: 15vh;
+  margin-bottom: 5vh;
+  text-transform: uppercase;
+  letter-spacing: 0.5vw;
+  font-size: 1vw;
+  /* was #3d5257 — far too dark to read over the nebula; brighter cyan + glow */
+  color: rgba(150, 205, 232, 0.82);
+  text-shadow: 0 0 18px rgba(8, 14, 22, 0.9), 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* lists                                                               */
+/* ------------------------------------------------------------------ */
+.list {
+  margin-top: 45vh;
+  margin-left: 2.5vw;
+  width: 95vw;
+  overflow: hidden;
+}
+
+.list-item {
+  float: left;
+  margin: 2.5vw;
+  position: relative;
+  width: 42.5vw;
+  height: 22vw;
+  cursor: pointer;
+  -webkit-transform: translateZ(0);
+}
+
+.list-item .thumb-img {
+  display: block;
+  width: 42.5vw;
+  height: 22vw;
+  transition: 0.5s opacity;
+  opacity: 0.7;
+}
+.list-item:hover .thumb-img {
+  opacity: 1;
+}
+
+/* always-visible title panel: bottom gradient + accent rule (--accent is
+   set per item from the project's accent color) */
+.list-item .titles {
+  position: absolute;
+  text-transform: uppercase;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  padding: 4vw 2vw 1.4vw;
+  transition: 0.4s all;
+  background: linear-gradient(
+    to top,
+    rgba(4, 7, 9, 0.92),
+    rgba(4, 7, 9, 0.5) 55%,
+    rgba(4, 7, 9, 0) 100%
+  );
+}
+.list-item .titles::before {
+  content: '';
+  display: block;
+  width: 2.4vw;
+  height: 2px;
+  margin-bottom: 0.7vw;
+  background: var(--accent, #9fc3d6);
+  box-shadow: 0 0 8px var(--accent, #9fc3d6);
+  transition: 0.4s width ease;
+}
+.list-item:hover .titles::before {
+  width: 5vw;
+}
+.list-item .title {
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1.6vw;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  transition: 0.4s letter-spacing ease;
+}
+.list-item:hover .title {
+  letter-spacing: 2px;
+}
+.list-item .subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  margin-bottom: 0.4vw;
+  font-size: 0.95vw;
+  letter-spacing: 0.15vw;
+}
+
+/* ------------------------------------------------------------------ */
+/* generated thumbnail animation (classes used inside Thumb.tsx SVGs). */
+/* All animations are transform/opacity-only so they stay cheap; the   */
+/* whole set is disabled under prefers-reduced-motion.                 */
+/* ------------------------------------------------------------------ */
+
+/* marching dashes — set --p per element to a negative multiple of its
+   dash period so the loop wraps without a visible jump */
+.t-dash {
+  animation: t-dash 1.6s linear infinite;
+}
+@keyframes t-dash {
+  to {
+    stroke-dashoffset: var(--p, -40px);
+  }
+}
+
+.t-pulse {
+  animation: t-pulse 2.6s ease-in-out infinite;
+}
+@keyframes t-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.t-flicker {
+  animation: t-flicker 2.2s ease-in-out infinite;
+}
+@keyframes t-flicker {
+  0%,
+  100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.t-bob {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: t-bob 3.2s ease-in-out infinite alternate;
+}
+@keyframes t-bob {
+  from {
+    transform: translateY(3px);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+/* bars growing from their bottom edge */
+.t-grow {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: t-grow 1.3s ease-in-out infinite alternate;
+}
+@keyframes t-grow {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1.05);
+  }
+}
+
+/* equalizer bars scaling about their middle */
+.t-eq {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: t-eq 0.9s ease-in-out infinite alternate;
+}
+@keyframes t-eq {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1.1);
+  }
+}
+
+/* gauge needle sweeping around its pivot (view-box coords) */
+.t-needle {
+  transform-box: view-box;
+  transform-origin: 300px 150px;
+  animation: t-needle 2.6s ease-in-out infinite alternate;
+}
+@keyframes t-needle {
+  from {
+    transform: rotate(-48deg);
+  }
+  to {
+    transform: rotate(28deg);
+  }
+}
+
+/* chase light — stagger animation-delay per element for a rotating dot */
+.t-chase {
+  animation: t-chase 2.4s linear infinite;
+}
+@keyframes t-chase {
+  0%,
+  8% {
+    opacity: 1;
+  }
+  30%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+/* slow ambient accent glow drifting across the card */
+.t-drift {
+  animation: t-drift 9s ease-in-out infinite alternate;
+}
+@keyframes t-drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-110px, 45px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb-anim * {
+    animation: none !important;
+  }
+}
+
+/* clearly-marked missing-content block */
+.todo-content {
+  clear: both;
+  float: none;
+  margin: 10vh auto 0;
+  max-width: 60vw;
+  border: 1px dashed #3d5257;
+  padding: 3vw;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.1vw;
+  letter-spacing: 0.1vw;
+  line-height: 1.7;
+}
+

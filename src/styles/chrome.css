@@ -1,0 +1,287 @@
+/* ------------------------------------------------------------------ */
+/* header + menus                                                      */
+/* ------------------------------------------------------------------ */
+.header {
+  opacity: 0;
+  position: fixed;
+  width: 100vw;
+  height: 12vh;
+  top: -5vh;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  transition: 1s all ease-in-out;
+  z-index: 1000;
+  pointer-events: none;
+}
+.header.show {
+  opacity: 1;
+  top: 0;
+  pointer-events: auto;
+}
+.header.shade {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.header-menu {
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  right: 5vw;
+  top: 5vh;
+}
+.header-menu .menu-items {
+  margin: 0;
+  padding: 0;
+}
+.header-menu .menu-item {
+  display: inline-block;
+  cursor: pointer;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.2vw;
+  font-size: 0.9vw;
+  opacity: 0.5;
+  padding-right: 6.5px;
+  white-space: pre;
+  transition: 0.3s opacity;
+}
+.header-menu .menu-item:hover {
+  opacity: 1;
+}
+
+/* fullscreen menu overlay */
+.menu {
+  opacity: 0;
+  width: 100vw;
+  height: 100%;
+  left: 50%;
+  top: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  margin: 0;
+  transition: 1s all;
+  z-index: 0;
+  background: #000;
+  pointer-events: none;
+}
+.menu.show {
+  opacity: 1;
+  z-index: 1000;
+  pointer-events: auto;
+}
+.menu .menu-items {
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  margin: 0;
+}
+.menu .menu-item {
+  cursor: pointer;
+  list-style: none;
+  opacity: 0.5;
+  text-align: center;
+  font-size: 9vw;
+  line-height: 10vh;
+  text-transform: uppercase;
+  color: white;
+}
+.menu .menu-item:hover {
+  opacity: 0.9;
+}
+.menu .menu-item.active {
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: white;
+}
+
+/* hamburger */
+.menu-button,
+.menu-button span {
+  display: inline-block;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+.menu-button {
+  width: 30px;
+  height: 60px;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  cursor: pointer;
+  z-index: 1000;
+  display: none;
+}
+.menu-button span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0.2vw;
+  min-height: 1px;
+  background-color: #fff;
+  opacity: 1;
+}
+.menu-button span:nth-of-type(1) {
+  top: 0vw;
+}
+.menu-button span:nth-of-type(2) {
+  top: 2vw;
+}
+.menu-button.active span:nth-of-type(1) {
+  transform: translateY(1vw) rotate(-45deg);
+}
+.menu-button.active span:nth-of-type(2) {
+  transform: translateY(-1vw) rotate(45deg);
+}
+
+/* ------------------------------------------------------------------ */
+/* loader                                                              */
+/* ------------------------------------------------------------------ */
+.loader {
+  opacity: 0;
+  width: 0%;
+  height: 1px;
+  background-color: #3d5257;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    0.3s all,
+    0.5s opacity;
+  z-index: 0;
+}
+.loader.show {
+  opacity: 0.7;
+  z-index: 10000;
+}
+
+/* ------------------------------------------------------------------ */
+/* ambient HUD frame (shown over every section, not home)              */
+/* ------------------------------------------------------------------ */
+.hud {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+}
+.hud.show {
+  opacity: 1;
+}
+
+/* angular cyan brackets in each corner, breathing slowly */
+.hud-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 0 solid rgba(120, 200, 230, 0.4);
+  animation: hud-breathe 4.5s ease-in-out infinite;
+}
+.hud-corner.tl {
+  top: 3.5vh;
+  left: 2.5vw;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+.hud-corner.tr {
+  top: 3.5vh;
+  right: 2.5vw;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+.hud-corner.bl {
+  bottom: 3.5vh;
+  left: 2.5vw;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+.hud-corner.br {
+  bottom: 3.5vh;
+  right: 2.5vw;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+@keyframes hud-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* a faint scanline sweeping top→bottom, like a sensor pass */
+.hud-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22vh;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(120, 200, 230, 0.05) 45%,
+    rgba(120, 225, 255, 0.09) 50%,
+    rgba(120, 200, 230, 0.05) 55%,
+    transparent
+  );
+  animation: hud-scan 7.5s linear infinite;
+}
+@keyframes hud-scan {
+  0% {
+    transform: translateY(-25vh);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.hud-readout {
+  position: absolute;
+  font-size: 0.72vw;
+  letter-spacing: 0.12vw;
+  text-transform: uppercase;
+  color: rgba(150, 205, 230, 0.6);
+  white-space: nowrap;
+}
+.hud-tl {
+  top: 4vh;
+  left: 4.5vw;
+}
+.hud-br {
+  bottom: 4vh;
+  right: 4.5vw;
+}
+.hud-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.5vw;
+  border-radius: 50%;
+  background: #38e1ff;
+  box-shadow: 0 0 8px #38e1ff;
+  vertical-align: middle;
+  animation: hud-blink 1.8s ease-in-out infinite;
+}
+@keyframes hud-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+

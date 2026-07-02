@@ -1,0 +1,371 @@
+/* ------------------------------------------------------------------ */
+/* home                                                                */
+/* ------------------------------------------------------------------ */
+.home {
+  overflow: hidden;
+  height: 100%;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+.home .titles {
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+.home .page-title {
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+  font-size: 5vw;
+  letter-spacing: 2.6vw;
+  /* bright ice-white reads cleanly over the crystalline Tacet Mark; the dark
+     drop-shadows carve the glyphs out of the bright central spikes */
+  color: hsla(200, 40%, 96%, 1);
+  filter: drop-shadow(0 2px 10px rgba(2, 6, 14, 0.85))
+    drop-shadow(0 0 34px rgba(4, 10, 22, 0.9));
+  text-indent: 2.6vw;
+  /* Jost 100 reads thinner than the reference's futura-pt light — 200
+     matches its optical weight */
+  font-weight: 200;
+  position: relative;
+  top: 0;
+  left: auto;
+  padding: 0;
+  margin: 0;
+}
+.home .page-subtitle {
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+  font-size: 0.68vw;
+  letter-spacing: 0.42vw;
+  text-indent: 0.42vw;
+  position: relative;
+  top: 0;
+  left: auto;
+  padding: 0;
+  margin: 0;
+  color: rgba(232, 244, 252, 0.92);
+  text-shadow: 0 2px 10px rgba(2, 6, 14, 0.95), 0 0 26px rgba(2, 6, 14, 0.85);
+}
+
+/* full-viewport invisible entry button — the entire home screen opens the
+   portfolio. Sits under the (pointer-events: none) titles, above the canvas. */
+.home-open {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 10;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.home-open:focus-visible {
+  outline: none;
+  /* a full-screen outline would be jarring — glow the frame edge instead */
+  box-shadow: inset 0 0 0 2px rgba(120, 225, 255, 0.45), inset 0 0 42px rgba(40, 180, 230, 0.12);
+}
+
+/* pulsing prompt under the home subtitle */
+.home-hint {
+  margin-top: 3.4vh;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.55vw;
+  text-indent: 0.55vw;
+  font-size: 0.72vw;
+  color: rgba(160, 210, 235, 0.6);
+  animation: home-hint-pulse 3.4s ease-in-out infinite;
+}
+@keyframes home-hint-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hint {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* sectors — the navigation chart page holding the waypoint nodes      */
+/* ------------------------------------------------------------------ */
+.sectors {
+  overflow: hidden;
+  height: 100%;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+.sectors .titles {
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+/* compact centre title — the mark stays the hero; nodes carry the content */
+.sectors .page-title {
+  position: relative;
+  top: 0;
+  left: auto;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  pointer-events: none;
+  text-align: center;
+  font-size: 2.6vw;
+  letter-spacing: 1.7vw;
+  text-indent: 1.7vw;
+  font-weight: 200;
+  color: hsla(200, 40%, 96%, 1);
+  filter: drop-shadow(0 2px 10px rgba(2, 6, 14, 0.85))
+    drop-shadow(0 0 34px rgba(4, 10, 22, 0.9));
+}
+.sectors .page-subtitle {
+  position: relative;
+  top: 0;
+  left: auto;
+  padding: 0;
+  margin: 0.6vh 0 0;
+  text-align: center;
+  font-size: 0.8vw;
+  letter-spacing: 0.9vw;
+  text-indent: 0.9vw;
+  color: rgba(232, 244, 252, 0.8);
+  text-shadow: 0 2px 10px rgba(2, 6, 14, 0.95), 0 0 26px rgba(2, 6, 14, 0.85);
+}
+
+/* ------------------------------------------------------------------ */
+/* home nav — interactive entry nodes scattered through space          */
+/* (replaces the old footer menu)                                      */
+/* ------------------------------------------------------------------ */
+
+/* full-viewport layer holding the four corner waypoints; --mx/--my are the
+   eased, normalized mouse offset published by the parallax rAF loop */
+.home-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  --mx: 0;
+  --my: 0;
+}
+
+/* corner anchor + warp-in entrance transform live here */
+.home-node-pos {
+  position: absolute;
+  width: 17vw;
+}
+.home-node-pos.tl {
+  top: 19vh;
+  left: 6vw;
+}
+.home-node-pos.tr {
+  top: 19vh;
+  right: 6vw;
+}
+.home-node-pos.bl {
+  bottom: 17vh;
+  left: 6vw;
+}
+.home-node-pos.br {
+  bottom: 17vh;
+  right: 6vw;
+}
+
+/* continuous drift, like a station slowly tumbling in orbit */
+.home-node-float {
+  animation: node-float 11s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes node-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(0.5vw, -0.9vw, 0);
+  }
+  66% {
+    transform: translate3d(-0.6vw, 0.5vw, 0);
+  }
+}
+
+.home-node {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 9.4vw;
+  padding: 1.4vw 1.5vw 1.2vw;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  background: linear-gradient(160deg, rgba(12, 20, 30, 0.5), rgba(6, 10, 16, 0.34));
+  border: 1px solid rgba(120, 200, 230, 0.16);
+  /* angular clipped corners, matching the skills HUD panels */
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% 100%,
+    14px 100%,
+    0 calc(100% - 14px)
+  );
+  font-family: inherit;
+  color: #fff;
+  backdrop-filter: blur(3px);
+  /* parallax: shift against the mouse, scaled by this node's --depth */
+  transform: translate3d(
+    calc(var(--mx) * var(--depth, 20) * 1px),
+    calc(var(--my) * var(--depth, 20) * 1px),
+    0
+  );
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+/* cyan power-line along the top edge, extends on hover */
+.home-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 34%;
+  background: linear-gradient(90deg, #38e1ff, transparent);
+  opacity: 0.5;
+  transition: 0.35s ease;
+}
+.home-node:hover,
+.home-node:focus-visible {
+  outline: none;
+  border-color: rgba(120, 225, 255, 0.6);
+  box-shadow: 0 0 26px rgba(40, 180, 230, 0.24), inset 0 0 18px rgba(40, 160, 210, 0.08);
+  background: linear-gradient(160deg, rgba(16, 28, 40, 0.78), rgba(8, 12, 20, 0.6));
+}
+.home-node:hover::before,
+.home-node:focus-visible::before {
+  width: 90%;
+  opacity: 1;
+}
+
+/* edgerunner-yellow corner brackets, lit on hover */
+.home-node-corner {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  pointer-events: none;
+  border-color: rgba(255, 210, 70, 0);
+  transition: 0.3s ease;
+}
+.home-node-corner.tl {
+  top: 6px;
+  left: 6px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.home-node-corner.br {
+  bottom: 6px;
+  right: 6px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+.home-node:hover .home-node-corner,
+.home-node:focus-visible .home-node-corner {
+  border-color: rgba(255, 210, 70, 0.85);
+}
+
+/* tiny star-designation label, top-left */
+.home-node-coord {
+  position: absolute;
+  top: 1.45vw;
+  left: 1.5vw;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.62vw;
+  letter-spacing: 0.12vw;
+  color: rgba(120, 200, 230, 0.45);
+  transition: color 0.3s ease;
+}
+.home-node:hover .home-node-coord,
+.home-node:focus-visible .home-node-coord {
+  color: rgba(255, 210, 70, 0.7);
+}
+
+.home-node-glyph {
+  display: block;
+  margin-top: 1.4vw;
+  font-size: 1.7vw;
+  line-height: 1;
+  color: #9fd9ff;
+  opacity: 0.55;
+  transition: transform 0.4s ease, opacity 0.3s, color 0.3s;
+}
+.home-node:hover .home-node-glyph,
+.home-node:focus-visible .home-node-glyph {
+  opacity: 1;
+  color: #ffd24a;
+  transform: rotate(90deg) scale(1.1);
+}
+.home-node-index {
+  position: absolute;
+  top: 1.4vw;
+  right: 1.4vw;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.72vw;
+  letter-spacing: 0.06vw;
+  color: #38e1ff;
+  opacity: 0.7;
+}
+.home-node-label {
+  display: block;
+  margin-top: 1vw;
+  text-transform: uppercase;
+  letter-spacing: 0.14vw;
+  font-size: 1.25vw;
+  font-weight: 500;
+}
+.home-node-desc {
+  display: block;
+  margin-top: 0.4vw;
+  font-size: 0.78vw;
+  letter-spacing: 0.04vw;
+  color: rgba(190, 225, 240, 0.62);
+}
+.home-node-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.1vw;
+  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.72vw;
+  letter-spacing: 0.04vw;
+  color: rgba(120, 200, 230, 0.7);
+}
+.home-node-arrow {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.home-node:hover .home-node-arrow,
+.home-node:focus-visible .home-node-arrow {
+  transform: translateX(0.5vw);
+  color: #ffd24a;
+}
+

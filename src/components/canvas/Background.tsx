@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/immutability -- R3F: useFrame runs outside the React render cycle; mutating Three.js uniforms and geometry buffers each frame is the canonical R3F pattern and does not cause React render inconsistency */
+/* eslint-disable react-hooks/purity -- Math.random inside useMemo([]) is intentional one-time seeding of particle positions; the impurity is memoized away by the empty deps array so it cannot produce different results across re-renders */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -94,7 +96,7 @@ function ShaderPlane() {
 
 function ParticleCloud({ color, rotationSign }: { color: [number, number, number]; rotationSign: number }) {
   const points = useRef<THREE.Points>(null!)
-  const sprite = useMemo(makeSpriteTexture, [])
+  const sprite = useMemo(() => makeSpriteTexture(), [])
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry()
@@ -140,7 +142,7 @@ function ParticleCloud({ color, rotationSign }: { color: [number, number, number
 function Starfield() {
   const points = useRef<THREE.Points>(null!)
   const material = useRef<THREE.PointsMaterial>(null!)
-  const sprite = useMemo(makeSpriteTexture, [])
+  const sprite = useMemo(() => makeSpriteTexture(), [])
   const COUNT = 480
   const NEAR = 60 // just behind the camera (z=50)
   const FAR = -220
@@ -153,6 +155,7 @@ function Starfield() {
       arr[i * 3 + 2] = FAR + Math.random() * (NEAR - FAR)
     }
     return arr
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT, NEAR, FAR are local constants (never change); empty deps intentionally seeds positions once on mount
   }, [])
 
   const geometry = useMemo(() => {

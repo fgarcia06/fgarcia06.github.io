@@ -1,0 +1,375 @@
+/* standalone skills page: push the console clear of the oversized page title */
+.skills .skills-block {
+  margin-top: 28vh;
+}
+
+/* ---- cyberpunk console: every domain is a chamfered HUD panel and the whole
+   stack fits one locked screen. The grid rests near-monochrome — all motion
+   is cursor-driven: a spotlight tracks the pointer, the panel's neon hue
+   ignites on hover while siblings step back, titles ghost-split once, and
+   clicking a skill pins its trace in the monitor panel. ---- */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* rows deep enough that the two-band console fills the screen below the
+     header instead of huddling under it */
+  grid-auto-rows: minmax(25vh, 1fr);
+  gap: 2.6vh 1vw;
+  width: 92vw;
+  margin: 0 auto;
+}
+.skill-panel {
+  --panel-accent: #38e1ff;
+  position: relative;
+  padding: 1.8vh 1.2vw 2vh;
+  /* CRT scanline texture over a dark glass plate */
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 3px),
+    linear-gradient(165deg, rgba(13, 22, 34, 0.72), rgba(6, 10, 18, 0.55));
+  border: 1px solid rgba(120, 200, 230, 0.16);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% 100%,
+    14px 100%,
+    0 calc(100% - 14px)
+  );
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.3s ease, filter 0.3s ease;
+}
+.skill-panel:hover {
+  border-color: color-mix(in srgb, var(--panel-accent) 60%, transparent);
+  /* outer shadows die under clip-path — glow from the inside instead */
+  box-shadow: inset 0 0 36px -14px color-mix(in srgb, var(--panel-accent) 55%, transparent);
+}
+/* the rest of the console steps back so the lit panel pops — except the
+   monitor while it's streaming a trace: that's what you're reading */
+.skills-grid:has(.skill-panel:hover) .skill-panel:not(:hover):not(.trace-panel.live) {
+  opacity: 0.55;
+  filter: saturate(0.6) brightness(0.85);
+}
+/* corner ticks on the two square corners (the other two are chamfered) */
+.panel-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  transition: border-color 0.25s ease, filter 0.25s ease;
+}
+.panel-corner.tl {
+  top: 0;
+  left: 0;
+  border-top: 1px solid rgba(120, 200, 230, 0.45);
+  border-left: 1px solid rgba(120, 200, 230, 0.45);
+}
+.panel-corner.br {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px solid rgba(120, 200, 230, 0.45);
+  border-right: 1px solid rgba(120, 200, 230, 0.45);
+}
+.skill-panel:hover .panel-corner {
+  border-color: var(--panel-accent);
+  filter: drop-shadow(0 0 5px var(--panel-accent));
+}
+/* cursor spotlight — --px/--py written straight to the node on mousemove */
+.panel-spot {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    18vw circle at var(--px, 50%) var(--py, 50%),
+    color-mix(in srgb, var(--panel-accent) 13%, transparent),
+    transparent 62%
+  );
+  transition: opacity 0.35s ease;
+}
+.skill-panel:hover .panel-spot {
+  opacity: 1;
+}
+/* one scanline sweep fired by the cursor entering (clip-path crops it) */
+.panel-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    color-mix(in srgb, var(--panel-accent) 10%, transparent) 50%,
+    transparent 70%
+  );
+}
+.skill-panel:hover .panel-scan {
+  animation: panel-scan 0.55s ease-out 1;
+}
+@keyframes panel-scan {
+  0% {
+    transform: translateY(-70%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(70%);
+    opacity: 0;
+  }
+}
+
+.panel-head {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6vw;
+  margin-bottom: 1.4vh;
+}
+.skill-index {
+  font-family: var(--mono);
+  font-size: 0.78vw;
+  color: rgba(160, 210, 235, 0.7);
+  letter-spacing: 0.08vw;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+.skill-panel:hover .skill-index {
+  color: var(--panel-accent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--panel-accent) 70%, transparent);
+}
+.panel-title {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.14vw;
+  font-size: 0.92vw;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+}
+.skill-panel:hover .panel-title {
+  color: #fff;
+}
+/* chromatic ghost split — retro-future aberration that fires once on entry */
+.panel-title::before,
+.panel-title::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.skill-panel:hover .panel-title::before {
+  color: #ff3ec8;
+  transform: translate(-2px, 1px);
+  animation: ghost-split 0.4s ease-out 1;
+}
+.skill-panel:hover .panel-title::after {
+  color: #38e1ff;
+  transform: translate(2px, -1px);
+  animation: ghost-split 0.4s ease-out 1;
+}
+@keyframes ghost-split {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.panel-count {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.62vw;
+  letter-spacing: 0.1vw;
+  color: rgba(160, 210, 235, 0.5);
+  transition: color 0.25s ease;
+}
+.skill-panel:hover .panel-count {
+  color: color-mix(in srgb, var(--panel-accent) 75%, white);
+}
+
+.panel-tags {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5vh 1vw;
+}
+/* bare signal line: no chip box — a tick, the name, and a linked-build count.
+   Hover/trace lights the text itself in the panel's own hue. */
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4vw;
+  padding: 0.2vh 0;
+  font-family: var(--mono);
+  font-size: 0.76vw;
+  letter-spacing: 0.03vw;
+  color: rgba(190, 225, 240, 0.78);
+  background: none;
+  border: 0;
+  transition: color 0.18s ease, opacity 0.18s ease, text-shadow 0.18s ease;
+  cursor: pointer;
+}
+.chip-tick {
+  width: 3px;
+  height: 0.7em;
+  background: rgba(120, 200, 230, 0.5);
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.chip-count {
+  font-size: 0.85em;
+  color: color-mix(in srgb, var(--panel-accent, #38e1ff) 80%, white);
+}
+.skill-tag:hover,
+.skill-tag:focus-visible,
+.skill-tag.on {
+  outline: none;
+  color: #fff;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--panel-accent, #38e1ff) 80%, transparent);
+  animation: chip-glitch 0.2s steps(2) 1;
+}
+.skill-tag:hover .chip-tick,
+.skill-tag.on .chip-tick,
+.skill-tag.pinned .chip-tick {
+  background: var(--panel-accent, #38e1ff);
+  box-shadow: 0 0 8px var(--panel-accent, #38e1ff);
+}
+/* a pinned skill keeps its tick lit and its text raised while others dim */
+.skill-tag.pinned {
+  color: rgba(235, 248, 255, 0.95);
+}
+/* while tracing, the other lines step back so the live one pops */
+.skills-grid.tracing .skill-tag.dim {
+  opacity: 0.4;
+}
+@keyframes chip-glitch {
+  0% {
+    clip-path: inset(0 0 62% 0);
+    transform: translateX(-2px);
+  }
+  50% {
+    clip-path: inset(48% 0 0 0);
+    transform: translateX(2px);
+  }
+  100% {
+    clip-path: none;
+    transform: none;
+  }
+}
+
+/* ---- trace monitor: eighth grid cell — live telemetry for the traced
+   skill, replacing the old floating bottom strip. The AOS entrance lives on
+   .trace-slot; the panel inside carries the dynamic .live state. ---- */
+.trace-slot {
+  display: flex;
+}
+.trace-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.trace-panel.live {
+  border-color: color-mix(in srgb, var(--panel-accent) 50%, transparent);
+  box-shadow: inset 0 0 32px -16px color-mix(in srgb, var(--panel-accent) 60%, transparent);
+}
+.panel-trace-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1vh;
+  font-family: var(--mono);
+  text-transform: uppercase;
+}
+.trace-hint {
+  font-size: 0.68vw;
+  letter-spacing: 0.14vw;
+  line-height: 2;
+  color: rgba(160, 210, 235, 0.55);
+}
+.trace-tag {
+  font-size: 0.8vw;
+  letter-spacing: 0.14vw;
+  color: color-mix(in srgb, var(--panel-accent, #38e1ff) 60%, white);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--panel-accent, #38e1ff) 60%, transparent);
+}
+.trace-links {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.4vw;
+  min-width: 0;
+}
+.trace-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4vw;
+  padding: 0.35vh 0.7vw;
+  font-family: inherit;
+  font-size: 0.68vw;
+  letter-spacing: 0.06vw;
+  text-transform: uppercase;
+  color: rgba(230, 244, 252, 0.92);
+  background: rgba(120, 200, 230, 0.07);
+  border: 1px solid rgba(120, 200, 230, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+.trace-link:hover,
+.trace-link:focus-visible {
+  outline: none;
+  border-color: var(--accent, #38e1ff);
+  box-shadow: 0 0 12px -2px var(--accent, #38e1ff);
+  color: #fff;
+}
+.trace-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #38e1ff);
+  box-shadow: 0 0 8px var(--accent, #38e1ff);
+}
+.trace-kind {
+  font-size: 0.85em;
+  color: rgba(150, 205, 232, 0.6);
+}
+.trace-none {
+  font-size: 0.68vw;
+  letter-spacing: 0.12vw;
+  color: rgba(190, 225, 240, 0.65);
+}
+
+.contact-line {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.2vw;
+  font-size: 1vw;
+  opacity: 0.7;
+  margin-bottom: 3vh;
+}
+.social-link {
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* scrollbar                                                           */
+/* ------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 1px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
