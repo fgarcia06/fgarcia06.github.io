@@ -50,6 +50,7 @@ export function DetailPage({ section }: { section: Section }) {
   // swap content only when the router's dataState reaches this section,
   // so the outgoing page keeps its old content while sliding away
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional delayed content swap: slug updates only after the router's 800ms hold so the outgoing page keeps its content while sliding away
     if (dataState.startsWith(prefix)) setSlug(dataState.slice(prefix.length))
   }, [dataState, prefix])
 

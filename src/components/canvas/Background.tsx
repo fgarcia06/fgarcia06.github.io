@@ -230,6 +230,7 @@ export default function Background() {
   // fade the canvas in over the static gradient once mounted,
   // like the reference's $(canvas).addClass("show")
   const [shown, setShown] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- standard mount-once flag: fires once after mount, no cascading renders
   useEffect(() => setShown(true), [])
 
   return (

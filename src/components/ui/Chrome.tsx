@@ -24,6 +24,7 @@ export function Header() {
   }, [])
 
   // close the fullscreen menu on any navigation, like APP.go does
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional derived-state sync: menu should close on every route change; no cascading renders
   useEffect(() => setMenuOpen(false), [state])
 
   return (

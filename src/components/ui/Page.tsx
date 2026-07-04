@@ -33,6 +33,7 @@ export default function Page({
   // the page becomes active. Delay the first AOS check until they're clear so
   // content animations begin on a revealed page, not behind closing bars.
   // On boot / silent restores there's no cinema, so check immediately.
+  // eslint-disable-next-line react-hooks/refs -- intentional: isAnimatingRef is set by the router synchronously before React re-renders; reading it during render to derive a static delay value is safe and is the designed API
   const aosDelay = isAnimatingRef.current ? 1500 : 100
   useAos(ref, active, [dataKey], aosDelay)
 

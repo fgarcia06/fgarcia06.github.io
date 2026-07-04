@@ -15,6 +15,7 @@ import type { CSSProperties, ReactNode } from 'react'
 type Common = { className?: string; style?: CSSProperties }
 
 /** Deterministic archive code from a seed (slug / index), e.g. `2026_MG_042`. */
+// eslint-disable-next-line react-refresh/only-export-components -- utility function co-located with the components that use it; no HMR concern
 export function microCode(seed: string | number): string {
   const s = String(seed)
   let h = 0
