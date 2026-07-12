@@ -54,9 +54,9 @@ function ShaderPlane() {
     if (!prefersReducedMotion) u.iTime.value += delta
     // constant + flicker, exactly how the reference drives its ring shimmer
     u.audio1.value = 128.0 / 48.0 + Math.random() * 0.1
-    // eased mouse follow (.05 lerp per frame, as in the reference)
-    u.iMouse.value.x += (appState.mouse.x - u.iMouse.value.x) * 0.05
-    u.iMouse.value.y += (appState.mouse.y - u.iMouse.value.y) * 0.05
+    // eased mouse follow (delta-scaled damp so it stays FPS-independent)
+    u.iMouse.value.x = THREE.MathUtils.damp(u.iMouse.value.x, appState.mouse.x, 3.1, delta)
+    u.iMouse.value.y = THREE.MathUtils.damp(u.iMouse.value.y, appState.mouse.y, 3.1, delta)
     // section orb opacity tween
     // snappier than the original 2.2 so the tacet↔abstract morph feels fast
     u.orbOpacity.value = THREE.MathUtils.damp(u.orbOpacity.value, appState.orbTarget, 3.4, delta)
@@ -209,7 +209,7 @@ function Starfield() {
 }
 
 function CameraRig() {
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera, clock }, delta) => {
     if (prefersReducedMotion) return
     // gentle multi-frequency wander so the scene keeps drifting through space
     // even when the mouse is still — a slow, never-repeating exploratory float.
@@ -218,11 +218,24 @@ function CameraRig() {
     const driftY = Math.cos(t * 0.05) * 0.8 + Math.sin(t * 0.017) * 0.45
     const targetX = -appState.mouse.x * 0.01 + driftX
     const targetY = appState.mouse.y * 0.01 + driftY
-    camera.position.x += (targetX - camera.position.x) * 0.05
-    camera.position.y += (targetY - camera.position.y) * 0.05
+    camera.position.x = THREE.MathUtils.damp(camera.position.x, targetX, 3.1, delta)
+    camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 3.1, delta)
     // bank slightly toward the drift so it reads as banking, not sliding
-    camera.rotation.z += (driftX * 0.004 - camera.rotation.z) * 0.04
+    camera.rotation.z = THREE.MathUtils.damp(camera.rotation.z, driftX * 0.004, 2.4, delta)
   })
+  return null
+}
+
+/** Halt the render loop while the tab is hidden — the raymarch is the most
+ * expensive thing on the page and nobody is looking at it. */
+function VisibilityGate() {
+  const set = useThree((s) => s.set)
+  useEffect(() => {
+    const onVis = () => set({ frameloop: document.hidden ? 'never' : 'always' })
+    onVis()
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [set])
   return null
 }
 
@@ -237,7 +250,7 @@ export default function Background() {
     <Canvas
       id="webgl"
       className={`webgl-canvas ${shown ? 'show' : ''}`}
-      dpr={isMobile ? 1 : [1, 2]}
+      dpr={isMobile ? 1 : [1, 1.5]}
       gl={{ antialias: false, alpha: false, powerPreference: 'high-performance' }}
       camera={{ fov: 90, near: 1, far: 1000, position: [0, 0, 50] }}
       style={{
@@ -247,6 +260,7 @@ export default function Background() {
         pointerEvents: 'none',
       }}
     >
+      <VisibilityGate />
       <ShaderPlane />
       {!isMobile && (
         <>

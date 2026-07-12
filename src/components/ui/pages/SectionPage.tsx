@@ -100,8 +100,9 @@ function SlideCard({ item, index, active, onOpen }: { item: ListItem; index: num
  * the front one like a held hand of holo-cards. A wheel flick, a vertical
  * swipe, or an arrow key peels the front card away (it flies down-forward)
  * and the deck steps up. The pages are viewport-locked, so scroll input is
- * free to drive the deck. Dots remain for direct navigation and a mono
- * `02 / 06` counter keeps orientation. */
+ * free to drive the deck. Stepping past either end loops to the other side.
+ * Dots remain for direct navigation and a mono `02 / 06` counter keeps
+ * orientation. */
 function CardDeck({
   items,
   sectionId,
@@ -118,10 +119,13 @@ function CardDeck({
   const activeRef = useRef(0)
   const cooldownRef = useRef(0)
   const wheelAccum = useRef(0)
+  const lastWheelTs = useRef(0)
 
   const goTo = useCallback(
     (i: number) => {
-      const next = Math.max(0, Math.min(items.length - 1, i))
+      const n = items.length
+      // wrap rather than clamp: stepping past either end loops to the other side
+      const next = ((i % n) + n) % n
       if (next === activeRef.current) return
       activeRef.current = next
       setActive(next)
@@ -148,7 +152,22 @@ function CardDeck({
     wheelAccum.current = 0
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      wheelAccum.current += e.deltaY
+      // Windows/Firefox report line- or page-mode deltas (deltaY ~1-4) instead of
+      // pixels — normalize so the 50px threshold below is reachable on every platform.
+      const scale = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1
+      const dy = e.deltaY * scale
+      const now = performance.now()
+      // new gesture (paused >300ms) or a direction flip — start the accumulator over
+      if (now - lastWheelTs.current > 300 || (wheelAccum.current !== 0 && (dy > 0) !== (wheelAccum.current > 0))) {
+        wheelAccum.current = 0
+      }
+      lastWheelTs.current = now
+      // a step is still settling — swallow deltas so one long flick doesn't queue extra cards
+      if (now - cooldownRef.current < 500) {
+        wheelAccum.current = 0
+        return
+      }
+      wheelAccum.current += dy
       if (Math.abs(wheelAccum.current) >= 50) {
         step(wheelAccum.current > 0 ? 1 : -1)
         wheelAccum.current = 0
@@ -192,13 +211,18 @@ function CardDeck({
       className="card-deck"
       role="group"
       aria-roledescription="card deck"
-      aria-label={`${sectionId} deck — scroll, swipe or arrow keys to browse`}
+      aria-label={`${sectionId} deck — scroll, swipe or arrow keys to browse, loops at the ends`}
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
       <div className="deck-stage">
         {items.map((item, i) => {
-          const offset = i - active
+          const n = items.length
+          // shortest signed distance around the loop, so wrapping from the
+          // last card to the first (or back) poses like a normal forward/back step
+          let offset = i - active
+          if (offset > n / 2) offset -= n
+          else if (offset < -n / 2) offset += n
           const state =
             offset === 0 ? 'front' : offset < 0 ? 'passed' : offset <= 3 ? 'behind' : 'deep'
           return (

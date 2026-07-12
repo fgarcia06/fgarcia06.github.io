@@ -193,15 +193,3 @@ export const social = [
   { title: 'LinkedIn', url: profile.links.linkedin, icon: 'linkedin' as const },
   { title: 'Email', url: `mailto:${profile.email}`, icon: 'email' as const },
 ]
-
-/** Share targets used by the [ share ] block on detail pages, matching the
- * reference's twitter/facebook share popups but pointing at my URLs. */
-export function shareUrls(title: string) {
-  const url = window.location.href
-  return {
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-      `${title} — Francis Garcia`,
-    )}&url=${encodeURIComponent(url)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-  }
-}

@@ -13,11 +13,5 @@ export const profile = {
     linkedin: 'https://linkedin.com/in/fgarcia06',
     resume: '/resume.md',
   },
-  portrait: '/images/self_pic.png',
+  portrait: '/images/self_pic.webp',
 } as const
-
-export const highlights = [
-  { value: '60%', label: 'Faster QA cycles from automated Python test pipelines at TRICCA' },
-  { value: '>92%', label: 'Detection mAP on a real-time multi-object tracking system' },
-  { value: '<5%', label: 'Model error reconstructing system ODEs with a SINDy pipeline' },
-] as const

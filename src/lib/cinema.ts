@@ -12,7 +12,7 @@ export interface CinemaCue {
   id: number
   /** Where we're heading; lets the overlay pick the aspect label / feel. */
   kind: 'home' | 'section' | 'detail'
-  /** Aspect-ratio label flashed during the crop (e.g. "2.39 : 1"). */
+  /** Aspect-ratio label flashed during the crop (e.g. "2.76 : 1", or "loading..." for section jumps). */
   aspect: string
   /** Destination sector label shown in the hyperspace-jump readout. */
   label: string
@@ -47,7 +47,7 @@ export const cinema = {
   play(kind: CinemaCue['kind'], label = '', dest: CinemaDestInfo = {}) {
     id += 1
     // wider crops read as more "cinematic"; detail pages get the widest jump
-    const aspect = kind === 'detail' ? '2.76 : 1' : kind === 'section' ? '2.39 : 1' : '1.85 : 1'
+    const aspect = kind === 'detail' ? '2.76 : 1' : kind === 'section' ? 'loading...' : '1.85 : 1'
     const destLabel = (label || kind).toUpperCase()
     // deterministic "jump target" so each destination has a stable coordinate
     const seed = destLabel.split('').reduce((a, c) => a + c.charCodeAt(0), 0)

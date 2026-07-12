@@ -14,9 +14,6 @@ export type VisualKind =
 /** Top-level grouping used by the project filter. */
 export type Category = 'AI / ML' | 'Embedded' | 'Full-Stack' | 'Security' | 'Data'
 
-/** Order the filter chips appear in. */
-export const categoryOrder: Category[] = ['AI / ML', 'Embedded', 'Full-Stack', 'Security', 'Data']
-
 /** One stage in a project's architecture / data-flow pipeline. */
 export interface FlowStage {
   label: string

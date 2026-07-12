@@ -20,8 +20,6 @@ export const appState = {
    * drives the starfield hyperspace streak. A slow decay makes the travel long
    * and motion-driven: the stars streak, then decelerate as you "arrive". */
   warp: 0.0,
-  /** Pause rendering when an overlay would fully cover the canvas. */
-  paused: false,
 }
 
 /** orbOpacity per route state — values lifted from the reference webgl.js. */

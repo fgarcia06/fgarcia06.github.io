@@ -24,19 +24,3 @@ export function EmailIcon({ size = 40 }: { size?: number }) {
     </svg>
   )
 }
-
-export function TwitterIcon({ size = 40 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#fff" aria-hidden>
-      <path d="M23 4.94c-.81.36-1.68.6-2.59.71a4.52 4.52 0 0 0 1.98-2.5 9.05 9.05 0 0 1-2.86 1.1 4.51 4.51 0 0 0-7.69 4.11A12.8 12.8 0 0 1 2.55 3.65a4.51 4.51 0 0 0 1.4 6.02 4.49 4.49 0 0 1-2.05-.56v.05a4.51 4.51 0 0 0 3.62 4.42 4.52 4.52 0 0 1-2.04.08 4.52 4.52 0 0 0 4.21 3.13A9.05 9.05 0 0 1 1 18.65a12.77 12.77 0 0 0 6.92 2.03c8.3 0 12.85-6.88 12.85-12.85l-.02-.58A9.17 9.17 0 0 0 23 4.94z" />
-    </svg>
-  )
-}
-
-export function FacebookIcon({ size = 40 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#fff" aria-hidden>
-      <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11.02 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.7 4.53-4.7 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.95.93-1.95 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.09 24 18.09 24 12.07z" />
-    </svg>
-  )
-}
