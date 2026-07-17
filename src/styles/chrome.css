@@ -4,10 +4,14 @@
 .header {
   opacity: 0;
   position: fixed;
-  width: 100vw;
+  /* left+right+auto instead of width:100vw — avoids the classic-scrollbar
+     layout shift on Windows (100vw includes the scrollbar gutter; 100% / auto
+     on a fixed element resolves against the layout viewport, excluding it) */
+  left: 0;
+  right: 0;
+  width: auto;
   height: 12vh;
   top: -5vh;
-  left: 0;
   padding: 0;
   margin: 0;
   transition: 1s all ease-in-out;
@@ -53,12 +57,16 @@
 /* fullscreen menu overlay */
 .menu {
   opacity: 0;
-  width: 100vw;
+  /* left+right+auto spans the viewport without including the scrollbar gutter
+     (100vw on Windows includes it, causing a rightward shift). The old
+     left:50%+translate(-50%) centering trick is replaced by left:0+right:0. */
+  left: 0;
+  right: 0;
+  width: auto;
   height: 100%;
-  left: 50%;
   top: 50%;
   position: fixed;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
   padding: 0;
   margin: 0;
   transition: 1s all;
@@ -169,7 +177,7 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 1s ease-in-out;
-  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--mono);
 }
 .hud.show {
   opacity: 1;

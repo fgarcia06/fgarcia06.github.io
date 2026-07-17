@@ -5,10 +5,7 @@
 /* or mono text, white/grey at low alpha, aria-hidden + non-interactive */
 /* so it reinforces the "design archive" read without touching the UI.  */
 /* ------------------------------------------------------------------ */
-:root {
-  /* the mono stack was duplicated ~6× through this file; name it once */
-  --mono: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
-}
+/* --mono is defined in base.css (:root) — 'JetBrains Mono' first in the stack */
 
 .micro-label,
 .micro-aspect,

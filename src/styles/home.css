@@ -60,7 +60,10 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
+  right: 0;
+  /* width:auto (left+right) instead of 100vw — avoids the classic-scrollbar
+     gutter on Windows; height pair kept as-is (100dvh override chain intact) */
+  width: auto;
   height: 100vh;
   height: 100dvh;
   z-index: 10;
@@ -80,7 +83,7 @@
 /* pulsing prompt under the home subtitle */
 .home-hint {
   margin-top: 3.4vh;
-  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.55vw;
   text-indent: 0.55vw;
@@ -299,7 +302,7 @@
   position: absolute;
   top: 1.45vw;
   left: 1.5vw;
-  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--mono);
   font-size: 0.62vw;
   letter-spacing: 0.12vw;
   color: rgba(120, 200, 230, 0.45);
@@ -329,7 +332,7 @@
   position: absolute;
   top: 1.4vw;
   right: 1.4vw;
-  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--mono);
   font-size: 0.72vw;
   letter-spacing: 0.06vw;
   color: #38e1ff;
@@ -355,7 +358,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 1.1vw;
-  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--mono);
   font-size: 0.72vw;
   letter-spacing: 0.04vw;
   color: rgba(120, 200, 230, 0.7);

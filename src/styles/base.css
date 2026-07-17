@@ -1,3 +1,8 @@
+:root {
+  --sans: 'Jost', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
 html,
 body {
   background-color: black;
@@ -5,9 +10,34 @@ body {
   padding: 0;
   position: relative;
   font-size: 12px;
-  font-family: 'Jost', 'futura-pt', sans-serif;
+  font-family: var(--sans);
   color: #fff;
   height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ------------------------------------------------------------------ */
+/* scrollbar — moved here from skills.css so it loads globally first   */
+/* ------------------------------------------------------------------ */
+/* Chromium/WebKit: thin 1 px scrollbar, black track, dark-grey thumb */
+::-webkit-scrollbar {
+  width: 1px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+/* Firefox: thin scrollbar with matching colours (thumb / track) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333 #000;
 }
 body {
   overflow-x: hidden;
@@ -19,13 +49,17 @@ h2,
 h3,
 h4,
 a {
-  font-family: 'Jost', 'futura-pt', sans-serif;
+  font-family: var(--sans);
   color: #fff;
 }
 
 /* letterbox bars that frame the home page */
 .top-bar {
-  width: 100vw;
+  /* left/right/width: avoid 100vw which includes the classic scrollbar on
+     Windows — left+right+auto gives the same full-bleed without the shift */
+  left: 0;
+  right: 0;
+  width: auto;
   height: 50vh;
   background: black;
   position: fixed;
@@ -46,7 +80,10 @@ a {
   transition: none;
 }
 .bottom-bar {
-  width: 100vw;
+  /* left/right/width: same fix as .top-bar above */
+  left: 0;
+  right: 0;
+  width: auto;
   height: 50vh;
   background: black;
   position: fixed;

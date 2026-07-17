@@ -58,7 +58,11 @@
 .cinema-bar {
   position: absolute;
   left: 0;
-  width: 100vw;
+  right: 0;
+  /* width:auto (left+right) instead of 100vw — on Windows 100vw includes the
+     classic scrollbar gutter, which would cause a rightward clip. The parent
+     .cinema uses position:fixed;inset:0 so right:0 anchors correctly. */
+  width: auto;
   /* fixed height = the crop depth; we slide it in/out with translateY so the
      animation runs on transform (height-in-@keyframes via var() doesn't
      interpolate reliably across engines). */
@@ -158,7 +162,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--mono);
   font-size: 0.95vw;
   letter-spacing: 0.5vw;
   text-indent: 0.5vw;

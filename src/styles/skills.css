@@ -360,16 +360,6 @@
 /* ------------------------------------------------------------------ */
 /* scrollbar                                                           */
 /* ------------------------------------------------------------------ */
-::-webkit-scrollbar {
-  width: 1px;
-}
-::-webkit-scrollbar-track {
-  background: #000;
-}
-::-webkit-scrollbar-thumb {
-  background: #333;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+/* Scrollbar rules (webkit + Firefox) moved to base.css so they apply
+   globally before any other stylesheet is parsed. See base.css. */
 

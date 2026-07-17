@@ -8,12 +8,15 @@
 }
 
 .background {
-  width: 100vw;
+  /* left+right+auto instead of width:100vw — fixed+left:0+right:0 spans the
+     layout viewport without the classic-scrollbar gutter on Windows */
+  left: 0;
+  right: 0;
+  width: auto;
   height: 100vh;
   transition: 1s all ease-in-out;
   position: fixed;
   z-index: 1;
-  left: 0;
   top: 0;
   margin: 0;
   padding: 0;
@@ -69,7 +72,13 @@
 /* page common                                                         */
 /* ------------------------------------------------------------------ */
 .page {
-  width: 100vw;
+  /* left+right+auto instead of width:100vw — position:absolute+left:0+right:0
+     resolves against the initial containing block (no transformed ancestor at
+     this level), spanning the layout viewport without the classic-scrollbar
+     gutter that 100vw includes on Windows */
+  left: 0;
+  right: 0;
+  width: auto;
   position: absolute;
   /* resting (incoming) state: a compressed letterbox strip waiting in the
      distance. Zoom + vertical squeeze anchored at 35vh so the arrival reads as
@@ -79,7 +88,6 @@
   transform: scale(0.82) scaleY(0.5);
   transform-origin: 50% 35vh;
   top: 0;
-  left: 0;
   z-index: 0;
   background: none;
   padding-bottom: 10vw;
@@ -129,7 +137,10 @@
   text-transform: uppercase;
   margin: 0 auto;
   pointer-events: none;
-  width: 100vw;
+  /* width:100% instead of 100vw — .page-title is inside .page (position:absolute)
+     which after the fix above resolves to layout-viewport width (no scrollbar
+     gutter); 100% inherits that same extent so text-align:center is correct */
+  width: 100%;
   text-align: center;
   color: rgba(255, 255, 255, 0.1);
   letter-spacing: 2vh;

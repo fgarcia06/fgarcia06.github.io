@@ -8,7 +8,10 @@
    down-forward like a dealt card) and the deck steps up. */
 .card-deck {
   position: relative;
-  width: 100vw;
+  /* width:100% instead of 100vw — .card-deck is in-flow inside .page, whose
+     width after the page-transitions.css fix resolves to the layout viewport
+     (no scrollbar gutter); 100% inherits that correctly */
+  width: 100%;
   margin-top: 42vh;
   outline: none;
   /* deal-step vectors, inherited by the stage (centering) and cards (pose) */
